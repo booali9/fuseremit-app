@@ -80,6 +80,7 @@ const LoginScreen = ({ navigation }: Props) => {
         navigation.navigate("PhoneNumberVerify", {
           challengeId: data.challengeId,
           identifier: identifier.trim(),
+          otp: data.otp,
         });
       }
     } catch (error) {

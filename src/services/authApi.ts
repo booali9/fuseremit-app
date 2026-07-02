@@ -20,6 +20,8 @@ export interface RegisterResponse {
   persistenceVerified: boolean;
   challengeId?: string;
   unverifiedExisting?: boolean;
+  // Only present when the backend's dev OTP bypass is active (local dev, SMTP skipped).
+  otp?: string;
 }
 
 export interface LoginOtpRequest {
@@ -41,6 +43,8 @@ export interface LoginOtpResponse {
     phoneNumber: string;
     accountTier: string;
   };
+  // Only present when the backend's dev OTP bypass is active (local dev, SMTP skipped).
+  otp?: string;
 }
 
 export interface VerifyOtpRequest {
@@ -92,7 +96,7 @@ export const verifyEmailLoginOtp = async (payload: VerifyOtpRequest) => {
 
 export const resendEmailLoginOtp = async (challengeId: string) => {
   const res = await postJson<
-    { challengeId: string; expiresAt: string },
+    { challengeId: string; expiresAt: string; otp?: string },
     { challengeId: string }
   >(
     "/auth/otp/resend",
@@ -141,7 +145,7 @@ export interface BiometricLoginRequest {
 }
 
 export const requestForgotPinOtp = async (payload: ForgotPinRequest) => {
-  const res = await postJson<{ challengeId: string; expiresAt: string }, ForgotPinRequest>(
+  const res = await postJson<{ challengeId: string; expiresAt: string; otp?: string }, ForgotPinRequest>(
     "/auth/pin/reset/request",
     payload,
   );

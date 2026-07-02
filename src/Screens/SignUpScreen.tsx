@@ -150,6 +150,7 @@ const SignUpScreen = ({ navigation }: Props) => {
           navigation.navigate("PhoneNumberVerify", {
             challengeId: registration.challengeId,
             identifier: phoneNumber.trim() || normalizedEmail,
+            otp: registration.otp,
           });
           return;
         }
@@ -159,6 +160,7 @@ const SignUpScreen = ({ navigation }: Props) => {
           navigation.navigate("PhoneNumberVerify", {
             challengeId: registration.challengeId,
             identifier: phoneNumber.trim() || normalizedEmail,
+            otp: registration.otp,
           });
           return;
         }
@@ -181,6 +183,7 @@ const SignUpScreen = ({ navigation }: Props) => {
           navigation.navigate("PhoneNumberVerify", {
             challengeId: otp.challengeId,
             identifier: normalizedEmail,
+            otp: otp.otp,
           });
         }
       } catch (error) {
@@ -208,6 +211,7 @@ const SignUpScreen = ({ navigation }: Props) => {
               navigation.navigate("PhoneNumberVerify", {
                 challengeId: otp.challengeId,
                 email: normalizedEmail,
+                otp: otp.otp,
               });
             }
 

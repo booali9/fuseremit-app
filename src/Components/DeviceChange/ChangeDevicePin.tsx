@@ -51,6 +51,7 @@ const ChangeDevicePin = ({ navigation, route }: { navigation: any; route?: any }
         challengeId: data.challengeId,
         email,
         purpose: "forgot_pin",
+        otp: data.otp,
       });
     } catch (error) {
       alert(error instanceof Error ? error.message : "Failed to request PIN reset");
