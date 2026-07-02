@@ -49,11 +49,12 @@
         {
           "cameraPermission": "Allow this app to access your camera"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {
-        "projectId": "c8479801-03b9-4e37-a813-2afaecc3b836"
+        "projectId": "c262b8fe-5f1f-4316-9b34-f1743812bbe2"
       }
     }
   }

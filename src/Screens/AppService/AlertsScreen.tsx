@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   ScrollView,
   StatusBar,
   TouchableOpacity,
-  Image,
+  ActivityIndicator,
 } from "react-native";
 
 import {
@@ -19,64 +19,55 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
-
-interface AlertItem {
-  title: string;
-  type: "ai" | "success" | "failed";
-  time: string;
-}
+import { listTransactions, Transaction } from "../../services/paymentApi";
 
 import { useLanguage } from "../../context/LanguageContext";
 
+const SUCCESS_STATUSES = ["completed", "delivered", "sent"];
+
+const timeAgo = (isoDate: string) => {
+  const diffMs = Date.now() - new Date(isoDate).getTime();
+  const minutes = Math.floor(diffMs / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+};
+
 const AlertsScreen: React.FC = () => {
   const { t, isRTL } = useLanguage();
-  
-  const alerts: AlertItem[] = [
-    {
-      title: "FUSE AI detected Optimal exchange rate for your mexico transfer",
-      type: "ai",
-      time: "2 mins ago",
-    },
-    {
-      title: "Transfer of $250 to Sade has been completed",
-      type: "success",
-      time: "2 mins ago",
-    },
-    {
-      title: "Transfer of $250 to Aileen Failed",
-      type: "failed",
-      time: "2 mins ago",
-    },
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const renderIcon = (type: string) => {
-    if (type === "success") {
+  const fetchAlerts = useCallback(async () => {
+    try {
+      const data = await listTransactions({ limit: 20, type: "transfer" });
+      setTransactions(data.transactions);
+    } catch {
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchAlerts();
+  }, [fetchAlerts]);
+
+  const renderIcon = (isSuccess: boolean) => {
+    if (isSuccess) {
       return (
         <View style={[styles.iconCircle, { backgroundColor: "#CFF7E2", marginRight: isRTL ? 0 : responsiveWidth(3), marginLeft: isRTL ? responsiveWidth(3) : 0 }]}>
-          <Feather
-            name="arrow-up-right"
-            size={moderateScale(18)}
-            color="#34A853"
-          />
-        </View>
-      );
-    }
-
-    if (type === "failed") {
-      return (
-        <View style={[styles.iconCircle, { backgroundColor: "#FAD4D8", marginRight: isRTL ? 0 : responsiveWidth(3), marginLeft: isRTL ? responsiveWidth(3) : 0 }]}>
-          <Ionicons name="close" size={moderateScale(18)} color="#E53935" />
+          <Feather name="arrow-up-right" size={moderateScale(18)} color="#34A853" />
         </View>
       );
     }
 
     return (
-      <View style={[styles.iconCircle, { marginRight: isRTL ? 0 : responsiveWidth(3), marginLeft: isRTL ? responsiveWidth(3) : 0 }]}>
-        <Image
-          source={require("../../../assets/robot.png")}
-          style={styles.robotImage}
-          resizeMode="contain"
-        />
+      <View style={[styles.iconCircle, { backgroundColor: "#FAD4D8", marginRight: isRTL ? 0 : responsiveWidth(3), marginLeft: isRTL ? responsiveWidth(3) : 0 }]}>
+        <Ionicons name="close" size={moderateScale(18)} color="#E53935" />
       </View>
     );
   };
@@ -90,22 +81,34 @@ const AlertsScreen: React.FC = () => {
           <Text style={styles.headerTitle}>{t("alerts.title")}</Text>
         </View>
 
-        {alerts.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.card} activeOpacity={0.8}>
-            <View style={[styles.row, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              {renderIcon(item.type)}
+        {loading ? (
+          <ActivityIndicator size="small" color="#0B3963" style={{ marginTop: responsiveHeight(3) }} />
+        ) : transactions.length === 0 ? (
+          <Text style={styles.emptyText}>No alerts yet</Text>
+        ) : (
+          transactions.map((tx) => {
+            const isSuccess = SUCCESS_STATUSES.includes(tx.status);
+            const title = isSuccess
+              ? `Transfer of $${tx.amount.toFixed(2)} to ${tx.recipientName ?? "recipient"} has been completed`
+              : `Transfer of $${tx.amount.toFixed(2)} to ${tx.recipientName ?? "recipient"} ${tx.status === "failed" ? "failed" : "is " + tx.status}`;
 
-              <View style={[styles.contentWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                <Text style={[styles.alertText, { textAlign: isRTL ? 'right' : 'left' }]}>{item.title}</Text>
+            return (
+              <TouchableOpacity key={tx._id} style={styles.card} activeOpacity={0.8}>
+                <View style={[styles.row, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  {renderIcon(isSuccess)}
 
-                <View style={[styles.rightMeta, { alignItems: isRTL ? 'flex-start' : 'flex-end' }]}>
-                  <Text style={styles.aiText}>{t("alerts.aiLabel")}</Text>
-                  <Text style={styles.timeText}>{item.time}</Text>
+                  <View style={[styles.contentWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                    <Text style={[styles.alertText, { textAlign: isRTL ? 'right' : 'left' }]}>{title}</Text>
+
+                    <View style={[styles.rightMeta, { alignItems: isRTL ? 'flex-start' : 'flex-end' }]}>
+                      <Text style={styles.timeText}>{timeAgo(tx.createdAt)}</Text>
+                    </View>
+                  </View>
                 </View>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+              </TouchableOpacity>
+            );
+          })
+        )}
 
         <View style={{ height: responsiveHeight(4) }} />
       </ScrollView>
@@ -133,6 +136,14 @@ const styles = StyleSheet.create({
     color: "#000",
   },
 
+  emptyText: {
+    textAlign: "center",
+    fontSize: responsiveFontSize(1.6),
+    color: "#AAAAAA",
+    fontFamily: Fonts.medium,
+    marginTop: responsiveHeight(4),
+  },
+
   card: {
     backgroundColor: "#ffffff43",
     borderRadius: moderateScale(14),
@@ -156,11 +167,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#E9EDF5",
   },
 
-  robotImage: {
-    width: responsiveWidth(6),
-    height: responsiveWidth(6),
-  },
-
   contentWrapper: {
     flex: 1,
     flexDirection: "row",
@@ -179,16 +185,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
 
-  aiText: {
-    fontSize: responsiveFontSize(1.3),
-    color: "#203A73",
-    fontFamily: Fonts.semiBold,
-  },
-
   timeText: {
     fontSize: responsiveFontSize(1.3),
     color: "#000000",
     fontFamily: Fonts.regular,
-    marginTop: responsiveHeight(2),
   },
 });

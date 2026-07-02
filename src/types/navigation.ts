@@ -1,3 +1,5 @@
+import { Transaction } from "../services/paymentApi";
+
 export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
@@ -20,4 +22,5 @@ export type RootStackParamList = {
   AppServiceBottomNavigation: undefined;
   LivenessVerify: undefined;
   VerificationProgress: undefined;
+  AdvancedKYC: undefined;
 };

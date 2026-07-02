@@ -149,7 +149,7 @@ const SignUpScreen = ({ navigation }: Props) => {
           }
           navigation.navigate("PhoneNumberVerify", {
             challengeId: registration.challengeId,
-            identifier: normalizedPhone || normalizedEmail,
+            identifier: phoneNumber.trim() || normalizedEmail,
           });
           return;
         }

@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 
-export const API_BASE_URL = "https://fuseremit-backend.onrender.com/api/v1";
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? "https://api.fuseremit.com/api/v1";
 
 
 export interface ApiEnvelope<T> {

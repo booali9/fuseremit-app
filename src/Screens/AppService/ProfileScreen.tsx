@@ -51,6 +51,9 @@ type RootStackParamList = {
   SecuritySettings: undefined;
   GeneralSettings: undefined;
   MayaAI: undefined;
+  Referral: undefined;
+  Reporting: undefined;
+  AdvancedKYC: undefined;
   Login: undefined;
 };
 
@@ -285,6 +288,18 @@ const ProfileScreen: React.FC = () => {
 
           {menuItem("Ask MAYA", require("../../../assets/maya.png"), () =>
             navigation.navigate("MayaAI"),
+          )}
+
+          {menuItem("Refer & Earn", require("../../../assets/invite.png"), () =>
+            navigation.navigate("Referral"),
+          )}
+
+          {menuItem("Statements", require("../../../assets/pdf.png"), () =>
+            navigation.navigate("Reporting"),
+          )}
+
+          {menuItem("Advanced KYC", require("../../../assets/passport.png"), () =>
+            navigation.navigate("AdvancedKYC"),
           )}
 
           <TouchableOpacity

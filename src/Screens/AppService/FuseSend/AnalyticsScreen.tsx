@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 
 import {
@@ -14,13 +15,32 @@ import {
 } from "react-native-responsive-dimensions";
 
 import { moderateScale } from "react-native-size-matters";
-import { FontAwesome6, Feather } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import Fonts from "../../../constants/Fonts";
+import { listTransactions } from "../../../services/paymentApi";
 
 const TABS = ["1D", "1W", "1M", "3M", "6M", "1Y", "ALL"];
 
 const AnalyticsScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState("1W");
+  const [totalSpend, setTotalSpend] = useState(0);
+  const [loadingSpend, setLoadingSpend] = useState(true);
+
+  const fetchSpend = useCallback(async () => {
+    try {
+      const data = await listTransactions({ limit: 500, type: "transfer" });
+      const total = data.transactions.reduce((sum, tx) => sum + tx.amount, 0);
+      setTotalSpend(total);
+    } catch {
+      setTotalSpend(0);
+    } finally {
+      setLoadingSpend(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchSpend();
+  }, [fetchSpend]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -35,11 +55,11 @@ const AnalyticsScreen: React.FC = () => {
       <Text style={styles.subTitle}>Total Spend</Text>
 
       <View style={styles.amountRow}>
-        <Text style={styles.amount}>$2,450.75</Text>
-        <View style={styles.percentageRow}>
-          <FontAwesome6 name="arrow-trend-up" size={12} color="#1F2A50" />
-          <Text style={styles.percentage}>3.66%</Text>
-        </View>
+        {loadingSpend ? (
+          <ActivityIndicator size="small" color="#1F2A50" />
+        ) : (
+          <Text style={styles.amount}>${totalSpend.toFixed(2)}</Text>
+        )}
       </View>
 
       <View style={styles.tabContainer}>
@@ -115,22 +135,10 @@ const styles = StyleSheet.create({
     marginBottom: responsiveHeight(3),
   },
 
-  percentageRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: moderateScale(4),
-  },
-
   amount: {
     fontSize: responsiveFontSize(3.2),
     fontFamily: Fonts.bold,
     color: "#1F2A50",
-  },
-
-  percentage: {
-    fontSize: responsiveFontSize(1.4),
-    color: "#27AE60",
-    fontFamily: Fonts.bold,
   },
 
   tabContainer: {

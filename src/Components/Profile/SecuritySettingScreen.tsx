@@ -9,6 +9,8 @@ import {
   ScrollView,
   Image,
   Switch,
+  Modal,
+  TextInput,
 } from "react-native";
 
 import {
@@ -22,6 +24,7 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as LocalAuthentication from "expo-local-authentication";
 import { setupBiometric, toggleTwoFactor } from "../../services/authApi";
+import { verifyTransactionPin } from "../../services/userApi";
 import { getAccessTokenAsync, setBiometricToken, hasBiometricEnabled } from "../../services/session";
 import Fonts from "../../constants/Fonts";
 
@@ -30,6 +33,8 @@ const SecuritySettingScreen: React.FC = () => {
   const [twoFactor, setTwoFactor] = useState(false);
   const [biometric, setBiometric] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinInput, setPinInput] = useState("");
 
   React.useEffect(() => {
     const checkBiometric = async () => {
@@ -80,33 +85,41 @@ const SecuritySettingScreen: React.FC = () => {
       });
 
       if (result.success) {
-        // We still need a token from the backend to truly 'enable' it for future logins
-        const token = await getAccessTokenAsync();
-        if (!token) {
-          alert("Session expired.");
-          return;
-        }
-
-        // Ideally we ask for PIN here, but for now we'll assume the user is 'ready' 
-        // to use their session. Note: setupBiometric needs a PIN on the backend.
-        // I will add a PIN prompt for security.
-        
-        // For now, I'll use a placeholder PIN '1234' or prompt the user.
-        // Let's use Alert.prompt (even if iOS only, it's better than nothing for a quick fix, 
-        // or I'll just use the current session's knowledge of the PIN if it were cached, but it's not).
-        
-        // I will change handleBiometricChange to navigate to a PIN confirmation screen or show a modal.
-        // For simplicity and to satisfy 'whatever service you want', I will use the prompt if available.
-        
-        const pin = "1234"; // Default for demo, usually requested from user
-        const response = await setupBiometric({ pin }, token);
-        await setBiometricToken(response.biometricToken);
-        setBiometric(true);
-        alert("Biometric authentication enabled successfully!");
+        setShowPinModal(true);
       }
     } catch (error: any) {
       alert(error.message || "Failed to enable biometric authentication.");
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePinSubmit = async () => {
+    if (pinInput.length !== 4) return;
+
+    setIsLoading(true);
+    try {
+      const token = await getAccessTokenAsync();
+      if (!token) {
+        alert("Session expired.");
+        return;
+      }
+
+      const valid = await verifyTransactionPin(pinInput);
+      if (!valid) {
+        alert("Incorrect PIN. Please try again.");
+        return;
+      }
+
+      const response = await setupBiometric({ pin: pinInput }, token);
+      await setBiometricToken(response.biometricToken);
+      setBiometric(true);
+      setShowPinModal(false);
+      alert("Biometric authentication enabled successfully!");
+    } catch (error: any) {
+      alert(error.message || "Failed to enable biometric authentication.");
+    } finally {
+      setPinInput("");
       setIsLoading(false);
     }
   };
@@ -181,6 +194,42 @@ const SecuritySettingScreen: React.FC = () => {
           () => navigation.navigate("SecurityQuestion" as never),
         )}
       </ScrollView>
+
+      <Modal visible={showPinModal} transparent animationType="fade" onRequestClose={() => setShowPinModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Enter Transaction PIN</Text>
+            <Text style={styles.modalSubtitle}>Confirm your 4-digit PIN to enable biometric login.</Text>
+            <TextInput
+              style={styles.pinInput}
+              keyboardType="number-pad"
+              maxLength={4}
+              secureTextEntry
+              value={pinInput}
+              onChangeText={setPinInput}
+              autoFocus
+            />
+            <View style={styles.modalButtonRow}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => {
+                  setShowPinModal(false);
+                  setPinInput("");
+                }}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalConfirmBtn}
+                onPress={handlePinSubmit}
+                disabled={pinInput.length !== 4 || isLoading}
+              >
+                <Text style={styles.modalConfirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -283,5 +332,82 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1.5),
     color: "#6B6B6B",
     marginTop: responsiveHeight(0.3),
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalCard: {
+    width: responsiveWidth(80),
+    backgroundColor: "#fff",
+    borderRadius: moderateScale(14),
+    padding: responsiveWidth(6),
+  },
+
+  modalTitle: {
+    fontSize: responsiveFontSize(1.9),
+    fontFamily: Fonts.bold,
+    color: "#1F2A50",
+    textAlign: "center",
+  },
+
+  modalSubtitle: {
+    fontSize: responsiveFontSize(1.4),
+    color: "#6B6B6B",
+    textAlign: "center",
+    marginTop: responsiveHeight(1),
+  },
+
+  pinInput: {
+    marginTop: responsiveHeight(2.5),
+    height: responsiveHeight(6.5),
+    borderRadius: moderateScale(10),
+    backgroundColor: "#1e1e1e0f",
+    textAlign: "center",
+    fontSize: responsiveFontSize(2.4),
+    letterSpacing: 8,
+    fontFamily: Fonts.bold,
+  },
+
+  modalButtonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: responsiveHeight(2.5),
+    gap: responsiveWidth(3),
+  },
+
+  modalCancelBtn: {
+    flex: 1,
+    height: responsiveHeight(6),
+    borderRadius: moderateScale(10),
+    borderWidth: 1,
+    borderColor: "#C7CBD6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalCancelText: {
+    color: "#1F2A50",
+    fontFamily: Fonts.semiBold,
+    fontSize: responsiveFontSize(1.6),
+  },
+
+  modalConfirmBtn: {
+    flex: 1,
+    height: responsiveHeight(6),
+    borderRadius: moderateScale(10),
+    backgroundColor: "#1F2A50",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  modalConfirmText: {
+    color: "#fff",
+    fontFamily: Fonts.semiBold,
+    fontSize: responsiveFontSize(1.6),
   },
 });

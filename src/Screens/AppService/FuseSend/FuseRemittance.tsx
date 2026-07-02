@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
+  TextInput,
   ScrollView,
 } from "react-native";
 
@@ -22,8 +23,17 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Fonts from "../../../constants/Fonts";
 
+// ponytail: no FX-rate/quote endpoint exists on the backend yet, so the rate stays a
+// local constant. Swap for a live quote once /payments/rates (or similar) ships.
+const USD_TO_NGN_RATE = 1450;
+
 const FuseRemittance: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const [amount, setAmount] = useState("2000");
+  const [recipientName, setRecipientName] = useState("");
+  const [recipientCountry, setRecipientCountry] = useState("Nigeria");
+
+  const numericAmount = Number(amount) || 0;
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -102,7 +112,13 @@ const FuseRemittance: React.FC = () => {
 
         <View style={styles.sendBox}>
           <View style={styles.amountRow}>
-            <Text style={styles.amount}>2,000</Text>
+            <TextInput
+              style={styles.amount}
+              value={amount}
+              onChangeText={(t) => setAmount(t.replace(/[^0-9.]/g, ""))}
+              keyboardType="decimal-pad"
+              placeholder="0"
+            />
 
             <View style={styles.currencyBox}>
               <Image
@@ -124,7 +140,7 @@ const FuseRemittance: React.FC = () => {
         <View style={styles.exchangeCard}>
           <View>
             <Text style={styles.exchangeLabel}>Exchange Rate:</Text>
-            <Text style={styles.exchangeRate}>1 USD = 1,450.00 Naira</Text>
+            <Text style={styles.exchangeRate}>1 USD = {USD_TO_NGN_RATE.toLocaleString()}.00 Naira</Text>
             <Text style={styles.optimizedFee}>FUSE Optimized Fee:</Text>
           </View>
 
@@ -135,36 +151,26 @@ const FuseRemittance: React.FC = () => {
           </View>
         </View>
 
-        <Text style={styles.selectionTitle}>FUSE Optimized Fee Selection</Text>
+        <Text style={styles.selectionTitle}>Recipient</Text>
 
         <View style={styles.recipientCard}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.recipientName}>
-              Abayomi <Text style={{ color: "#666" }}>(Nigeria)</Text>
-            </Text>
-            <Text style={styles.recipientSub}>Moniepoint: ****4567</Text>
-          </View>
-
-          <View style={styles.rightSideColumn}>
-            <TouchableOpacity style={styles.refreshCircle}>
-              <Feather
-                name="refresh-cw"
-                size={responsiveFontSize(1.2)}
-                color="#1F2A56"
-              />
-            </TouchableOpacity>
-
-            <Text style={styles.lastSentRight}>Last sent: 2 weeks ago</Text>
+            <TextInput
+              style={styles.recipientName}
+              value={recipientName}
+              onChangeText={setRecipientName}
+              placeholder="Recipient full name"
+              placeholderTextColor="#999"
+            />
+            <TextInput
+              style={styles.recipientSub}
+              value={recipientCountry}
+              onChangeText={setRecipientCountry}
+              placeholder="Recipient country"
+              placeholderTextColor="#999"
+            />
           </View>
         </View>
-
-        <TouchableOpacity
-          style={styles.addRecipientRow}
-          onPress={() => navigation.navigate("SendMoneySecond")}
-        >
-          <Text style={styles.addRecipientText}>Add new recipient</Text>
-          <Feather name="plus" size={responsiveFontSize(2)} color="#1F2A56" />
-        </TouchableOpacity>
 
         <View style={styles.featureSection}>
           <Text style={styles.featureTitle}>FUSE Enhanced Features</Text>
@@ -182,8 +188,19 @@ const FuseRemittance: React.FC = () => {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("ReviewSend")}
-        >
+          disabled={numericAmount <= 0 || !recipientName.trim()}
+          onPress={() =>
+          navigation.navigate("DeliveryOptions", {
+            amount: numericAmount,
+            currency: "USD",
+            recipientName: recipientName.trim(),
+            recipientCountry: recipientCountry.trim(),
+            exchangeRate: USD_TO_NGN_RATE,
+            amountReceived: numericAmount * USD_TO_NGN_RATE,
+            receivedCurrency: "NGN",
+          })
+        }
+>
           <Image
             source={require("../../../../assets/robot.png")}
             style={styles.buttonRobot}
@@ -401,42 +418,6 @@ const styles = StyleSheet.create({
   recipientSub: {
     fontSize: responsiveFontSize(1.4),
     color: "#666",
-  },
-
-  rightSideColumn: {
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
-
-  lastSentRight: {
-    fontSize: responsiveFontSize(1.2),
-    color: "#999",
-    marginTop: responsiveHeight(1),
-    textAlign: "right",
-  },
-
-  refreshCircle: {
-    width: responsiveWidth(6),
-    height: responsiveWidth(6),
-    borderRadius: responsiveWidth(5),
-    borderWidth: 1,
-    borderColor: "#1F2A56",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  addRecipientRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginHorizontal: responsiveWidth(5),
-    marginTop: responsiveHeight(2),
-  },
-
-  addRecipientText: {
-    fontSize: responsiveFontSize(1.5),
-    color: "#1F2A56",
-    fontFamily: Fonts.semiBold,
   },
 
   featureSection: {

@@ -1,4 +1,5 @@
-import { getJson, postJson, putJson } from "./api";
+import { getJson, postJson, putJson, patchJson, API_BASE_URL } from "./api";
+import { getAccessTokenAsync } from "./session";
 
 export type AccountTier = "Classic" | "Premium";
 
@@ -144,7 +145,7 @@ export const uploadProfilePicture = async (
     type: `image/${fileType === 'jpg' ? 'jpeg' : fileType}`,
   } as any);
 
-  const response = await fetch("https://fuseremit-backend.onrender.com/api/v1/users/me/profile-picture", {
+  const response = await fetch(`${API_BASE_URL}/users/me/profile-picture`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -167,4 +168,13 @@ export const uploadProfilePicture = async (
 
   const json = await response.json();
   return json.data as { profilePicture: string; updatedAt: string };
+};
+
+
+export const verifyTransactionPin = async (pin: string): Promise<boolean> => {
+  const token = await getAccessTokenAsync();
+  if (!token) throw new Error("No access token found");
+
+  const res = await postJson<{ valid: boolean }>("/users/me/verify-transaction-pin", { pin }, token);
+  return res.data.valid;
 };

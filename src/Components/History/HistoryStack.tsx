@@ -9,7 +9,7 @@ const HistoryStack = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainHistory" component={HistoryScreen} />
-      <Stack.Screen name="HistoryDetail" component={HistoryDetail} />
+      <Stack.Screen name="HistoryDetail" component={HistoryDetail as React.ComponentType<any>} />
     </Stack.Navigator>
   );
 };
