@@ -26,7 +26,27 @@ const parseJsonResponse = async <TResponse>(
   response: Response,
   path: string,
 ): Promise<ApiEnvelope<TResponse>> => {
-  const json = (await response.json()) as ApiEnvelope<TResponse>;
+  const contentType = response.headers.get("content-type") ?? "";
+  const responseText = await response.clone().text();
+
+  if (!contentType.includes("application/json")) {
+    const bodySnippet = responseText.trim().slice(0, 200);
+    throw new Error(
+      `Invalid JSON response from ${path}: ${response.status} ${response.statusText}${
+        bodySnippet ? ` - ${bodySnippet}` : ""
+      }`,
+    );
+  }
+
+  let json: ApiEnvelope<TResponse>;
+  try {
+    json = JSON.parse(responseText) as ApiEnvelope<TResponse>;
+  } catch (error) {
+    const bodySnippet = responseText.trim().slice(0, 200);
+    throw new Error(
+      `Failed to parse JSON from ${path}: ${bodySnippet || response.statusText}`,
+    );
+  }
 
   if (__DEV__) {
     console.log(
