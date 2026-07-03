@@ -30,6 +30,7 @@ import ButtonsScreen from "./Home/ButtonsScreen";
 import RecentTransactions from "./Home/RecentTransactions";
 import { clearSession, getAccessTokenAsync } from "../../services/session";
 import { fetchCurrentUserStatus } from "../../services/userApi";
+import { ApiError } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import Fonts from "../../constants/Fonts";
 
@@ -85,17 +86,16 @@ const HomeScreen: React.FC = () => {
         balance: me.balance ?? 0,
       });
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to sync dashboard right now.";
-
-      const normalized = message.toLowerCase();
-      if (normalized.includes("token") || normalized.includes("auth")) {
+      if (error instanceof ApiError && error.status === 401) {
         await clearSession();
         redirectToLogin();
         return;
       }
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to sync dashboard right now.";
 
       setErrorMessage(message);
     } finally {

@@ -17,6 +17,15 @@ export interface ApiEnvelope<T> {
   };
 }
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 const buildHeaders = (accessToken?: string): Record<string, string> => ({
   "Content-Type": "application/json",
   ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
@@ -56,7 +65,7 @@ const parseJsonResponse = async <TResponse>(
 
   if (!response.ok || !json.success) {
     const message = json.error?.message || "Request failed";
-    throw new Error(message);
+    throw new ApiError(message, response.status);
   }
 
   return json;

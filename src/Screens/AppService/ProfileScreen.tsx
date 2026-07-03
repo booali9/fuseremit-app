@@ -35,6 +35,7 @@ import {
   getSessionUser,
 } from "../../services/session";
 import { fetchCurrentUserStatus, uploadProfilePicture } from "../../services/userApi";
+import { ApiError } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import Fonts from "../../constants/Fonts";
 import * as ImagePicker from "expo-image-picker";
@@ -111,17 +112,16 @@ const ProfileScreen: React.FC = () => {
         profilePicture: me.profilePicture,
       });
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to load profile details.";
-
-      const normalized = message.toLowerCase();
-      if (normalized.includes("token") || normalized.includes("auth")) {
+      if (error instanceof ApiError && error.status === 401) {
         await Promise.all([clearSession(), clearManualKycDraft()]);
         resetToLogin();
         return;
       }
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to load profile details.";
 
       setErrorMessage(message);
     } finally {
