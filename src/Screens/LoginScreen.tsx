@@ -22,15 +22,18 @@ import { getBiometricToken, hasBiometricEnabled, setSession } from "../services/
 import * as LocalAuthentication from "expo-local-authentication";
 import React, { useEffect } from "react";
 import Fonts from "../constants/Fonts";
+import PhoneNumberInput from "../Components/Common/PhoneNumberInput";
 
 interface Props {
   navigation: any;
 }
 
+type LoginMode = "phone" | "email";
+
 const LoginScreen = ({ navigation }: Props) => {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [secureEntry, setSecureEntry] = useState(true);
+  const [mode, setMode] = useState<LoginMode>("phone");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
@@ -43,11 +46,9 @@ const LoginScreen = ({ navigation }: Props) => {
     checkBiometric();
   }, []);
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim());
-  const isValidPhone = /^\+?\d{10,20}$/.test(identifier.trim());
-  const isIdentifierValid = isValidEmail || isValidPhone;
-  const isPasswordFilled = password.length >= 8;
-  const isFormValid = isIdentifierValid && isPasswordFilled;
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const isValidPhone = /^\+?\d{10,20}$/.test(phoneNumber.trim());
+  const isFormValid = mode === "phone" ? isValidPhone : isValidEmail;
 
   const handleContinue = async () => {
     if (!isFormValid || isSubmitting) return;
@@ -56,9 +57,10 @@ const LoginScreen = ({ navigation }: Props) => {
       setErrorMessage("");
       setIsSubmitting(true);
 
-      const payload = isValidEmail 
-        ? { email: identifier.trim().toLowerCase(), password } 
-        : { phoneNumber: identifier.trim(), password };
+      const identifier = mode === "phone" ? phoneNumber.trim() : email.trim().toLowerCase();
+      const payload = mode === "phone"
+        ? { phoneNumber: identifier }
+        : { email: identifier };
 
       const data = await requestEmailLoginOtp(payload);
 
@@ -145,58 +147,73 @@ const LoginScreen = ({ navigation }: Props) => {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.label}>Email or Phone Number</Text>
-
-        <View
-          style={[
-            styles.inputContainer,
-            !isIdentifierValid && identifier.length > 0 && styles.inputError,
-            isIdentifierValid && styles.inputSuccess,
-          ]}
-        >
-          <Feather name={isValidPhone ? "phone" : "mail"} size={20} color="#777" style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter email or phone number"
-            keyboardType="default"
-            autoCapitalize="none"
-            value={identifier}
-            onChangeText={setIdentifier}
-          />
-
-          {isIdentifierValid && <Feather name="check" size={20} color="#1DB954" />}
-        </View>
-
-        <Text style={styles.label}>Password</Text>
-
-        <View
-          style={[
-            styles.inputContainer,
-            isPasswordFilled && styles.inputSuccess,
-          ]}
-        >
-          <Feather name="lock" size={20} color="#777" style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password (min 8 chars)"
-            secureTextEntry={secureEntry}
-            value={password}
-            onChangeText={setPassword}
-          />
-
-          <TouchableOpacity onPress={() => setSecureEntry(!secureEntry)}>
-            <Feather
-              name={secureEntry ? "eye-off" : "eye"}
-              size={20}
-              color="#777"
-              style={styles.eyeIcon}
-            />
+        <View style={styles.tabRow}>
+          <TouchableOpacity
+            style={[styles.tab, mode === "phone" && styles.tabActive]}
+            onPress={() => {
+              setMode("phone");
+              setErrorMessage("");
+            }}
+          >
+            <Text style={[styles.tabText, mode === "phone" && styles.tabTextActive]}>
+              Login with Phone
+            </Text>
           </TouchableOpacity>
 
-          {isPasswordFilled && (
-            <Feather name="check" size={20} color="#1DB954" style={{ marginLeft: moderateScale(5) }} />
-          )}
+          <TouchableOpacity
+            style={[styles.tab, mode === "email" && styles.tabActive]}
+            onPress={() => {
+              setMode("email");
+              setErrorMessage("");
+            }}
+          >
+            <Text style={[styles.tabText, mode === "email" && styles.tabTextActive]}>
+              Login with Email
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {mode === "phone" ? (
+          <>
+            <Text style={styles.label}>Phone Number</Text>
+            <View
+              style={[
+                styles.inputContainer,
+                !isValidPhone && phoneNumber.length > 0 && styles.inputError,
+                isValidPhone && styles.inputSuccess,
+              ]}
+            >
+              <PhoneNumberInput
+                value={phoneNumber}
+                onChangeValue={setPhoneNumber}
+                placeholder="e.g. 1234567890"
+              />
+              {isValidPhone && <Feather name="check" size={20} color="#1DB954" />}
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={styles.label}>Email Address</Text>
+            <View
+              style={[
+                styles.inputContainer,
+                !isValidEmail && email.length > 0 && styles.inputError,
+                isValidEmail && styles.inputSuccess,
+              ]}
+            >
+              <Feather name="mail" size={20} color="#777" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+              {isValidEmail && <Feather name="check" size={20} color="#1DB954" />}
+            </View>
+          </>
+        )}
 
         {errorMessage ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
@@ -284,6 +301,35 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1.4),
     color: "#000",
     fontFamily: Fonts.semiBold,
+  },
+
+  tabRow: {
+    flexDirection: "row",
+    marginTop: responsiveHeight(3),
+    backgroundColor: "#1e1e1e0c",
+    borderRadius: moderateScale(10),
+    padding: moderateScale(4),
+  },
+
+  tab: {
+    flex: 1,
+    paddingVertical: responsiveHeight(1.2),
+    borderRadius: moderateScale(8),
+    alignItems: "center",
+  },
+
+  tabActive: {
+    backgroundColor: "#0B3963",
+  },
+
+  tabText: {
+    fontSize: responsiveFontSize(1.4),
+    fontFamily: Fonts.semiBold,
+    color: "#777",
+  },
+
+  tabTextActive: {
+    color: "#fff",
   },
 
   inputContainer: {

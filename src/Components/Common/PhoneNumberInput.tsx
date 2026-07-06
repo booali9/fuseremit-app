@@ -1,0 +1,87 @@
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { CountryPicker } from "react-native-country-codes-picker";
+import { moderateScale } from "react-native-size-matters";
+import { responsiveFontSize } from "react-native-responsive-dimensions";
+
+interface Props {
+  value: string;
+  onChangeValue: (fullNumber: string) => void;
+  placeholder?: string;
+  style?: any;
+  inputStyle?: any;
+}
+
+// Renders a flag + dial code picker alongside a national-number input; reports
+// the combined E.164-ish string ("+<dialCode><number>") via onChangeValue.
+const PhoneNumberInput: React.FC<Props> = ({ value, onChangeValue, placeholder, style, inputStyle }) => {
+  const [dialCode, setDialCode] = useState("+1");
+  const [flag, setFlag] = useState("🇺🇸");
+  const [showPicker, setShowPicker] = useState(false);
+  const [nationalNumber, setNationalNumber] = useState(value);
+
+  const emit = (code: string, number: string) => {
+    onChangeValue(`${code}${number}`);
+  };
+
+  return (
+    <View style={[styles.container, style]}>
+      <TouchableOpacity style={styles.flagButton} onPress={() => setShowPicker(true)}>
+        <Text style={styles.flag}>{flag}</Text>
+        <Text style={styles.dialCode}>{dialCode}</Text>
+      </TouchableOpacity>
+
+      <TextInput
+        style={[styles.input, inputStyle]}
+        placeholder={placeholder || "Phone number"}
+        keyboardType="phone-pad"
+        value={nationalNumber}
+        onChangeText={(text) => {
+          setNationalNumber(text);
+          emit(dialCode, text);
+        }}
+      />
+
+      <CountryPicker
+        lang="en"
+        show={showPicker}
+        pickerButtonOnPress={(item) => {
+          setDialCode(item.dial_code);
+          setFlag(item.flag);
+          setShowPicker(false);
+          emit(item.dial_code, nationalNumber);
+        }}
+        onBackdropPress={() => setShowPicker(false)}
+      />
+    </View>
+  );
+};
+
+export default PhoneNumberInput;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  flagButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: moderateScale(8),
+    paddingRight: moderateScale(8),
+    borderRightWidth: 1,
+    borderRightColor: "#ccc",
+  },
+  flag: {
+    fontSize: responsiveFontSize(2),
+    marginRight: moderateScale(4),
+  },
+  dialCode: {
+    fontSize: responsiveFontSize(1.6),
+    fontWeight: "500",
+  },
+  input: {
+    flex: 1,
+    fontSize: responsiveFontSize(1.6),
+  },
+});

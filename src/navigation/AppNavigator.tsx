@@ -14,6 +14,7 @@ import OnboardingTransactionPin from "../Screens/Onboarding/OnboardingTransactio
 import OnboardingClassicScreen from "../Screens/Onboarding/OnboardingClassicScreen";
 import OnboardingPremiumScreen from "../Screens/Onboarding/OnboardingPremiumScreen";
 import MainKYCScreen from "../Screens/KYC/MainKYCScreen";
+import AdvancedKYCScreen from "../Screens/KYC/AdvancedKYCScreen";
 import PersonalInformation from "../Screens/KYC/PersonalInformation";
 import BackgroundlInformation from "../Screens/KYC/BackgroundInformation";
 import Submission from "../Screens/KYC/Submission";
@@ -54,6 +55,7 @@ const AppNavigator = () => {
           component={OnboardingPremiumScreen}
         />
         <Stack.Screen name="MainKYC" component={MainKYCScreen} />
+        <Stack.Screen name="AdvancedKYC" component={AdvancedKYCScreen} />
         <Stack.Screen
           name="PersonalInformation"
           component={PersonalInformation}

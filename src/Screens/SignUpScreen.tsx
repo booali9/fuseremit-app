@@ -25,6 +25,7 @@ import { registerAccount, requestEmailLoginOtp } from "../services/authApi";
 import { setSession } from "../services/session";
 import { Calendar } from "react-native-calendars";
 import Fonts from "../constants/Fonts";
+import PhoneNumberInput from "../Components/Common/PhoneNumberInput";
 
 interface Props {
   navigation: any;
@@ -278,15 +279,10 @@ const SignUpScreen = ({ navigation }: Props) => {
           borderColor={borderColor(email)}
           icon="mail"
         />
-        <Input
-          label="Phone Number"
-          placeholder="e.g. +1234567890"
-          value={phoneNumber}
-          setValue={setPhoneNumber}
-          borderColor={borderColor(phoneNumber)}
-          icon="phone"
-          keyboardType="phone-pad"
-        />
+        <Text style={styles.label}>Phone Number</Text>
+        <View style={[styles.inputContainer, { borderColor: borderColor(phoneNumber) }]}>
+          <PhoneNumberInput value={phoneNumber} onChangeValue={setPhoneNumber} placeholder="e.g. 1234567890" />
+        </View>
 
         <Text style={styles.label}>Password</Text>
         <View

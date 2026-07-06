@@ -24,6 +24,7 @@ import {
   verifyEmailLoginOtp,
   verifyForgotPinOtp,
 } from "../../services/authApi";
+import { fetchCurrentUserStatus } from "../../services/userApi";
 import { setSession } from "../../services/session";
 import Fonts from "../../constants/Fonts";
 
@@ -182,6 +183,16 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
         if (data.requiresPinSetup) {
           navigation.navigate("CreatePin");
           return;
+        }
+
+        try {
+          const me = await fetchCurrentUserStatus(data.accessToken);
+          if (me.kycStatus !== "verified") {
+            navigation.navigate("AdvancedKYC");
+            return;
+          }
+        } catch {
+          // Don't block a valid login on a flaky status check — dashboard re-checks anyway.
         }
 
         navigation.navigate("AppServiceBottomNavigation");

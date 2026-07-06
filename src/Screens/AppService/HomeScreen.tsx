@@ -65,7 +65,7 @@ const HomeScreen: React.FC = () => {
     navigation.navigate("Login");
   }, [navigation]);
 
-  const loadDashboardIdentity = useCallback(async () => {
+  const loadDashboardIdentity = useCallback(async (isRetry = false) => {
     try {
       setErrorMessage("");
       setIsLoadingIdentity(true);
@@ -73,6 +73,13 @@ const HomeScreen: React.FC = () => {
       const accessToken = await getAccessTokenAsync();
 
       if (!accessToken) {
+        if (!isRetry) {
+          // A token set moments ago by the OTP screen can take a beat to be
+          // readable here. Give it one short retry before treating it as logged out.
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          return loadDashboardIdentity(true);
+        }
+
         redirectToLogin();
         return;
       }
@@ -87,6 +94,14 @@ const HomeScreen: React.FC = () => {
       });
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
+        if (!isRetry) {
+          // ponytail: a freshly issued token failing its first check then working
+          // on retry is the signature of a transient/first-use hiccup, not a real
+          // logout. One retry covers it; revisit if it ever needs backoff/more tries.
+          await new Promise((resolve) => setTimeout(resolve, 800));
+          return loadDashboardIdentity(true);
+        }
+
         await clearSession();
         redirectToLogin();
         return;
