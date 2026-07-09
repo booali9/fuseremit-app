@@ -1,4 +1,4 @@
-import { getJson, postJson, putJson, patchJson, API_BASE_URL } from "./api";
+import { getJson, postJson, putJson, patchJson, API_BASE_URL, authHeaderFields } from "./api";
 import { getAccessTokenAsync } from "./session";
 
 export type AccountTier = "Classic" | "Premium";
@@ -146,11 +146,9 @@ export const uploadProfilePicture = async (
   } as any);
 
   const response = await fetch(`${API_BASE_URL}/users/me/profile-picture`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      // Do not set Content-Type, fetch will set it correctly for FormData
-    },
+    method: "POST",
+    headers: authHeaderFields(accessToken),
+    credentials: "include",
     body: formData,
   });
 

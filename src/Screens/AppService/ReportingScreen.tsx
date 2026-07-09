@@ -57,10 +57,17 @@ const ReportingScreen: React.FC<Props> = ({ navigation }) => {
       if (!token) throw new Error("Not authenticated");
 
       const { from, to } = getDates();
-      const url = `${API_BASE_URL}/payments/transactions/export?from=${from}&to=${to}&format=csv`;
-
-      // Fetch CSV content
-      const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(`${API_BASE_URL}/payments/transactions/export`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          access_token: token,
+          from,
+          to,
+          format: "csv",
+        }),
+      });
       if (!response.ok) throw new Error("Failed to download statement");
       const csvText = await response.text();
 

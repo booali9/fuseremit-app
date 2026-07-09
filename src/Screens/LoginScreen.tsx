@@ -19,6 +19,7 @@ import { moderateScale, scale } from "react-native-size-matters";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { biometricLogin, requestEmailLoginOtp } from "../services/authApi";
 import { getBiometricToken, hasBiometricEnabled, setSession } from "../services/session";
+import { resetToDashboardOrKyc } from "../navigation/navigationHelpers";
 import * as LocalAuthentication from "expo-local-authentication";
 import React, { useEffect } from "react";
 import Fonts from "../constants/Fonts";
@@ -76,13 +77,12 @@ const LoginScreen = ({ navigation }: Props) => {
             // mapping other fields if necessary
           } as any,
         });
-        navigation.navigate("AppServiceBottomNavigation");
+        await resetToDashboardOrKyc(navigation);
       } else {
         // 2FA flow
         navigation.navigate("PhoneNumberVerify", {
           challengeId: data.challengeId,
           identifier: identifier.trim(),
-          otp: data.otp,
         });
       }
     } catch (error) {
@@ -116,7 +116,7 @@ const LoginScreen = ({ navigation }: Props) => {
           user: data.user,
         });
 
-        navigation.navigate("AppServiceBottomNavigation");
+        await resetToDashboardOrKyc(navigation);
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : "Biometric login failed");
       } finally {
@@ -188,7 +188,9 @@ const LoginScreen = ({ navigation }: Props) => {
                 onChangeValue={setPhoneNumber}
                 placeholder="e.g. 1234567890"
               />
-              {isValidPhone && <Feather name="check" size={20} color="#1DB954" />}
+              {isValidPhone && (
+                <Feather name="check" size={20} color="#1DB954" style={styles.validationIcon} />
+              )}
             </View>
           </>
         ) : (
@@ -210,7 +212,9 @@ const LoginScreen = ({ navigation }: Props) => {
                 value={email}
                 onChangeText={setEmail}
               />
-              {isValidEmail && <Feather name="check" size={20} color="#1DB954" />}
+              {isValidEmail && (
+                <Feather name="check" size={20} color="#1DB954" style={styles.validationIcon} />
+              )}
             </View>
           </>
         )}
@@ -336,9 +340,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.2,
-    borderColor: "#FB002E",
+    borderColor: "#ccc",
     borderRadius: moderateScale(8),
-    paddingHorizontal: moderateScale(10),
+    paddingHorizontal: moderateScale(12),
     height: responsiveHeight(6.2),
     backgroundColor: "#1e1e1e0c",
   },
@@ -363,6 +367,10 @@ const styles = StyleSheet.create({
 
   inputIcon: {
     marginRight: moderateScale(10),
+  },
+
+  validationIcon: {
+    marginLeft: moderateScale(8),
   },
 
   eyeIcon: {

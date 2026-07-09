@@ -23,6 +23,7 @@ import SelectDocumentScreen from "../Screens/KYC/SelectDocumentScreen";
 import BottomNavigation from "../Screens/AppService/BottomNavigation";
 import VerifyItsYouScreen from "../Screens/KYC/VerifyItsYouScreen";
 import VerificationProgressScreen from "../Screens/KYC/VerificationProgressScreen";
+import IdentityWebViewScreen from "../Screens/KYC/IdentityWebViewScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -73,6 +74,7 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="LivenessVerify" component={VerifyItsYouScreen} />
         <Stack.Screen name="VerificationProgress" component={VerificationProgressScreen} />
+        <Stack.Screen name="IdentityWebView" component={IdentityWebViewScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -22,7 +22,9 @@ const state: SessionState = {
 
 const ACCESS_TOKEN_KEY = "@fuseremit/accessToken";
 const SESSION_USER_KEY = "@fuseremit/sessionUser";
-const BIOMETRIC_TOKEN_KEY = "@fuseremit/biometricToken";
+// SecureStore keys: alphanumeric, '.', '-', '_' only (no @ or /)
+const REFRESH_TOKEN_KEY = "fuseremit.refreshToken";
+const BIOMETRIC_TOKEN_KEY = "fuseremit.biometricToken";
 
 const setSessionCache = (params: { accessToken: string; user: SessionUser }) => {
   state.accessToken = params.accessToken;
@@ -31,14 +33,31 @@ const setSessionCache = (params: { accessToken: string; user: SessionUser }) => 
 
 export const setSession = async (params: {
   accessToken: string;
+  refreshToken?: string;
   user: SessionUser;
 }) => {
-  setSessionCache(params);
+  const accessToken = params.accessToken?.trim();
+  if (!accessToken || accessToken.split(".").length !== 3) {
+    throw new Error("Missing or invalid access token");
+  }
 
-  await AsyncStorage.multiSet([
-    [ACCESS_TOKEN_KEY, params.accessToken],
-    [SESSION_USER_KEY, JSON.stringify(params.user)],
-  ]);
+  const user: SessionUser = {
+    ...params.user,
+    id: String(params.user.id),
+  };
+
+  setSessionCache({ accessToken, user });
+
+  const pairs: [string, string][] = [
+    [ACCESS_TOKEN_KEY, accessToken],
+    [SESSION_USER_KEY, JSON.stringify(user)],
+  ];
+
+  await AsyncStorage.multiSet(pairs);
+
+  if (params.refreshToken?.trim()) {
+    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, params.refreshToken.trim());
+  }
 };
 
 export const clearSession = async () => {
@@ -46,6 +65,27 @@ export const clearSession = async () => {
   state.user = null;
 
   await AsyncStorage.multiRemove([ACCESS_TOKEN_KEY, SESSION_USER_KEY]);
+  await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY).catch(() => undefined);
+};
+
+export const getRefreshTokenAsync = async (): Promise<string | null> => {
+  return SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+};
+
+export const updateAccessToken = async (accessToken: string) => {
+  const token = accessToken.trim();
+  if (!token || token.split(".").length !== 3) {
+    throw new Error("Invalid access token");
+  }
+
+  state.accessToken = token;
+  await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+};
+
+export const updateRefreshToken = async (refreshToken: string) => {
+  const token = refreshToken.trim();
+  if (!token) return;
+  await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
 };
 
 export const getAccessToken = (): string | null => state.accessToken;

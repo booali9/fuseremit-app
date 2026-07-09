@@ -22,5 +22,6 @@ export type RootStackParamList = {
   AppServiceBottomNavigation: undefined;
   LivenessVerify: undefined;
   VerificationProgress: undefined;
-  AdvancedKYC: undefined;
+  AdvancedKYC: { justCompleted?: boolean } | undefined;
+  IdentityWebView: { url: string };
 };

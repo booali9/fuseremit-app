@@ -21,16 +21,16 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import {
-  CommonActions,
   useFocusEffect,
   useNavigation,
 } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ButtonsScreen from "./Home/ButtonsScreen";
 import RecentTransactions from "./Home/RecentTransactions";
-import { clearSession, getAccessTokenAsync } from "../../services/session";
+import { clearSession, getAccessToken, getAccessTokenAsync } from "../../services/session";
 import { fetchCurrentUserStatus } from "../../services/userApi";
 import { ApiError } from "../../services/api";
+import { resetToLogin } from "../../navigation/navigationHelpers";
 import { useLanguage } from "../../context/LanguageContext";
 import Fonts from "../../constants/Fonts";
 
@@ -49,20 +49,7 @@ const HomeScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const redirectToLogin = useCallback(() => {
-    const rootNavigator = navigation.getParent()?.getParent();
-
-    if (rootNavigator) {
-      rootNavigator.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: "Login" }],
-        }),
-      );
-
-      return;
-    }
-
-    navigation.navigate("Login");
+    resetToLogin(navigation);
   }, [navigation]);
 
   const loadDashboardIdentity = useCallback(async (isRetry = false) => {
@@ -70,7 +57,7 @@ const HomeScreen: React.FC = () => {
       setErrorMessage("");
       setIsLoadingIdentity(true);
 
-      const accessToken = await getAccessTokenAsync();
+      const accessToken = getAccessToken() ?? (await getAccessTokenAsync());
 
       if (!accessToken) {
         if (!isRetry) {

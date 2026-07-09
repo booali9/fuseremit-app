@@ -24,8 +24,8 @@ import {
   verifyEmailLoginOtp,
   verifyForgotPinOtp,
 } from "../../services/authApi";
-import { fetchCurrentUserStatus } from "../../services/userApi";
 import { setSession } from "../../services/session";
+import { resetToDashboardOrKyc } from "../../navigation/navigationHelpers";
 import Fonts from "../../constants/Fonts";
 
 interface Props {
@@ -47,8 +47,6 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
   const challengeId: string | undefined = route?.params?.challengeId;
   const identifier: string = route?.params?.identifier || route?.params?.email || "";
   const purpose: string = route?.params?.purpose || "login";
-  // Dev-only: backend includes the raw OTP in the response when SMTP is bypassed locally.
-  const [devOtp, setDevOtp] = useState<string | undefined>(route?.params?.otp);
 
   const inputs = useRef<(TextInput | null)[]>([]);
 
@@ -101,8 +99,7 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
       try {
         setErrorMessage("");
         setIsSubmitting(true);
-        const data = await resendEmailLoginOtp(challengeId);
-        setDevOtp(data.otp);
+        await resendEmailLoginOtp(challengeId);
         setSeconds(INITIAL_TIME);
         setOtp(Array(OTP_LENGTH).fill(""));
         setIsFilled(false);
@@ -175,8 +172,13 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
           otp: otp.join(""),
         });
 
+        if (!data.accessToken || data.accessToken.split(".").length !== 3) {
+          throw new Error("Login succeeded but no valid access token was returned.");
+        }
+
         await setSession({
           accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
           user: data.user,
         });
 
@@ -185,21 +187,17 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
           return;
         }
 
-        try {
-          const me = await fetchCurrentUserStatus(data.accessToken);
-          if (me.kycStatus !== "verified") {
-            navigation.navigate("AdvancedKYC");
-            return;
-          }
-        } catch {
-          // Don't block a valid login on a flaky status check — dashboard re-checks anyway.
-        }
-
-        navigation.navigate("AppServiceBottomNavigation");
+        await resetToDashboardOrKyc(navigation);
       } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : "OTP verification failed",
-        );
+        const message =
+          error instanceof Error ? error.message : "OTP verification failed";
+        if (message.toLowerCase().includes("invalid otp challenge")) {
+          setErrorMessage(
+            "This code session expired. Go back, enter your phone again, then verify.",
+          );
+        } else {
+          setErrorMessage(message);
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -252,12 +250,6 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
         <Text style={styles.subtitle}>
           Please enter the 6-digit code we sent to {maskedIdentifier}.
         </Text>
-
-        {devOtp ? (
-          <View style={styles.devOtpBanner}>
-            <Text style={styles.devOtpText}>DEV MODE — OTP: {devOtp}</Text>
-          </View>
-        ) : null}
 
         <View style={styles.otpRow}>
           {otp.map((digit, index) => (
@@ -359,22 +351,6 @@ const styles = StyleSheet.create({
     color: "#777",
     marginTop: moderateScale(6),
     fontFamily: Fonts.regular,
-  },
-  devOtpBanner: {
-    marginTop: responsiveHeight(2),
-    paddingVertical: responsiveHeight(1.2),
-    paddingHorizontal: responsiveWidth(4),
-    borderRadius: moderateScale(8),
-    backgroundColor: "#FFF3CD",
-    borderWidth: 1,
-    borderColor: "#F5C542",
-  },
-  devOtpText: {
-    color: "#7A5C00",
-    fontFamily: Fonts.bold,
-    fontSize: responsiveFontSize(1.6),
-    textAlign: "center",
-    letterSpacing: 2,
   },
   otpRow: {
     flexDirection: "row",

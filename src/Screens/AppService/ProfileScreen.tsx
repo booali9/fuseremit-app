@@ -20,11 +20,8 @@ import {
 
 import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
-import {
-  CommonActions,
-  useFocusEffect,
-  useNavigation,
-} from "@react-navigation/native";
+import { resetToLogin } from "../../navigation/navigationHelpers";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { logoutAccount } from "../../services/authApi";
@@ -74,20 +71,8 @@ const ProfileScreen: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const resetToLogin = useCallback(() => {
-    const rootNavigator = navigation.getParent()?.getParent();
-
-    if (rootNavigator) {
-      rootNavigator.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: "Login" }],
-        }),
-      );
-      return;
-    }
-
-    navigation.navigate("Login" as any);
+  const resetToLoginScreen = useCallback(() => {
+    resetToLogin(navigation);
   }, [navigation]);
 
   const loadProfileIdentity = useCallback(async () => {
@@ -99,7 +84,7 @@ const ProfileScreen: React.FC = () => {
 
       if (!accessToken) {
         await clearSession();
-        resetToLogin();
+        resetToLoginScreen();
         return;
       }
 
@@ -114,7 +99,7 @@ const ProfileScreen: React.FC = () => {
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         await Promise.all([clearSession(), clearManualKycDraft()]);
-        resetToLogin();
+        resetToLoginScreen();
         return;
       }
 
@@ -127,7 +112,7 @@ const ProfileScreen: React.FC = () => {
     } finally {
       setIsLoadingIdentity(false);
     }
-  }, [resetToLogin]);
+  }, [resetToLoginScreen]);
 
   const handleProfilePicturePress = useCallback(async () => {
     try {
@@ -187,10 +172,10 @@ const ProfileScreen: React.FC = () => {
       } finally {
         await Promise.all([clearSession(), clearManualKycDraft()]);
         setIsLoggingOut(false);
-        resetToLogin();
+        resetToLoginScreen();
       }
     })();
-  }, [isLoggingOut, resetToLogin]);
+  }, [isLoggingOut, resetToLoginScreen]);
 
   const fullName = useMemo(
     () => `${identity.firstName} ${identity.lastName}`.trim(),
