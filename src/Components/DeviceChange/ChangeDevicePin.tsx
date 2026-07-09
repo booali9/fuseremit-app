@@ -18,6 +18,7 @@ import { moderateScale } from "react-native-size-matters";
 
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { biometricLogin, requestForgotPinOtp } from "../../services/authApi";
+import { resetToDashboardOrKyc } from "../../navigation/navigationHelpers";
 import { getBiometricToken, setSession } from "../../services/session";
 import { Alert } from "react-native";
 
@@ -74,7 +75,7 @@ const ChangeDevicePin = ({ navigation, route }: { navigation: any; route?: any }
         accessToken: data.accessToken,
         user: data.user,
       });
-      navigation.navigate("AppServiceBottomNavigation");
+      await resetToDashboardOrKyc(navigation);
     } catch (error) {
       alert(error instanceof Error ? error.message : "Biometric login failed");
     } finally {

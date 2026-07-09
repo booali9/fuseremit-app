@@ -61,8 +61,10 @@ export default PhoneNumberInput;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    minWidth: 0,
   },
   flagButton: {
     flexDirection: "row",

@@ -10,6 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { getAccessTokenAsync, hydrateSession } from "../services/session";
+import { fetchCurrentUserStatus } from "../services/userApi";
 
 const WelcomeScreen = () => {
   const navigation =
@@ -23,15 +24,24 @@ const WelcomeScreen = () => {
       try {
         await hydrateSession();
         const accessToken = await getAccessTokenAsync();
-        
+
+        let target: "AppServiceBottomNavigation" | "AdvancedKYC" | "Login" = "Login";
+        if (accessToken) {
+          target = "AdvancedKYC";
+          try {
+            const status = await fetchCurrentUserStatus(accessToken);
+            if (status.kycStatus === "verified") target = "AppServiceBottomNavigation";
+          } catch {
+            // ponytail: fail closed — unverifiable status routes through KYC, not the app
+          }
+        }
+
         if (!isMounted) return;
-        
+
         timer = setTimeout(() => {
           if (!isMounted) return;
 
-          navigation.replace(
-            accessToken ? "AppServiceBottomNavigation" : "Login"
-          );
+          navigation.replace(target);
         }, 3500);
       } catch {
         if (!isMounted) return;

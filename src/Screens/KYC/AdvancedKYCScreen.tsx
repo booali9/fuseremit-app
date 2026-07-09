@@ -19,10 +19,10 @@ import { moderateScale } from "react-native-size-matters";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
 import { createIdentitySession, getAdvancedKycStatus, AdvancedKycStatus } from "../../services/kycApi";
-import * as WebBrowser from "expo-web-browser";
 
 interface Props {
   navigation: any;
+  route?: { params?: { justCompleted?: boolean } };
 }
 
 const StatusIcon = ({ status }: { status: string }) => {
@@ -32,7 +32,7 @@ const StatusIcon = ({ status }: { status: string }) => {
   return <MaterialCommunityIcons name="shield-account-outline" size={moderateScale(56)} color="#0B3963" />;
 };
 
-const AdvancedKYCScreen: React.FC<Props> = ({ navigation }) => {
+const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
   const [kycStatus, setKycStatus] = useState<AdvancedKycStatus | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [starting, setStarting] = useState(false);
@@ -50,24 +50,24 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => { void loadStatus(); }, [loadStatus]);
 
+  useEffect(() => {
+    if (!route?.params?.justCompleted) return;
+    navigation.setParams({ justCompleted: undefined });
+    Alert.alert(
+      "Submitted",
+      "Your documents have been submitted for review. We'll notify you once verified.",
+      [{ text: "OK", onPress: () => void loadStatus() }],
+    );
+  }, [route?.params?.justCompleted, navigation, loadStatus]);
+
   const handleStart = useCallback(async () => {
     try {
       setStarting(true);
       const session = await createIdentitySession();
+      if (!session.url) throw new Error("Verification link unavailable. Please try again later.");
 
-      // Open Stripe hosted identity verification in an in-app browser
-      const result = await WebBrowser.openAuthSessionAsync(
-        session.url,
-        "fuseremit://kyc-complete",
-      );
-
-      if (result.type === "success" || result.type === "dismiss") {
-        Alert.alert(
-          "Submitted",
-          "Your documents have been submitted for review. We'll notify you once verified.",
-          [{ text: "OK", onPress: () => void loadStatus() }],
-        );
-      }
+      // In-app WebView wrapper — avoids the OS's unreliable custom-scheme deep-link handling
+      navigation.navigate("IdentityWebView", { url: session.url });
     } catch (e) {
       Alert.alert("Error", e instanceof Error ? e.message : "Failed to start verification");
     } finally {

@@ -119,6 +119,5 @@ export const exportTransactionsUrl = async (from?: string, to?: string): Promise
   if (to) qs.set("to", to);
   qs.set("format", "csv");
 
-  // Returns a URL that can be fetched with the token as Bearer header
   return `${API_BASE_URL}/payments/transactions/export?${qs.toString()}`;
 };

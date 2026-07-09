@@ -54,6 +54,7 @@ export interface VerifyOtpRequest {
 
 export interface VerifyOtpResponse {
   accessToken: string;
+  refreshToken?: string;
   user: {
     id: string;
     firstName?: string;
@@ -87,11 +88,18 @@ export const registerAccount = async (payload: RegisterRequest) => {
 };
 
 export const verifyEmailLoginOtp = async (payload: VerifyOtpRequest) => {
-  const res = await postJson<VerifyOtpResponse, VerifyOtpRequest>(
-    "/auth/otp/verify",
-    payload,
-  );
-  return res.data;
+  const res = await postJson<
+    VerifyOtpResponse & { access_token?: string; refresh_token?: string },
+    VerifyOtpRequest
+  >("/auth/otp/verify", { ...payload, otp: payload.otp.trim() });
+
+  const raw = res.data;
+  const accessToken =
+    (typeof raw.accessToken === "string" ? raw.accessToken : raw.access_token)?.trim() ?? "";
+  const refreshToken =
+    (typeof raw.refreshToken === "string" ? raw.refreshToken : raw.refresh_token)?.trim();
+
+  return { ...raw, accessToken, refreshToken };
 };
 
 export const resendEmailLoginOtp = async (challengeId: string) => {
