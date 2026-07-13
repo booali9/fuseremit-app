@@ -22,7 +22,7 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { createPaymentIntent } from "../../../services/paymentApi";
+import { createPaymentIntent, confirmPaymentIntent } from "../../../services/paymentApi";
 import Fonts from "../../../constants/Fonts";
 
 const AddMoneyScreen: React.FC = () => {
@@ -48,9 +48,9 @@ const AddMoneyScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      // 1. Create PaymentIntent on the backend
+      // 1. Create PaymentIntent on the backend (backend converts dollars to cents)
       const { clientSecret } = await createPaymentIntent({
-        amount: Math.round(numAmount * 100), // Stripe expects cents
+        amount: numAmount,
         currency: "usd",
       });
 
@@ -62,6 +62,8 @@ const AddMoneyScreen: React.FC = () => {
       if (error) {
         Alert.alert("Payment Failed", error.message);
       } else if (paymentIntent) {
+        // 3. Tell the backend to credit the wallet balance for this payment
+        await confirmPaymentIntent(paymentIntent.id);
         Alert.alert("Success", "Your account has been funded!");
         navigation.goBack();
       }

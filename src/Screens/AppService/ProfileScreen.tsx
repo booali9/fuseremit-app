@@ -6,11 +6,11 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   responsiveHeight,
@@ -275,15 +275,15 @@ const ProfileScreen: React.FC = () => {
             navigation.navigate("MayaAI"),
           )}
 
-          {menuItem("Refer & Earn", require("../../../assets/invite.png"), () =>
+          {menuItem("Refer & Earn", require("../../../assets/invite_icon.png"), () =>
             navigation.navigate("Referral"),
           )}
 
-          {menuItem("Statements", require("../../../assets/pdf.png"), () =>
+          {menuItem("Reporting", require("../../../assets/pdf_icon.png"), () =>
             navigation.navigate("Reporting"),
           )}
 
-          {menuItem("Advanced KYC", require("../../../assets/passport.png"), () =>
+          {menuItem("Advanced KYC", require("../../../assets/passport_icon.png"), () =>
             navigation.navigate("AdvancedKYC"),
           )}
 
@@ -431,7 +431,6 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(2),
     paddingHorizontal: responsiveWidth(5),
     gap: responsiveHeight(1.5),
-    marginBottom: responsiveHeight(10),
   },
 
   menuRow: {

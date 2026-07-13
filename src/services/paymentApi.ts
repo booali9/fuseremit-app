@@ -50,7 +50,44 @@ export interface CreateTransferRequest {
   fee: number;
   amountReceived: number;
   receivedCurrency: string;
+  paymentIntentId: string;
 }
+
+export interface ConfirmPaymentIntentResponse {
+  paymentIntentId: string;
+  status: string;
+  credited: boolean;
+  balance: number;
+  currency: string;
+}
+
+export const confirmPaymentIntent = async (
+  paymentIntentId: string,
+): Promise<ConfirmPaymentIntentResponse> => {
+  const token = await getAccessToken();
+  if (!token) throw new Error("No access token found");
+
+  const response = await postJson<ConfirmPaymentIntentResponse>(
+    "/payments/confirm-intent",
+    { paymentIntentId },
+    token,
+  );
+  return response.data;
+};
+
+export const createTransferPaymentIntent = async (
+  payload: CreatePaymentIntentRequest,
+): Promise<PaymentIntentResponse> => {
+  const token = await getAccessToken();
+  if (!token) throw new Error("No access token found");
+
+  const response = await postJson<PaymentIntentResponse>(
+    "/payments/transactions/transfer/intent",
+    payload,
+    token,
+  );
+  return response.data;
+};
 
 export const createPaymentIntent = async (
   payload: CreatePaymentIntentRequest,

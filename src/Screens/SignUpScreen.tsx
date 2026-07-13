@@ -58,6 +58,17 @@ const SignUpScreen = ({ navigation }: Props) => {
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const isValidPassword = password.trim().length >= 8;
 
+  const isAdult = (value: Date | undefined) => {
+    if (!value) return false;
+    const today = new Date();
+    let age = today.getFullYear() - value.getFullYear();
+    const monthDiff = today.getMonth() - value.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < value.getDate())) {
+      age--;
+    }
+    return age >= 18;
+  };
+
   const isValid =
     first.trim() &&
     last.trim() &&
@@ -66,6 +77,7 @@ const SignUpScreen = ({ navigation }: Props) => {
     isValidPassword &&
     gender &&
     date &&
+    isAdult(date) &&
     checked;
 
   const borderColor = (value: unknown) =>
@@ -326,6 +338,9 @@ const SignUpScreen = ({ navigation }: Props) => {
             </TouchableOpacity>
           </TouchableOpacity>
         </View>
+        {date && !isAdult(date) && (
+          <Text style={styles.errorText}>You must be 18 years or older to sign up.</Text>
+        )}
 
         <DatePickerModal
           locale="en"

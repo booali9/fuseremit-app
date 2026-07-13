@@ -4,13 +4,13 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   Alert,
   ActivityIndicator,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -103,7 +103,7 @@ const ReportingScreen: React.FC<Props> = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={moderateScale(22)} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Statements</Text>
+        <Text style={styles.topTitle}>Reporting</Text>
         <View style={{ width: moderateScale(22) }} />
       </View>
 

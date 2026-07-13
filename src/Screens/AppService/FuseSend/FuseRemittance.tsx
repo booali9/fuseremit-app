@@ -215,13 +215,14 @@ const FuseRemittance: React.FC = () => {
 export default FuseRemittance;
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: "#fff" },
 
   headerTitle: {
     textAlign: "center",
     fontSize: responsiveFontSize(2),
     fontFamily: Fonts.semiBold,
     marginTop: responsiveHeight(5),
+    color: "#1F2A50",
   },
 
   predictionContainer: {
@@ -286,26 +287,32 @@ const styles = StyleSheet.create({
   rateText: {
     fontSize: responsiveFontSize(2),
     fontFamily: Fonts.bold,
+    color: "#000",
   },
 
   redText: {
     fontSize: responsiveFontSize(1.3),
     fontFamily: Fonts.medium,
+    color: "#D33",
   },
 
   greenText: {
     fontSize: responsiveFontSize(1.3),
     fontFamily: Fonts.medium,
+    color: "#1E8A4C",
   },
 
   recommendText: {
     fontSize: responsiveFontSize(1.3),
     fontFamily: Fonts.medium,
+    color: "#333",
+    flex: 1,
   },
 
   sectionTitle: {
     fontSize: responsiveFontSize(1.6),
     fontFamily: Fonts.medium,
+    color: "#1F2A50",
   },
 
   sendBox: {
@@ -331,6 +338,7 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: responsiveFontSize(2.3),
     fontFamily: Fonts.bold,
+    color: "#000",
   },
 
   currencyBox: {
@@ -347,6 +355,7 @@ const styles = StyleSheet.create({
   currencyText: {
     fontSize: responsiveFontSize(2.2),
     fontFamily: Fonts.bold,
+    color: "#1F2A50",
   },
 
   exchangeCard: {
@@ -368,12 +377,14 @@ const styles = StyleSheet.create({
 
   exchangeRate: {
     fontSize: responsiveFontSize(1),
+    color: "#000",
   },
 
   optimizedFee: {
     fontSize: responsiveFontSize(1.4),
     paddingTop: responsiveHeight(1.8),
     fontFamily: Fonts.semiBold,
+    color: "#1F2A50",
   },
 
   savings: {
@@ -399,6 +410,7 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(3),
     fontSize: responsiveFontSize(1.6),
     fontFamily: Fonts.semiBold,
+    color: "#1F2A50",
   },
 
   recipientCard: {
@@ -413,6 +425,7 @@ const styles = StyleSheet.create({
   recipientName: {
     fontSize: responsiveFontSize(1.6),
     fontFamily: Fonts.semiBold,
+    color: "#000",
   },
 
   recipientSub: {
@@ -429,11 +442,13 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1.6),
     fontFamily: Fonts.semiBold,
     marginBottom: responsiveHeight(1),
+    color: "#1F2A50",
   },
 
   featureItem: {
     fontSize: responsiveFontSize(1.4),
     marginBottom: responsiveHeight(0.5),
+    color: "#333",
   },
 
   button: {

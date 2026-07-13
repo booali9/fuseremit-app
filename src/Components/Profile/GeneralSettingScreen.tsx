@@ -25,17 +25,8 @@ import { useNavigation } from "@react-navigation/native";
 import { useLanguage } from "../../context/LanguageContext";
 import { getAccessTokenAsync } from "../../services/session";
 import { fetchUserSettings, updateUserSettings } from "../../services/userApi";
-import * as Notifications from "expo-notifications";
+import { registerForPushNotificationsAsync } from "../../services/notifications";
 import Fonts from "../../constants/Fonts";
-
-// Configure how notifications are handled when the app is in the foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
 
 const GeneralSettingScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -69,29 +60,12 @@ const GeneralSettingScreen: React.FC = () => {
     setNotificationsEnabled(value);
     
     if (value) {
-      // Request permissions
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      
-      if (finalStatus !== 'granted') {
+      const fcmToken = await registerForPushNotificationsAsync();
+      if (!fcmToken) {
         Alert.alert('Permission Required', 'Please enable notifications in your device settings.');
         setNotificationsEnabled(false);
         return;
       }
-
-      // Trigger "proper notification"
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Fuse Remit 🚀",
-          body: "Welcome to Fuse Remit! Your mobile notifications are now active.",
-          sound: true,
-        },
-        trigger: null, // deliver immediately
-      });
     }
 
     await syncSettings({ pushNotifications: value });
@@ -112,8 +86,7 @@ const GeneralSettingScreen: React.FC = () => {
       // If push notifications are enabled (either from state or from the new update)
       if (prefs.pushNotifications || (notificationsEnabled && prefs.pushNotifications !== false)) {
         try {
-          const pushTokenData = await Notifications.getExpoPushTokenAsync();
-          currentPushToken = pushTokenData.data;
+          currentPushToken = (await registerForPushNotificationsAsync()) ?? "";
         } catch (error) {
           console.log("Error getting push token:", error);
         }

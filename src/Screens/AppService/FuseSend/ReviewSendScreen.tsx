@@ -10,6 +10,8 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { CardField, useConfirmPayment } from "@stripe/stripe-react-native";
+import type { Details } from "@stripe/stripe-react-native/lib/typescript/src/types/components/CardFieldInput";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -20,6 +22,7 @@ import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Fonts from "../../../constants/Fonts";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { createTransferPaymentIntent } from "../../../services/paymentApi";
 
 const DELIVERY_METHOD_LABELS: Record<string, string> = {
   bank_transfer: "Bank Transfer",
@@ -36,6 +39,9 @@ const DELIVERY_SPEEDS: Record<string, string> = {
 const ReviewSendScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const route = useRoute() as any;
+  const { confirmPayment, loading: confirmLoading } = useConfirmPayment();
+  const [cardComplete, setCardComplete] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const params = route.params ?? {
     amount: 2000,
@@ -66,24 +72,52 @@ const ReviewSendScreen: React.FC = () => {
   } = params;
 
   const total = Number(amount) + Number(fee);
+  const isProcessing = isSubmitting || confirmLoading;
 
-  const handleConfirm = () => {
-    // Navigate to OTP screen, passing all transfer data
-    navigation.navigate("OTP", {
-      transferData: {
-        amount: Number(amount),
-        currency,
-        deliveryMethod,
-        recipientName,
-        recipientBank,
-        recipientAccount,
-        recipientCountry,
-        exchangeRate: Number(exchangeRate),
-        fee: Number(fee),
-        amountReceived: Number(amountReceived),
-        receivedCurrency,
-      },
-    });
+  const handleConfirm = async () => {
+    if (!cardComplete || isProcessing) return;
+
+    try {
+      setIsSubmitting(true);
+
+      // 1. Charge the sender for amount + delivery fee via Stripe
+      const { clientSecret, paymentIntentId } = await createTransferPaymentIntent({
+        amount: total,
+        currency: (currency ?? "USD").toLowerCase(),
+      });
+
+      const { error } = await confirmPayment(clientSecret, { paymentMethodType: "Card" });
+      if (error) {
+        Alert.alert("Payment Failed", error.message);
+        return;
+      }
+
+      // 2. Navigate to OTP screen, passing transfer data + the confirmed payment
+      navigation.navigate("OTP", {
+        transferData: {
+          amount: Number(amount),
+          currency,
+          deliveryMethod,
+          recipientName,
+          recipientBank,
+          recipientAccount,
+          recipientCountry,
+          exchangeRate: Number(exchangeRate),
+          fee: Number(fee),
+          amountReceived: Number(amountReceived),
+          receivedCurrency,
+          paymentIntentId,
+        },
+      });
+    } catch (e) {
+      Alert.alert("Error", e instanceof Error ? e.message : "Payment failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCardChange = (details: Details) => {
+    setCardComplete(details.complete);
   };
 
   return (
@@ -131,13 +165,35 @@ const ReviewSendScreen: React.FC = () => {
             <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
           </View>
         </View>
+
+        {/* Card details */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Pay With Card</Text>
+          <CardField
+            postalCodeEnabled={false}
+            placeholders={{ number: "4242 4242 4242 4242" }}
+            cardStyle={{ backgroundColor: "#F6F7FB", textColor: "#111111" }}
+            style={{ width: "100%", height: 50 }}
+            onCardChange={handleCardChange}
+          />
+        </View>
       </ScrollView>
 
       {/* Confirm button */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-          <Image source={require("../../../../assets/robot.png")} style={styles.buttonRobot} />
-          <Text style={styles.confirmText}>Confirm and Send</Text>
+        <TouchableOpacity
+          style={[styles.confirmButton, (!cardComplete || isProcessing) && { opacity: 0.5 }]}
+          onPress={handleConfirm}
+          disabled={!cardComplete || isProcessing}
+        >
+          {isProcessing ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Image source={require("../../../../assets/robot.png")} style={styles.buttonRobot} />
+              <Text style={styles.confirmText}>Confirm and Send</Text>
+            </>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

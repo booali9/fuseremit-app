@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "fuseremit-app",
+    "name": "Fuseremit-app",
     "slug": "fuseremit-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,6 +16,7 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.jpg.jpeg",
         "backgroundColor": "#ffffff"
@@ -28,7 +29,8 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.USE_BIOMETRIC",
-        "android.permission.USE_FINGERPRINT"
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.POST_NOTIFICATIONS"
       ],
       "package": "com.busines2202.fuseremitapp"
     },
@@ -50,7 +52,8 @@
           "cameraPermission": "Allow this app to access your camera"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-localization"
     ],
     "extra": {
       "eas": {

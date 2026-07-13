@@ -20,6 +20,7 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { biometricLogin, requestEmailLoginOtp } from "../services/authApi";
 import { getBiometricToken, hasBiometricEnabled, setSession } from "../services/session";
 import { resetToDashboardOrKyc } from "../navigation/navigationHelpers";
+import { syncFcmTokenWithBackend } from "../services/notifications";
 import * as LocalAuthentication from "expo-local-authentication";
 import React, { useEffect } from "react";
 import Fonts from "../constants/Fonts";
@@ -35,6 +36,8 @@ const LoginScreen = ({ navigation }: Props) => {
   const [mode, setMode] = useState<LoginMode>("phone");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [secureEntry, setSecureEntry] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
@@ -49,7 +52,8 @@ const LoginScreen = ({ navigation }: Props) => {
 
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const isValidPhone = /^\+?\d{10,20}$/.test(phoneNumber.trim());
-  const isFormValid = mode === "phone" ? isValidPhone : isValidEmail;
+  const isValidPassword = password.length >= 8;
+  const isFormValid = mode === "phone" ? isValidPhone : isValidEmail && isValidPassword;
 
   const handleContinue = async () => {
     if (!isFormValid || isSubmitting) return;
@@ -61,7 +65,7 @@ const LoginScreen = ({ navigation }: Props) => {
       const identifier = mode === "phone" ? phoneNumber.trim() : email.trim().toLowerCase();
       const payload = mode === "phone"
         ? { phoneNumber: identifier }
-        : { email: identifier };
+        : { email: identifier, password };
 
       const data = await requestEmailLoginOtp(payload);
 
@@ -77,6 +81,7 @@ const LoginScreen = ({ navigation }: Props) => {
             // mapping other fields if necessary
           } as any,
         });
+        void syncFcmTokenWithBackend();
         await resetToDashboardOrKyc(navigation);
       } else {
         // 2FA flow
@@ -116,6 +121,7 @@ const LoginScreen = ({ navigation }: Props) => {
           user: data.user,
         });
 
+        void syncFcmTokenWithBackend();
         await resetToDashboardOrKyc(navigation);
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : "Biometric login failed");
@@ -152,6 +158,7 @@ const LoginScreen = ({ navigation }: Props) => {
             style={[styles.tab, mode === "phone" && styles.tabActive]}
             onPress={() => {
               setMode("phone");
+              setPassword("");
               setErrorMessage("");
             }}
           >
@@ -216,6 +223,32 @@ const LoginScreen = ({ navigation }: Props) => {
                 <Feather name="check" size={20} color="#1DB954" style={styles.validationIcon} />
               )}
             </View>
+
+            <Text style={styles.label}>Password</Text>
+            <View
+              style={[
+                styles.inputContainer,
+                !isValidPassword && password.length > 0 && styles.inputError,
+                isValidPassword && styles.inputSuccess,
+              ]}
+            >
+              <Feather name="lock" size={20} color="#777" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your password"
+                secureTextEntry={secureEntry}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity onPress={() => setSecureEntry(!secureEntry)}>
+                <Feather
+                  name={secureEntry ? "eye-off" : "eye"}
+                  size={20}
+                  color="#777"
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
           </>
         )}
 
@@ -271,6 +304,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
+    width: responsiveWidth(55),
     height: responsiveHeight(10),
     alignSelf: "center",
     marginBottom: responsiveHeight(5),

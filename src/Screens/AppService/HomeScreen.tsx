@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,11 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   responsiveHeight,
@@ -28,6 +28,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ButtonsScreen from "./Home/ButtonsScreen";
 import RecentTransactions from "./Home/RecentTransactions";
 import { clearSession, getAccessToken, getAccessTokenAsync } from "../../services/session";
+import { syncFcmTokenWithBackend } from "../../services/notifications";
 import { fetchCurrentUserStatus } from "../../services/userApi";
 import { ApiError } from "../../services/api";
 import { resetToLogin } from "../../navigation/navigationHelpers";
@@ -111,6 +112,13 @@ const HomeScreen: React.FC = () => {
     }, [loadDashboardIdentity]),
   );
 
+  // Sync the FCM token once we're on the authenticated dashboard. Running it here
+  // (rather than at login) ensures the notification permission prompt has been
+  // resolved first, so a real token gets registered against the user.
+  useEffect(() => {
+    void syncFcmTokenWithBackend();
+  }, []);
+
   const kycLabel = useMemo(() => {
     if (!identity) return "Pending";
 
@@ -171,7 +179,7 @@ const HomeScreen: React.FC = () => {
               <View style={[styles.buttonRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                 <TouchableOpacity
                   style={styles.buttonBox}
-                  onPress={() => navigation.navigate("FuseSend")}
+                  onPress={() => navigation.navigate("FuseSend", { screen: "FuseRemittance" })}
                 >
                   <View style={[styles.iconWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                     <Image
@@ -184,7 +192,7 @@ const HomeScreen: React.FC = () => {
 
                 <TouchableOpacity
                   style={styles.buttonBox}
-                  onPress={() => navigation.navigate("FuseSend")}
+                  onPress={() => navigation.navigate("FuseSend", { screen: "FuseRemittance" })}
                 >
                   <View style={[styles.iconWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                     <FontAwesome

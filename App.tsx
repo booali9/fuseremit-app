@@ -1,9 +1,13 @@
+import { useEffect, useState } from "react";
 import { useFonts } from "expo-font";
 import { Provider as PaperProvider, MD3LightTheme, configureFonts } from "react-native-paper";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigator from "./src/navigation/AppNavigator";
 import StripeWrapper from "./src/Components/Common/StripeWrapper";
 import { LanguageProvider } from "./src/context/LanguageContext";
+import { registerForPushNotificationsAsync } from "./src/services/notifications";
 import Fonts from "./src/constants/Fonts";
+import AnimatedSplash from "./src/Screens/AnimatedSplash";
 
 const fontConfig = {
   displayLarge: { fontFamily: Fonts.extraBold },
@@ -40,17 +44,30 @@ export default function App() {
     "KronaOne-Regular": require("./assets/fonts/KronaOne-Regular.ttf"),
   });
 
+  useEffect(() => {
+    // Ask for notification permission right after the splash screen, before login.
+    void registerForPushNotificationsAsync();
+  }, []);
+
+  const [showSplash, setShowSplash] = useState(true);
+
   if (!fontsLoaded) {
     return null;
   }
 
+  if (showSplash) {
+    return <AnimatedSplash onFinish={() => setShowSplash(false)} />;
+  }
+
   return (
-    <LanguageProvider>
-      <PaperProvider theme={theme}>
-        <StripeWrapper>
-          <AppNavigator />
-        </StripeWrapper>
-      </PaperProvider>
-    </LanguageProvider>
+    <SafeAreaProvider>
+      <LanguageProvider>
+        <PaperProvider theme={theme}>
+          <StripeWrapper>
+            <AppNavigator />
+          </StripeWrapper>
+        </PaperProvider>
+      </LanguageProvider>
+    </SafeAreaProvider>
   );
 }

@@ -26,6 +26,7 @@ import {
 } from "../../services/authApi";
 import { setSession } from "../../services/session";
 import { resetToDashboardOrKyc } from "../../navigation/navigationHelpers";
+import { syncFcmTokenWithBackend } from "../../services/notifications";
 import Fonts from "../../constants/Fonts";
 
 interface Props {
@@ -181,6 +182,8 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
           refreshToken: data.refreshToken,
           user: data.user,
         });
+
+        void syncFcmTokenWithBackend();
 
         if (data.requiresPinSetup) {
           navigation.navigate("CreatePin");

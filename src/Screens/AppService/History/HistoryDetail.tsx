@@ -9,6 +9,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import {
   responsiveHeight,
@@ -50,6 +51,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
   const [tx, setTx] = useState<Transaction>(initial);
   const [repeating, setRepeating] = useState(false);
   const [polling, setPolling] = useState(false);
+  const [repeatedTx, setRepeatedTx] = useState<Transaction | null>(null);
 
   // Poll for status updates if not terminal
   useEffect(() => {
@@ -82,10 +84,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
             try {
               setRepeating(true);
               const newTx = await repeatTransfer(tx._id);
-              Alert.alert("Success", "Transfer initiated!", [
-                { text: "View", onPress: () => setTx(newTx) },
-                { text: "OK" },
-              ]);
+              setRepeatedTx(newTx);
             } catch (e) {
               Alert.alert("Error", e instanceof Error ? e.message : "Failed to repeat transfer");
             } finally {
@@ -212,6 +211,38 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
           </TouchableOpacity>
         ) : null}
       </ScrollView>
+
+      <Modal visible={!!repeatedTx} transparent animationType="fade" onRequestClose={() => setRepeatedTx(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalCheckCircle}>
+              <Ionicons name="checkmark" size={moderateScale(28)} color="#fff" />
+            </View>
+            <Text style={styles.modalTitle}>Transfer Repeated</Text>
+            <Text style={styles.modalMessage}>
+              ${repeatedTx?.amount.toFixed(2)} sent to {repeatedTx?.recipientName ?? "recipient"} again.
+            </Text>
+
+            <View style={styles.modalButtonRow}>
+              <TouchableOpacity
+                style={styles.modalSecondaryButton}
+                onPress={() => setRepeatedTx(null)}
+              >
+                <Text style={styles.modalSecondaryButtonText}>OK</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalPrimaryButton}
+                onPress={() => {
+                  if (repeatedTx) setTx(repeatedTx);
+                  setRepeatedTx(null);
+                }}
+              >
+                <Text style={styles.modalPrimaryButtonText}>View</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -334,4 +365,59 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { opacity: 0.6 },
   repeatButtonText: { color: "#fff", fontSize: responsiveFontSize(1.8), fontFamily: Fonts.semiBold },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: responsiveWidth(8),
+  },
+  modalCard: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: moderateScale(20),
+    padding: responsiveWidth(6),
+    alignItems: "center",
+  },
+  modalCheckCircle: {
+    width: moderateScale(56),
+    height: moderateScale(56),
+    borderRadius: moderateScale(28),
+    backgroundColor: "#34A853",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: responsiveHeight(2),
+  },
+  modalTitle: { fontSize: responsiveFontSize(2.2), fontFamily: Fonts.bold, color: "#111" },
+  modalMessage: {
+    fontSize: responsiveFontSize(1.5),
+    color: "#666",
+    fontFamily: Fonts.regular,
+    textAlign: "center",
+    marginTop: responsiveHeight(1),
+    lineHeight: 20,
+  },
+  modalButtonRow: {
+    flexDirection: "row",
+    gap: responsiveWidth(3),
+    marginTop: responsiveHeight(3),
+    width: "100%",
+  },
+  modalSecondaryButton: {
+    flex: 1,
+    paddingVertical: responsiveHeight(1.6),
+    borderRadius: moderateScale(12),
+    borderWidth: 1.5,
+    borderColor: "#0B3963",
+    alignItems: "center",
+  },
+  modalSecondaryButtonText: { color: "#0B3963", fontSize: responsiveFontSize(1.6), fontFamily: Fonts.semiBold },
+  modalPrimaryButton: {
+    flex: 1,
+    paddingVertical: responsiveHeight(1.6),
+    borderRadius: moderateScale(12),
+    backgroundColor: "#0B3963",
+    alignItems: "center",
+  },
+  modalPrimaryButtonText: { color: "#fff", fontSize: responsiveFontSize(1.6), fontFamily: Fonts.semiBold },
 });

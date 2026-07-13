@@ -53,7 +53,7 @@ const TransactionScreen = ({ navigation, route }: Props) => {
 
   const handleDone = () => {
     navigation.dispatch(
-      CommonActions.reset({ index: 0, routes: [{ name: "FuseSend" }] }),
+      CommonActions.reset({ index: 0, routes: [{ name: "FuseRemittance" }] }),
     );
   };
 

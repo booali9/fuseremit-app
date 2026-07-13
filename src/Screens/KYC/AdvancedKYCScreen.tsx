@@ -4,12 +4,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -19,6 +19,8 @@ import { moderateScale } from "react-native-size-matters";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
 import { createIdentitySession, getAdvancedKycStatus, AdvancedKycStatus } from "../../services/kycApi";
+import { ApiError } from "../../services/api";
+import { clearSession } from "../../services/session";
 
 interface Props {
   navigation: any;
@@ -37,16 +39,27 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [starting, setStarting] = useState(false);
 
+  // Session expired (invalid/expired access token) — log out silently instead of
+  // showing the raw API error, since the user just needs to sign back in.
+  const handleSessionExpired = useCallback(async () => {
+    await clearSession();
+    navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+  }, [navigation]);
+
   const loadStatus = useCallback(async () => {
     try {
       const data = await getAdvancedKycStatus();
       setKycStatus(data);
     } catch (e) {
+      if (e instanceof ApiError && e.status === 401) {
+        await handleSessionExpired();
+        return;
+      }
       Alert.alert("Error", e instanceof Error ? e.message : "Failed to load KYC status");
     } finally {
       setLoadingStatus(false);
     }
-  }, []);
+  }, [handleSessionExpired]);
 
   useEffect(() => { void loadStatus(); }, [loadStatus]);
 
@@ -69,11 +82,15 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
       // In-app WebView wrapper — avoids the OS's unreliable custom-scheme deep-link handling
       navigation.navigate("IdentityWebView", { url: session.url });
     } catch (e) {
+      if (e instanceof ApiError && e.status === 401) {
+        await handleSessionExpired();
+        return;
+      }
       Alert.alert("Error", e instanceof Error ? e.message : "Failed to start verification");
     } finally {
       setStarting(false);
     }
-  }, [loadStatus]);
+  }, [loadStatus, handleSessionExpired]);
 
   const status = kycStatus?.advancedKycStatus ?? "not_started";
 
@@ -195,7 +212,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: responsiveWidth(5),
-    marginTop: responsiveHeight(2),
+    paddingTop: responsiveHeight(1),
     marginBottom: responsiveHeight(2),
   },
   topTitle: { fontSize: responsiveFontSize(2), fontFamily: Fonts.bold, color: "#000" },
