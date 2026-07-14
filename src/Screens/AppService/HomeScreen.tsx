@@ -20,14 +20,15 @@ import {
 
 import { moderateScale } from "react-native-size-matters";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
-import {
-  useFocusEffect,
-  useNavigation,
-} from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ButtonsScreen from "./Home/ButtonsScreen";
 import RecentTransactions from "./Home/RecentTransactions";
-import { clearSession, getAccessToken, getAccessTokenAsync } from "../../services/session";
+import {
+  clearSession,
+  getAccessToken,
+  getAccessTokenAsync,
+} from "../../services/session";
 import { syncFcmTokenWithBackend } from "../../services/notifications";
 import { fetchCurrentUserStatus } from "../../services/userApi";
 import { ApiError } from "../../services/api";
@@ -53,58 +54,61 @@ const HomeScreen: React.FC = () => {
     resetToLogin(navigation);
   }, [navigation]);
 
-  const loadDashboardIdentity = useCallback(async (isRetry = false) => {
-    try {
-      setErrorMessage("");
-      setIsLoadingIdentity(true);
+  const loadDashboardIdentity = useCallback(
+    async (isRetry = false) => {
+      try {
+        setErrorMessage("");
+        setIsLoadingIdentity(true);
 
-      const accessToken = getAccessToken() ?? (await getAccessTokenAsync());
+        const accessToken = getAccessToken() ?? (await getAccessTokenAsync());
 
-      if (!accessToken) {
-        if (!isRetry) {
-          // A token set moments ago by the OTP screen can take a beat to be
-          // readable here. Give it one short retry before treating it as logged out.
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          return loadDashboardIdentity(true);
+        if (!accessToken) {
+          if (!isRetry) {
+            // A token set moments ago by the OTP screen can take a beat to be
+            // readable here. Give it one short retry before treating it as logged out.
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            return loadDashboardIdentity(true);
+          }
+
+          redirectToLogin();
+          return;
         }
 
-        redirectToLogin();
-        return;
-      }
+        const me = await fetchCurrentUserStatus(accessToken);
 
-      const me = await fetchCurrentUserStatus(accessToken);
+        setIdentity({
+          firstName: me.firstName?.trim() || "there",
+          accountTier: me.accountTier,
+          kycStatus: me.kycStatus,
+          balance: me.balance ?? 0,
+        });
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          if (!isRetry) {
+            // ponytail: a freshly issued token failing its first check then working
+            // on retry is the signature of a transient/first-use hiccup, not a real
+            // logout. One retry covers it; revisit if it ever needs backoff/more tries.
+            await new Promise((resolve) => setTimeout(resolve, 800));
+            return loadDashboardIdentity(true);
+          }
 
-      setIdentity({
-        firstName: me.firstName?.trim() || "there",
-        accountTier: me.accountTier,
-        kycStatus: me.kycStatus,
-        balance: me.balance ?? 0,
-      });
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
-        if (!isRetry) {
-          // ponytail: a freshly issued token failing its first check then working
-          // on retry is the signature of a transient/first-use hiccup, not a real
-          // logout. One retry covers it; revisit if it ever needs backoff/more tries.
-          await new Promise((resolve) => setTimeout(resolve, 800));
-          return loadDashboardIdentity(true);
+          await clearSession();
+          redirectToLogin();
+          return;
         }
 
-        await clearSession();
-        redirectToLogin();
-        return;
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unable to sync dashboard right now.";
+
+        setErrorMessage(message);
+      } finally {
+        setIsLoadingIdentity(false);
       }
-
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to sync dashboard right now.";
-
-      setErrorMessage(message);
-    } finally {
-      setIsLoadingIdentity(false);
-    }
-  }, [redirectToLogin]);
+    },
+    [redirectToLogin],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -148,13 +152,19 @@ const HomeScreen: React.FC = () => {
                 <View>
                   <Text style={styles.balanceLabel}>Total Balance</Text>
                   <Text style={styles.balanceAmount}>
-                    ${identity?.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "0.00"}
+                    $
+                    {identity?.balance.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) ?? "0.00"}
                   </Text>
 
                   {isLoadingIdentity ? (
                     <View style={styles.identityLoadingRow}>
                       <ActivityIndicator size="small" color="#FFFFFF" />
-                      <Text style={styles.identityLoadingText}>Syncing profile...</Text>
+                      <Text style={styles.identityLoadingText}>
+                        Syncing profile...
+                      </Text>
                     </View>
                   ) : (
                     <Text style={styles.identityText}>
@@ -176,32 +186,78 @@ const HomeScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
 
-              <View style={[styles.buttonRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View
+                style={[
+                  styles.buttonRow,
+                  { flexDirection: isRTL ? "row-reverse" : "row" },
+                ]}
+              >
                 <TouchableOpacity
                   style={styles.buttonBox}
-                  onPress={() => navigation.navigate("FuseSend", { screen: "FuseRemittance" })}
+                  onPress={() =>
+                    navigation.navigate("FuseSend", {
+                      screen: "FuseRemittance",
+                    })
+                  }
                 >
-                  <View style={[styles.iconWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <View
+                    style={[
+                      styles.iconWrapper,
+                      { flexDirection: isRTL ? "row-reverse" : "row" },
+                    ]}
+                  >
                     <Image
                       source={require("../../../assets/robot.png")}
-                      style={[styles.fuseIcon, { [isRTL ? 'marginLeft' : 'marginRight']: responsiveWidth(2) }]}
+                      style={[
+                        styles.fuseIcon,
+                        {
+                          [isRTL ? "marginLeft" : "marginRight"]:
+                            responsiveWidth(2),
+                        },
+                      ]}
                     />
-                    <Text style={[styles.buttonText, { textAlign: isRTL ? 'right' : 'left' }]}>{t("home.fuseSend")}</Text>
+                    <Text
+                      style={[
+                        styles.buttonText,
+                        { textAlign: isRTL ? "right" : "left" },
+                      ]}
+                    >
+                      {t("home.fuseSend")}
+                    </Text>
                   </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.buttonBox}
-                  onPress={() => navigation.navigate("FuseSend", { screen: "FuseRemittance" })}
+                  onPress={() =>
+                    navigation.navigate("FuseSend", {
+                      screen: "FuseRemittance",
+                    })
+                  }
                 >
-                  <View style={[styles.iconWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <View
+                    style={[
+                      styles.iconWrapper,
+                      { flexDirection: isRTL ? "row-reverse" : "row" },
+                    ]}
+                  >
                     <FontAwesome
                       name="send"
                       size={moderateScale(19)}
-                      style={{ [isRTL ? 'marginLeft' : 'marginRight']: responsiveWidth(3) }}
+                      style={{
+                        [isRTL ? "marginLeft" : "marginRight"]:
+                          responsiveWidth(3),
+                      }}
                       color="#fff"
                     />
-                    <Text style={[styles.buttonText, { textAlign: isRTL ? 'right' : 'left' }]}>{t("common.send")}</Text>
+                    <Text
+                      style={[
+                        styles.buttonText,
+                        { textAlign: isRTL ? "right" : "left" },
+                      ]}
+                    >
+                      {t("common.send")}
+                    </Text>
                   </View>
                 </TouchableOpacity>
 
@@ -209,38 +265,107 @@ const HomeScreen: React.FC = () => {
                   style={styles.buttonBox}
                   onPress={() => navigation.navigate("AddMoney")}
                 >
-                  <View style={[styles.iconWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <View
+                    style={[
+                      styles.iconWrapper,
+                      { flexDirection: isRTL ? "row-reverse" : "row" },
+                    ]}
+                  >
                     <FontAwesome5
                       name="plus"
                       size={moderateScale(19)}
-                      style={{ [isRTL ? 'marginLeft' : 'marginRight']: responsiveWidth(3) }}
+                      style={{
+                        [isRTL ? "marginLeft" : "marginRight"]:
+                          responsiveWidth(3),
+                      }}
                       color="#fff"
                     />
-                    <Text style={[styles.buttonText, { textAlign: isRTL ? 'right' : 'left' }]}>{t("home.addMoney")}</Text>
+                    <Text
+                      style={[
+                        styles.buttonText,
+                        { textAlign: isRTL ? "right" : "left" },
+                      ]}
+                    >
+                      {t("home.addMoney")}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
 
               <View style={styles.card}>
-                <Text style={[styles.cardTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{t("home.aiInsights")}</Text>
+                <Text
+                  style={[
+                    styles.cardTitle,
+                    { textAlign: isRTL ? "right" : "left" },
+                  ]}
+                >
+                  {t("home.aiInsights")}
+                </Text>
 
-                <Text style={[styles.cardSub, { textAlign: isRTL ? 'right' : 'left' }]}>
+                <Text
+                  style={[
+                    styles.cardSub,
+                    { textAlign: isRTL ? "right" : "left" },
+                  ]}
+                >
                   {identity
                     ? `${identity.firstName} ${t("home.insightsSub")}`
                     : t("home.insightsSub")}
                 </Text>
 
-                <View style={[styles.bulletRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                  <Text style={[styles.bullet, { [isRTL ? 'marginLeft' : 'marginRight']: moderateScale(6) }]}>•</Text>
-                  <Text style={[styles.bulletText, { textAlign: isRTL ? 'right' : 'left' }]}>
-                    Tier status: {identity?.accountTier ?? "Classic"}. Keep transacting to unlock better transfer benefits.
+                <View
+                  style={[
+                    styles.bulletRow,
+                    { flexDirection: isRTL ? "row-reverse" : "row" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.bullet,
+                      {
+                        [isRTL ? "marginLeft" : "marginRight"]:
+                          moderateScale(6),
+                      },
+                    ]}
+                  >
+                    •
+                  </Text>
+                  <Text
+                    style={[
+                      styles.bulletText,
+                      { textAlign: isRTL ? "right" : "left" },
+                    ]}
+                  >
+                    Tier status: {identity?.accountTier ?? "Classic"}. Keep
+                    transacting to unlock better transfer benefits.
                   </Text>
                 </View>
 
-                <View style={[styles.bulletRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                  <Text style={[styles.bullet, { [isRTL ? 'marginLeft' : 'marginRight']: moderateScale(6) }]}>•</Text>
-                  <Text style={[styles.bulletText, { textAlign: isRTL ? 'right' : 'left' }]}>
-                    KYC status: {kycLabel}. Your dashboard is synced securely with your backend profile.
+                <View
+                  style={[
+                    styles.bulletRow,
+                    { flexDirection: isRTL ? "row-reverse" : "row" },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.bullet,
+                      {
+                        [isRTL ? "marginLeft" : "marginRight"]:
+                          moderateScale(6),
+                      },
+                    ]}
+                  >
+                    •
+                  </Text>
+                  <Text
+                    style={[
+                      styles.bulletText,
+                      { textAlign: isRTL ? "right" : "left" },
+                    ]}
+                  >
+                    KYC status: {kycLabel}. Your dashboard is synced securely
+                    with your backend profile.
                   </Text>
                 </View>
               </View>
@@ -269,6 +394,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingTop: responsiveHeight(4),
   },
 
   balanceLabel: {

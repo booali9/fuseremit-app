@@ -27,7 +27,10 @@ const BottomNavigation = () => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: [styles.tabBar, { flexDirection: isRTL ? 'row-reverse' : 'row' }],
+        tabBarStyle: [
+          styles.tabBar,
+          { flexDirection: isRTL ? "row-reverse" : "row" },
+        ],
       }}
     >
       {/* HOME */}
@@ -46,7 +49,7 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text 
+              <Text
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
@@ -75,7 +78,7 @@ const BottomNavigation = () => {
                 style={styles.centerIcon}
                 resizeMode="contain"
               />
-              <Text 
+              <Text
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
@@ -104,7 +107,7 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text 
+              <Text
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
@@ -133,7 +136,7 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text 
+              <Text
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
@@ -162,7 +165,7 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text 
+              <Text
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    fontSize: responsiveFontSize(1.2),
+    fontSize: responsiveFontSize(1.4),
     marginTop: responsiveHeight(0.3),
     color: "#0B3963",
     fontFamily: Fonts.semiBold,
