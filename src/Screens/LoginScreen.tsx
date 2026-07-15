@@ -20,7 +20,10 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { biometricLogin, requestEmailLoginOtp } from "../services/authApi";
 import { getBiometricToken, hasBiometricEnabled, setSession } from "../services/session";
 import { resetToDashboardOrKyc } from "../navigation/navigationHelpers";
+<<<<<<< HEAD
 import { syncFcmTokenWithBackend } from "../services/notifications";
+=======
+>>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
 import * as LocalAuthentication from "expo-local-authentication";
 import React, { useEffect } from "react";
 import Fonts from "../constants/Fonts";
@@ -81,7 +84,10 @@ const LoginScreen = ({ navigation }: Props) => {
             // mapping other fields if necessary
           } as any,
         });
+<<<<<<< HEAD
         void syncFcmTokenWithBackend();
+=======
+>>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
         await resetToDashboardOrKyc(navigation);
       } else {
         // 2FA flow
@@ -121,7 +127,10 @@ const LoginScreen = ({ navigation }: Props) => {
           user: data.user,
         });
 
+<<<<<<< HEAD
         void syncFcmTokenWithBackend();
+=======
+>>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
         await resetToDashboardOrKyc(navigation);
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : "Biometric login failed");
@@ -222,6 +231,7 @@ const LoginScreen = ({ navigation }: Props) => {
               {isValidEmail && (
                 <Feather name="check" size={20} color="#1DB954" style={styles.validationIcon} />
               )}
+<<<<<<< HEAD
             </View>
 
             <Text style={styles.label}>Password</Text>
@@ -248,6 +258,8 @@ const LoginScreen = ({ navigation }: Props) => {
                   style={styles.eyeIcon}
                 />
               </TouchableOpacity>
+=======
+>>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
             </View>
           </>
         )}

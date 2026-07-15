@@ -26,7 +26,10 @@ import {
 } from "../../services/authApi";
 import { setSession } from "../../services/session";
 import { resetToDashboardOrKyc } from "../../navigation/navigationHelpers";
+<<<<<<< HEAD
 import { syncFcmTokenWithBackend } from "../../services/notifications";
+=======
+>>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
 import Fonts from "../../constants/Fonts";
 
 interface Props {

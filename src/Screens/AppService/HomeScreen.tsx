@@ -28,7 +28,10 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ButtonsScreen from "./Home/ButtonsScreen";
 import RecentTransactions from "./Home/RecentTransactions";
 import { clearSession, getAccessToken, getAccessTokenAsync } from "../../services/session";
+<<<<<<< HEAD
 import { syncFcmTokenWithBackend } from "../../services/notifications";
+=======
+>>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
 import { fetchCurrentUserStatus } from "../../services/userApi";
 import { ApiError } from "../../services/api";
 import { resetToLogin } from "../../navigation/navigationHelpers";

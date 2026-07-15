@@ -19,8 +19,11 @@ import { moderateScale } from "react-native-size-matters";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
 import { createIdentitySession, getAdvancedKycStatus, AdvancedKycStatus } from "../../services/kycApi";
+<<<<<<< HEAD
 import { ApiError } from "../../services/api";
 import { clearSession } from "../../services/session";
+=======
+>>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
 
 interface Props {
   navigation: any;
