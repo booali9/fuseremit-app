@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   headerContent: {
     flex: 1,
     alignItems: "center",
-    paddingTop: responsiveHeight(2),
+    paddingTop: responsiveHeight(6),
   },
 
   headerTitle: {
