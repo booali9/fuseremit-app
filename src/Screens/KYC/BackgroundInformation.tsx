@@ -1,14 +1,5 @@
 import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Animated,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Animated } from "react-native";
 
 import {
   responsiveHeight,
@@ -19,6 +10,7 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 interface Props {
   navigation: any;
@@ -78,7 +70,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
               <Feather name="chevron-left" size={moderateScale(22)} />
             </TouchableOpacity>
 
-            <Text style={styles.title}>Background Information</Text>
+            <AppText style={styles.title}>Background Information</AppText>
 
             <TouchableOpacity style={{ position: "absolute", right: 0 }}>
               <Ionicons name="notifications" size={moderateScale(22)} />
@@ -86,7 +78,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
           </View>
 
           <View style={{ zIndex: 20 }}>
-            <Text style={styles.label}>Country of your residence</Text>
+            <AppText style={styles.label}>Country of your residence</AppText>
 
             <TouchableOpacity
               style={styles.inputContainer}
@@ -95,7 +87,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
                 setShowPassportDropdown(false);
               }}
             >
-              <Text style={{ flex: 1 }}>{residence || "e.g. America"}</Text>
+              <AppText style={{ flex: 1 }}>{residence || "e.g. America"}</AppText>
               <Feather name="chevron-down" size={20} />
             </TouchableOpacity>
 
@@ -110,7 +102,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
                       setShowResidenceDropdown(false);
                     }}
                   >
-                    <Text>{c}</Text>
+                    <AppText>{c}</AppText>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -118,7 +110,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
           </View>
 
           <View style={{ zIndex: 10 }}>
-            <Text style={styles.label}>Country of your passport</Text>
+            <AppText style={styles.label}>Country of your passport</AppText>
 
             <TouchableOpacity
               style={styles.inputContainer}
@@ -127,7 +119,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
                 setShowResidenceDropdown(false);
               }}
             >
-              <Text style={{ flex: 1 }}>{passport || "e.g. America"}</Text>
+              <AppText style={{ flex: 1 }}>{passport || "e.g. America"}</AppText>
               <Feather name="chevron-down" size={20} />
             </TouchableOpacity>
 
@@ -142,7 +134,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
                       setShowPassportDropdown(false);
                     }}
                   >
-                    <Text>{c}</Text>
+                    <AppText>{c}</AppText>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -150,7 +142,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
           </View>
 
           <View style={styles.rowCheckContainer}>
-            <Text style={styles.rowText}>I am Politically Exposed Person</Text>
+            <AppText style={styles.rowText}>I am Politically Exposed Person</AppText>
 
             <TouchableOpacity
               activeOpacity={0.8}
@@ -178,10 +170,10 @@ const BackgroundlInformation = ({ navigation }: Props) => {
 
         <View style={styles.bottomSection}>
           <View style={styles.rowCheckContainer}>
-            <Text style={styles.rowText}>
+            <AppText style={styles.rowText}>
               I hereby confirm that the information I have provided is true,
               accurate and complete.
-            </Text>
+            </AppText>
 
             <TouchableOpacity
               activeOpacity={0.8}
@@ -208,7 +200,7 @@ const BackgroundlInformation = ({ navigation }: Props) => {
             style={styles.button}
             onPress={() => navigation.navigate("KYCSubmission")}
           >
-            <Text style={styles.buttonText}>Next</Text>
+            <AppText style={styles.buttonText}>Next</AppText>
           </TouchableOpacity>
         </View>
       </View>

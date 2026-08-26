@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import {
@@ -16,6 +16,7 @@ import ProfileStack from "../../Components/Profile/ProfileStack";
 
 import { useLanguage } from "../../context/LanguageContext";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 const Tab = createBottomTabNavigator();
 
@@ -49,14 +50,14 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text
+              <AppText
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
                 minimumFontScale={0.5}
               >
                 {t("common.home")}
-              </Text>
+              </AppText>
             </View>
           ),
         }}
@@ -78,14 +79,14 @@ const BottomNavigation = () => {
                 style={styles.centerIcon}
                 resizeMode="contain"
               />
-              <Text
+              <AppText
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
                 minimumFontScale={0.5}
               >
                 {t("common.sendFuse")}
-              </Text>
+              </AppText>
             </View>
           ),
         }}
@@ -107,14 +108,14 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text
+              <AppText
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
                 minimumFontScale={0.5}
               >
                 {t("common.history")}
-              </Text>
+              </AppText>
             </View>
           ),
         }}
@@ -136,14 +137,14 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text
+              <AppText
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
                 minimumFontScale={0.5}
               >
                 {t("common.alerts")}
-              </Text>
+              </AppText>
             </View>
           ),
         }}
@@ -165,14 +166,14 @@ const BottomNavigation = () => {
                 style={styles.iconImage}
                 resizeMode="contain"
               />
-              <Text
+              <AppText
                 style={[styles.label, focused && styles.labelActive]}
                 numberOfLines={1}
                 adjustsFontSizeToFit={true}
                 minimumFontScale={0.5}
               >
                 {t("common.profile")}
-              </Text>
+              </AppText>
             </View>
           ),
         }}

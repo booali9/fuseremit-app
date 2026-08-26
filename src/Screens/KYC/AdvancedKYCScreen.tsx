@@ -1,14 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   responsiveHeight,
@@ -19,11 +10,9 @@ import { moderateScale } from "react-native-size-matters";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
 import { createIdentitySession, getAdvancedKycStatus, AdvancedKycStatus } from "../../services/kycApi";
-<<<<<<< HEAD
 import { ApiError } from "../../services/api";
 import { clearSession } from "../../services/session";
-=======
->>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
+import AppText from "../../Components/Common/AppText";
 
 interface Props {
   navigation: any;
@@ -113,7 +102,7 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={moderateScale(22)} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Advanced Verification</Text>
+        <AppText style={styles.topTitle}>Advanced Verification</AppText>
         <View style={{ width: moderateScale(22) }} />
       </View>
 
@@ -121,13 +110,13 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
         {/* Status card */}
         <View style={styles.statusCard}>
           <StatusIcon status={status} />
-          <Text style={styles.statusTitle}>
+          <AppText style={styles.statusTitle}>
             {status === "verified" ? "Identity Verified" :
               status === "pending" ? "Under Review" :
               status === "failed" ? "Verification Failed" :
               "Verify Your Identity"}
-          </Text>
-          <Text style={styles.statusSub}>
+          </AppText>
+          <AppText style={styles.statusSub}>
             {status === "verified"
               ? `Your sending limit is now $${(kycStatus?.sendingLimit ?? 10000).toLocaleString()} per transfer`
               : status === "pending"
@@ -135,27 +124,27 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
               : status === "failed"
               ? "Your verification was unsuccessful. Please try again with a clear, valid document."
               : "Complete advanced verification to unlock higher sending limits"}
-          </Text>
+          </AppText>
         </View>
 
         {/* Limits comparison */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Sending Limits</Text>
+          <AppText style={styles.cardTitle}>Sending Limits</AppText>
           <View style={styles.limitsRow}>
             <View style={styles.limitBox}>
-              <Text style={styles.limitAmount}>
+              <AppText style={styles.limitAmount}>
                 ${(status === "verified" ? 1000 : kycStatus?.sendingLimit ?? 1000).toLocaleString()}
-              </Text>
-              <Text style={styles.limitLabel}>Basic KYC</Text>
-              <Text style={styles.limitSub}>per transfer</Text>
+              </AppText>
+              <AppText style={styles.limitLabel}>Basic KYC</AppText>
+              <AppText style={styles.limitSub}>per transfer</AppText>
             </View>
             <Feather name="arrow-right" size={moderateScale(24)} color="#AAAAAA" />
             <View style={[styles.limitBox, status === "verified" && styles.limitBoxActive]}>
-              <Text style={[styles.limitAmount, status === "verified" && styles.limitAmountActive]}>
+              <AppText style={[styles.limitAmount, status === "verified" && styles.limitAmountActive]}>
                 ${(status === "verified" ? kycStatus?.sendingLimit ?? 10000 : 10000).toLocaleString()}
-              </Text>
-              <Text style={[styles.limitLabel, status === "verified" && styles.limitLabelActive]}>Advanced KYC</Text>
-              <Text style={[styles.limitSub, status === "verified" && { color: "#A8C4DE" }]}>per transfer</Text>
+              </AppText>
+              <AppText style={[styles.limitLabel, status === "verified" && styles.limitLabelActive]}>Advanced KYC</AppText>
+              <AppText style={[styles.limitSub, status === "verified" && { color: "#A8C4DE" }]}>per transfer</AppText>
             </View>
           </View>
         </View>
@@ -163,7 +152,7 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
         {/* What you need */}
         {status !== "verified" ? (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>What You'll Need</Text>
+            <AppText style={styles.cardTitle}>What You'll Need</AppText>
             {[
               { icon: "card-account-details-outline" as const, text: "Government-issued ID (passport, driver's license, or national ID)" },
               { icon: "camera-outline" as const, text: "A selfie for facial matching" },
@@ -171,7 +160,7 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
             ].map((item, i) => (
               <View key={i} style={styles.requirementRow}>
                 <MaterialCommunityIcons name={item.icon} size={moderateScale(22)} color="#0B3963" />
-                <Text style={styles.requirementText}>{item.text}</Text>
+                <AppText style={styles.requirementText}>{item.text}</AppText>
               </View>
             ))}
           </View>
@@ -189,18 +178,18 @@ const AdvancedKYCScreen: React.FC<Props> = ({ navigation, route }) => {
             ) : (
               <>
                 <MaterialCommunityIcons name="shield-check-outline" size={moderateScale(20)} color="#fff" style={{ marginRight: 8 }} />
-                <Text style={styles.startButtonText}>
+                <AppText style={styles.startButtonText}>
                   {status === "pending" ? "Verification in Progress..." :
                    status === "failed" ? "Try Again" : "Start Verification"}
-                </Text>
+                </AppText>
               </>
             )}
           </TouchableOpacity>
         ) : null}
 
-        <Text style={styles.footerNote}>
+        <AppText style={styles.footerNote}>
           Powered by Stripe Identity. Your documents are encrypted and processed securely.
-        </Text>
+        </AppText>
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  SafeAreaView,
-} from "react-native";
+import { View, TouchableOpacity, StyleSheet, Image, SafeAreaView } from "react-native";
 
 import {
   responsiveHeight,
@@ -21,6 +14,7 @@ import { biometricLogin, requestForgotPinOtp } from "../../services/authApi";
 import { resetToDashboardOrKyc } from "../../navigation/navigationHelpers";
 import { getBiometricToken, setSession } from "../../services/session";
 import { Alert } from "react-native";
+import AppText from "../Common/AppText";
 
 const ChangeDevicePin = ({ navigation, route }: { navigation: any; route?: any }) => {
   const [pin, setPin] = useState<string>("");
@@ -105,7 +99,7 @@ const ChangeDevicePin = ({ navigation, route }: { navigation: any; route?: any }
       activeOpacity={0.7}
       onPress={() => handlePress(value)}
     >
-      <Text style={styles.keyText}>{value}</Text>
+      <AppText style={styles.keyText}>{value}</AppText>
     </TouchableOpacity>
   );
 
@@ -126,11 +120,11 @@ const ChangeDevicePin = ({ navigation, route }: { navigation: any; route?: any }
       </View>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Create your Pin</Text>
+        <AppText style={styles.title}>Create your Pin</AppText>
 
-        <Text style={styles.subtitle}>
+        <AppText style={styles.subtitle}>
           This is requested after device change and to confirm transactions
-        </Text>
+        </AppText>
       </View>
 
       <View style={styles.dotsContainer}>
@@ -183,11 +177,11 @@ const ChangeDevicePin = ({ navigation, route }: { navigation: any; route?: any }
 
       <View style={styles.footer}>
         <TouchableOpacity onPress={handleForgotPin} disabled={loading}>
-          <Text style={styles.forgot}>Forgot your PIN?</Text>
+          <AppText style={styles.forgot}>Forgot your PIN?</AppText>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.logout}>Logout</Text>
+          <AppText style={styles.logout}>Logout</AppText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

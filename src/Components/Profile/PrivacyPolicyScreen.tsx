@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
 
 import {
   responsiveHeight,
@@ -17,6 +10,7 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Ionicons } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
 
 interface Props {
   navigation: any;
@@ -35,7 +29,7 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation }) => {
           />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>PRIVACY POLICY</Text>
+        <AppText style={styles.headerTitle}>PRIVACY POLICY</AppText>
 
         {/* Empty view for center alignment */}
         <View style={{ width: moderateScale(22) }} />
@@ -46,42 +40,42 @@ const PrivacyPolicyScreen: React.FC<Props> = ({ navigation }) => {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.mainTitle}>FUSEREMIT PRIVACY POLICY</Text>
+        <AppText style={styles.mainTitle}>FUSEREMIT PRIVACY POLICY</AppText>
 
-        <Text style={styles.sectionTitle}>1. INTRODUCTION</Text>
+        <AppText style={styles.sectionTitle}>1. INTRODUCTION</AppText>
 
-        <Text style={styles.paragraph}>
+        <AppText style={styles.paragraph}>
           Fuseremit (“Fuseremit”, “we”, “our”, or “us”) is an AI-powered fintech
           mobile and web application that enables users to send and receive
           money, cross-border remittances, currency exchange, AI-driven
           financial insights, fraud detection, smart budgeting.
-        </Text>
+        </AppText>
 
-        <Text style={styles.paragraph}>
+        <AppText style={styles.paragraph}>
           We are committed to protecting the privacy, confidentiality, and
           integrity of personal and financial data entrusted to us. This Privacy
           Policy explains how we collect, use, process, store, share, and
           protect personal information in compliance with:
-        </Text>
+        </AppText>
 
-        <Text style={styles.bullet}>• The General Data Protection Regulation (EU) 2016/679 (GDPR)</Text>
-        <Text style={styles.bullet}>• The Nigeria Data Protection Regulation (NDPR) 2019</Text>
-        <Text style={styles.bullet}>• The California Consumer Privacy Act (CCPA), as amended by CPRA</Text>
-        <Text style={styles.bullet}>• Applicable global financial services and data protection standards</Text>
+        <AppText style={styles.bullet}>• The General Data Protection Regulation (EU) 2016/679 (GDPR)</AppText>
+        <AppText style={styles.bullet}>• The Nigeria Data Protection Regulation (NDPR) 2019</AppText>
+        <AppText style={styles.bullet}>• The California Consumer Privacy Act (CCPA), as amended by CPRA</AppText>
+        <AppText style={styles.bullet}>• Applicable global financial services and data protection standards</AppText>
 
-        <Text style={styles.paragraph}>
+        <AppText style={styles.paragraph}>
           This Privacy Policy applies to:
-        </Text>
+        </AppText>
 
-        <Text style={styles.bullet}>• Our mobile applications</Text>
-        <Text style={styles.bullet}>• Our web platform</Text>
-        <Text style={styles.bullet}>• All related services, features, APIs, and integrations</Text>
-        <Text style={styles.bullet}>• Communications and interactions with users, partners, and regulators</Text>
+        <AppText style={styles.bullet}>• Our mobile applications</AppText>
+        <AppText style={styles.bullet}>• Our web platform</AppText>
+        <AppText style={styles.bullet}>• All related services, features, APIs, and integrations</AppText>
+        <AppText style={styles.bullet}>• Communications and interactions with users, partners, and regulators</AppText>
 
-        <Text style={styles.paragraph}>
+        <AppText style={styles.paragraph}>
           By accessing or using Fuseremit, you acknowledge that you have read and
           understood this Privacy Policy.
-        </Text>
+        </AppText>
       </ScrollView>
     </SafeAreaView>
   );

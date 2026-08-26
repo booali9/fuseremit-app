@@ -1,16 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-  Modal,
-  Pressable,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, TouchableOpacity, Image, SafeAreaView, StatusBar, ScrollView, Modal, Pressable } from "react-native";
 
 import {
   responsiveHeight,
@@ -23,6 +12,12 @@ import { Feather, FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
+import { mayaFeeTip } from "../../../services/mayaApi";
+import { cheapestDeliveryFee } from "../../../constants/transfer";
+
+// ponytail: unreachable since FuseSend now routes to FuseRemittance. Mock data throughout —
+// safe to delete once your local changes are committed.
 
 const paymentMethods = [
   { id: "ach", label: "Connected bank account (ACH)", icon: "hand-holding-dollar" },
@@ -34,6 +29,15 @@ const SendMoneySecond = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [selectedMethod, setSelectedMethod] = useState(paymentMethods[0]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [feeTip, setFeeTip] = useState("MAYA AI : You could save up to 23.66$");
+
+  useEffect(() => {
+    void mayaFeeTip({ amount: 2000, feeTotal: 40, cheapestFee: cheapestDeliveryFee })
+      .then((data) => {
+        if (data.message) setFeeTip(data.message);
+      })
+      .catch(() => undefined);
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -52,20 +56,20 @@ const SendMoneySecond = () => {
             <Feather name="chevron-left" size={moderateScale(22)} />
           </TouchableOpacity>
 
-          <Text style={styles.title}>SEND MONEY</Text>
+          <AppText style={styles.title}>SEND MONEY</AppText>
         </View>
 
-        <Text style={styles.label}>You Send</Text>
+        <AppText style={styles.label}>You Send</AppText>
 
         <View style={styles.amountCard}>
-          <Text style={styles.amountText}>2,000</Text>
+          <AppText style={styles.amountText}>2,000</AppText>
 
           <View style={styles.currencyWrapper}>
             <Image
               source={require("../../../../assets/usa.png")}
               style={styles.flag}
             />
-            <Text style={styles.currencyText}>USD</Text>
+            <AppText style={styles.currencyText}>USD</AppText>
             <Feather
               name="chevron-down"
               size={moderateScale(16)}
@@ -75,9 +79,9 @@ const SendMoneySecond = () => {
         </View>
 
         <View style={styles.discountBar}>
-          <Text style={styles.discountText}>
+          <AppText style={styles.discountText}>
             Send over 30,000 USD or equivalent to be eligible for discount
-          </Text>
+          </AppText>
         </View>
 
         <View style={styles.arrowWrapper}>
@@ -88,17 +92,17 @@ const SendMoneySecond = () => {
         </View>
 
         {/* RECIPIENT */}
-        <Text style={styles.label}>Recipient gets</Text>
+        <AppText style={styles.label}>Recipient gets</AppText>
 
         <View style={styles.amountCard}>
-          <Text style={styles.amountText}>3,160,000.00</Text>
+          <AppText style={styles.amountText}>3,160,000.00</AppText>
 
           <View style={styles.currencyWrapper}>
             <Image
               source={require("../../../../assets/ngn.png")}
               style={styles.flag}
             />
-            <Text style={styles.currencyText}>NGN</Text>
+            <AppText style={styles.currencyText}>NGN</AppText>
             <Feather name="chevron-down" size={moderateScale(18)} />
           </View>
         </View>
@@ -108,13 +112,13 @@ const SendMoneySecond = () => {
             source={require("../../../../assets/ngn.png")}
             style={[styles.flag, { marginRight: 8 }]}
           />
-          <Text style={styles.rateText}>NGN 1$ = ₦1,540.00</Text>
+          <AppText style={styles.rateText}>NGN 1$ = ₦1,540.00</AppText>
         </View>
 
         {/* PAYMENT */}
-        <Text style={[styles.label, { marginTop: responsiveHeight(3) }]}>
+        <AppText style={[styles.label, { marginTop: responsiveHeight(3) }]}>
           Choose your payment method
-        </Text>
+        </AppText>
 
         <View style={styles.paymentCard}>
           <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
@@ -124,14 +128,14 @@ const SendMoneySecond = () => {
               size={20}
               color="black"
             />
-            <Text style={styles.paymentText}>{selectedMethod.label}</Text>
+            <AppText style={styles.paymentText}>{selectedMethod.label}</AppText>
           </View>
 
           <TouchableOpacity
             style={styles.changeBtn}
             onPress={() => setShowPaymentModal(true)}
           >
-            <Text style={styles.changeText}>Change</Text>
+            <AppText style={styles.changeText}>Change</AppText>
             <Feather
               name="chevron-right"
               size={moderateScale(12)}
@@ -144,32 +148,32 @@ const SendMoneySecond = () => {
         {/* FEE */}
         <View style={styles.feeBox}>
           <View style={styles.feeRow}>
-            <Text style={styles.feeLabel}>
+            <AppText style={styles.feeLabel}>
               {selectedMethod.label} fee
-            </Text>
-            <Text style={styles.feeValue}>19.70 USD</Text>
+            </AppText>
+            <AppText style={styles.feeValue}>19.70 USD</AppText>
           </View>
 
           <View style={styles.feeRow}>
-            <Text style={styles.feeLabel}>Fuseremit Fee</Text>
-            <Text style={styles.feeValue}>19.28 USD</Text>
+            <AppText style={styles.feeLabel}>Fuseremit Fee</AppText>
+            <AppText style={styles.feeValue}>19.28 USD</AppText>
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.feeRow}>
-            <Text style={styles.totalLabel}>Total Included Fees</Text>
-            <Text style={styles.totalValue}>40 USD</Text>
+            <AppText style={styles.totalLabel}>Total Included Fees</AppText>
+            <AppText style={styles.totalValue}>40 USD</AppText>
           </View>
         </View>
 
-        <Text style={styles.saveText}>
-          MAYA AI : You could save up to 23.66$
-        </Text>
+        <AppText style={styles.saveText}>
+          {feeTip}
+        </AppText>
 
         {/* BUTTON */}
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SendMoneyDetail')}>
-          <Text style={styles.buttonText}>Send Money</Text>
+          <AppText style={styles.buttonText}>Send Money</AppText>
         </TouchableOpacity>
       </ScrollView>
 
@@ -186,7 +190,7 @@ const SendMoneySecond = () => {
         />
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Select Payment Method</Text>
+            <AppText style={styles.modalTitle}>Select Payment Method</AppText>
             <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
               <Feather name="x" size={24} color="#000" />
             </TouchableOpacity>
@@ -212,14 +216,14 @@ const SendMoneySecond = () => {
                   color={isSelected ? "#1F2A50" : "#555"}
                   style={{ marginRight: scale(12) }}
                 />
-                <Text
+                <AppText
                   style={[
                     styles.methodLabel,
                     isSelected && styles.methodLabelSelected,
                   ]}
                 >
                   {method.label}
-                </Text>
+                </AppText>
                 {isSelected && (
                   <Feather name="check" size={20} color="#1F2A50" style={{ marginLeft: "auto" }} />
                 )}

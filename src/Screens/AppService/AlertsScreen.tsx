@@ -1,14 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, ScrollView, StatusBar, TouchableOpacity, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -22,6 +13,7 @@ import Fonts from "../../constants/Fonts";
 import { listTransactions, Transaction } from "../../services/paymentApi";
 
 import { useLanguage } from "../../context/LanguageContext";
+import AppText from "../../Components/Common/AppText";
 
 const SUCCESS_STATUSES = ["completed", "delivered", "sent"];
 
@@ -78,13 +70,13 @@ const AlertsScreen: React.FC = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t("alerts.title")}</Text>
+          <AppText style={styles.headerTitle}>{t("alerts.title")}</AppText>
         </View>
 
         {loading ? (
           <ActivityIndicator size="small" color="#0B3963" style={{ marginTop: responsiveHeight(3) }} />
         ) : transactions.length === 0 ? (
-          <Text style={styles.emptyText}>No alerts yet</Text>
+          <AppText style={styles.emptyText}>No alerts yet</AppText>
         ) : (
           transactions.map((tx) => {
             const isSuccess = SUCCESS_STATUSES.includes(tx.status);
@@ -98,10 +90,10 @@ const AlertsScreen: React.FC = () => {
                   {renderIcon(isSuccess)}
 
                   <View style={[styles.contentWrapper, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                    <Text style={[styles.alertText, { textAlign: isRTL ? 'right' : 'left' }]}>{title}</Text>
+                    <AppText style={[styles.alertText, { textAlign: isRTL ? 'right' : 'left' }]}>{title}</AppText>
 
                     <View style={[styles.rightMeta, { alignItems: isRTL ? 'flex-start' : 'flex-end' }]}>
-                      <Text style={styles.timeText}>{timeAgo(tx.createdAt)}</Text>
+                      <AppText style={styles.timeText}>{timeAgo(tx.createdAt)}</AppText>
                     </View>
                   </View>
                 </View>

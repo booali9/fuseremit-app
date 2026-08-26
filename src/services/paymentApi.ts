@@ -50,7 +50,10 @@ export interface CreateTransferRequest {
   fee: number;
   amountReceived: number;
   receivedCurrency: string;
-  paymentIntentId: string;
+  /** Card-funded transfers only. Omit to pay from the wallet balance. */
+  paymentIntentId?: string;
+  /** Required when paying from the wallet balance — the backend re-verifies it. */
+  transactionPin?: string;
 }
 
 export interface ConfirmPaymentIntentResponse {
@@ -119,6 +122,21 @@ export const listTransactions = async (
     token,
   );
   return res.data;
+};
+
+/** Live mid-market rate, e.g. USD → NGN. */
+export const getExchangeRate = async (
+  base: string,
+  target: string,
+): Promise<number> => {
+  const token = await getAccessTokenAsync();
+  if (!token) throw new Error("No access token found");
+
+  const res = await getJson<{ base: string; target: string; rate: number }>(
+    `/payments/rates?base=${encodeURIComponent(base)}&target=${encodeURIComponent(target)}`,
+    token,
+  );
+  return res.data.rate;
 };
 
 export const getTransactionById = async (id: string): Promise<Transaction> => {

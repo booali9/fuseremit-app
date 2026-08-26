@@ -1,15 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
-  Keyboard,
-} from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, Keyboard } from "react-native";
 
 import {
   responsiveHeight,
@@ -22,6 +12,8 @@ import { Feather } from "@expo/vector-icons";
 
 import ChangeDevicePhoneVerifyModal from "./ChangeDevicePhoneVerifyModal";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
+import AppTextInput from "../Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -122,14 +114,14 @@ const ChangeDevicePhoneVerify = ({ navigation }: Props) => {
           <View style={{ width: moderateScale(26) }} />
         </View>
 
-        <Text style={styles.title}>Verify Your Phone Number</Text>
-        <Text style={styles.subtitle}>
+        <AppText style={styles.title}>Verify Your Phone Number</AppText>
+        <AppText style={styles.subtitle}>
           Please enter the 4-digit code we sent to 080 **** **78.
-        </Text>
+        </AppText>
 
         <View style={styles.otpRow}>
           {otp.map((digit, index) => (
-            <TextInput
+            <AppTextInput
               key={index}
               ref={(ref) => {
                 inputs.current[index] = ref;
@@ -153,21 +145,21 @@ const ChangeDevicePhoneVerify = ({ navigation }: Props) => {
             disabled={seconds !== 0}
             onPress={resendCode}
           >
-            <Text
+            <AppText
               style={[
                 styles.resendText,
                 seconds === 0 && styles.resendTextActive,
               ]}
             >
               Resend Code
-            </Text>
+            </AppText>
           </TouchableOpacity>
 
-          <Text style={styles.timer}>
+          <AppText style={styles.timer}>
             {seconds === 0
               ? "You can resend now"
               : `Resend code in ${formatTime()}`}
-          </Text>
+          </AppText>
         </View>
 
         {/* Modal */}

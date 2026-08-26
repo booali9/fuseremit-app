@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -14,6 +8,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
 
 const AddMoneyScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -24,17 +19,17 @@ const AddMoneyScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1E2A5A" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Money</Text>
+        <AppText style={styles.headerTitle}>Add Money</AppText>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.content}>
         <Ionicons name="card-outline" size={64} color="#9CA3AF" />
-        <Text style={styles.title}>Not Available on Web</Text>
-        <Text style={styles.subtitle}>
+        <AppText style={styles.title}>Not Available on Web</AppText>
+        <AppText style={styles.subtitle}>
           The Add Money feature uses native payment processing and is only
           available on the iOS and Android apps.
-        </Text>
+        </AppText>
       </View>
     </SafeAreaView>
   );

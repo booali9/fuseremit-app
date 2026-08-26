@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-  StatusBar,
-  ScrollView,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Image, StatusBar, ScrollView, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -25,6 +14,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { getAccessTokenAsync } from "../../services/session";
 import { changePassword } from "../../services/authApi";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
+import AppTextInput from "../Common/AppTextInput";
 
 const ChangePassword: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -102,7 +93,7 @@ const ChangePassword: React.FC = () => {
           <View style={{ width: responsiveWidth(8) }} />
         </View>
 
-        <Text style={styles.screenTitle}>SECURITY SETTINGS</Text>
+        <AppText style={styles.screenTitle}>SECURITY SETTINGS</AppText>
 
         <View style={styles.profileWrapper}>
           <Image
@@ -116,9 +107,9 @@ const ChangePassword: React.FC = () => {
         </View>
 
         <View style={styles.formWrapper}>
-          <Text style={styles.label}>Current Password</Text>
+          <AppText style={styles.label}>Current Password</AppText>
           <View style={styles.inputContainer}>
-            <TextInput
+            <AppTextInput
               value={currentPassword}
               onChangeText={setCurrentPassword}
               secureTextEntry={hideCurrent}
@@ -135,9 +126,9 @@ const ChangePassword: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>New Password</Text>
+          <AppText style={styles.label}>New Password</AppText>
           <View style={styles.inputContainer}>
-            <TextInput
+            <AppTextInput
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry={hideNew}
@@ -154,9 +145,9 @@ const ChangePassword: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Confirm Password</Text>
+          <AppText style={styles.label}>Confirm Password</AppText>
           <View style={styles.inputContainer}>
-            <TextInput
+            <AppTextInput
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={hideConfirm}
@@ -184,7 +175,7 @@ const ChangePassword: React.FC = () => {
           {isSubmitting ? (
             <ActivityIndicator color="#FFF" />
           ) : (
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <AppText style={styles.saveButtonText}>Save Changes</AppText>
           )}
         </TouchableOpacity>
       </View>

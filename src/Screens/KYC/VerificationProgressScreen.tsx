@@ -1,12 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Animated,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Animated } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import * as Animatable from "react-native-animatable";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +12,7 @@ import { moderateScale } from "react-native-size-matters";
 import { useNavigation } from "@react-navigation/native";
 import { getAccessTokenAsync } from "../../services/session";
 import { updateAccountTier, updateKycStatus } from "../../services/userApi";
+import AppText from "../../Components/Common/AppText";
 
 const VerificationProgressScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -79,7 +73,7 @@ const VerificationProgressScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Verify it’s you</Text>
+        <AppText style={styles.headerTitle}>Verify it’s you</AppText>
       </View>
 
       <Animatable.View
@@ -126,27 +120,27 @@ const VerificationProgressScreen: React.FC = () => {
       </Animatable.View>
 
       <View style={styles.textContainer}>
-        <Text style={styles.title}>
+        <AppText style={styles.title}>
           {completed ? "Verification Successful" : "Verification in Progress"}
-        </Text>
+        </AppText>
 
-        <Text style={styles.subtitle}>
+        <AppText style={styles.subtitle}>
           {completed
             ? "Your KYC details have been captured successfully. Final review is now in progress."
             : "We are securely validating your identity details. This will only take a moment."}
-        </Text>
+        </AppText>
       </View>
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
 
       <TouchableOpacity
         style={[styles.button, isSubmitting && styles.buttonDisabled]}
         onPress={handleGoToDashboard}
         disabled={isSubmitting}
       >
-        <Text style={styles.buttonText}>
+        <AppText style={styles.buttonText}>
           {isSubmitting ? "Syncing..." : "Go to Dashboard"}
-        </Text>
+        </AppText>
       </TouchableOpacity>
     </SafeAreaView>
   );

@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  Image,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 
 import {
   responsiveHeight,
@@ -19,6 +12,7 @@ import { moderateScale } from "react-native-size-matters";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
 
 const ButtonsScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -69,21 +63,24 @@ const ButtonsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <AppText style={styles.sectionTitle}>Quick Actions</AppText>
       <View style={styles.gridContainer}>
         {buttons.map((item, index) => (
           <TouchableOpacity
             key={index}
             style={[styles.card, { height: cardHeight }]}
-            activeOpacity={0.8}
+            activeOpacity={0.85}
             onPress={() => handleNavigation(item.screen)}
           >
-            <Image source={item.image} style={styles.iconImage} />
-            <Text style={styles.text}>{item.title}</Text>
+            <View style={styles.iconCircle}>
+              <Image source={item.image} style={styles.iconImage} />
+            </View>
+            <AppText style={styles.text}>{item.title}</AppText>
           </TouchableOpacity>
         ))}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -91,41 +88,60 @@ export default ButtonsScreen;
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: responsiveWidth(5),
     marginTop: responsiveHeight(3),
   },
 
+  sectionTitle: {
+    fontSize: responsiveFontSize(2.1),
+    fontFamily: Fonts.bold,
+    color: "#1F2A50",
+    marginBottom: responsiveHeight(2),
+  },
+
   gridContainer: {
-    width: responsiveWidth(90),
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
 
   card: {
-    width: responsiveWidth(42),
-    backgroundColor: "#203a731a",
+    width: "48%",
+    backgroundColor: "#FFFFFF",
     borderRadius: moderateScale(20),
     borderWidth: 1,
-    borderColor: "#1F2A50",
+    borderColor: "#EDF0F6",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: responsiveHeight(3),
+    marginBottom: responsiveHeight(2),
+    shadowColor: "#1F2A50",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+
+  iconCircle: {
+    width: responsiveWidth(14),
+    height: responsiveWidth(14),
+    borderRadius: responsiveWidth(14),
+    backgroundColor: "#EEF2FB",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: responsiveHeight(1.2),
   },
 
   iconImage: {
-    width: responsiveWidth(8),
-    height: responsiveWidth(8),
+    width: responsiveWidth(7),
+    height: responsiveWidth(7),
     resizeMode: "contain",
-    marginBottom: responsiveHeight(1),
   },
 
   text: {
-    fontSize: responsiveFontSize(2),
+    fontSize: responsiveFontSize(1.85),
     fontFamily: Fonts.bold,
     color: "#1D2B53",
     textAlign: "center",
-    lineHeight: responsiveFontSize(3),
+    lineHeight: responsiveFontSize(2.5),
   },
 });

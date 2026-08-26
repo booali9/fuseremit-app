@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-  StatusBar,
-  ScrollView,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Image, StatusBar, ScrollView, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -26,6 +15,8 @@ import Fonts from "../../constants/Fonts";
 import { getAccessTokenAsync, getSessionUser, setSession } from "../../services/session";
 import { updateProfile } from "../../services/authApi";
 import { Alert } from "react-native";
+import AppText from "../Common/AppText";
+import AppTextInput from "../Common/AppTextInput";
 
 const ProfileSettingScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -120,7 +111,7 @@ const ProfileSettingScreen: React.FC = () => {
           <View style={{ width: responsiveWidth(8) }} />
         </View>
 
-        <Text style={styles.screenTitle}>PROFILE</Text>
+        <AppText style={styles.screenTitle}>PROFILE</AppText>
 
         <View style={styles.profileImageWrapper}>
           <Image
@@ -134,9 +125,9 @@ const ProfileSettingScreen: React.FC = () => {
         </View>
 
         <View style={styles.formWrapper}>
-          <Text style={styles.label}>Full Name</Text>
+          <AppText style={styles.label}>Full Name</AppText>
           <View style={styles.inputContainer}>
-            <TextInput
+            <AppTextInput
               value={fullName}
               editable={isNameEditable}
               onChangeText={setFullName}
@@ -149,9 +140,9 @@ const ProfileSettingScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Email Address</Text>
+          <AppText style={styles.label}>Email Address</AppText>
           <View style={styles.inputContainer}>
-            <TextInput
+            <AppTextInput
               value={email}
               editable={isEmailEditable}
               onChangeText={setEmail}
@@ -164,9 +155,9 @@ const ProfileSettingScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Phone Number</Text>
+          <AppText style={styles.label}>Phone Number</AppText>
           <View style={styles.inputContainer}>
-            <TextInput
+            <AppTextInput
               value={phone}
               editable={isPhoneEditable}
               onChangeText={setPhone}
@@ -191,7 +182,7 @@ const ProfileSettingScreen: React.FC = () => {
           {isSubmitting ? (
             <ActivityIndicator color="#FFF" size="small" />
           ) : (
-            <Text style={styles.saveButtonText}>Save Changes</Text>
+            <AppText style={styles.saveButtonText}>Save Changes</AppText>
           )}
         </TouchableOpacity>
       </View>

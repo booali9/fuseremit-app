@@ -1,15 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -19,6 +9,8 @@ import { moderateScale } from "react-native-size-matters";
 import Fonts from "../../../constants/Fonts";
 import { verifyTransactionPin } from "../../../services/userApi";
 import { createTransfer, CreateTransferRequest } from "../../../services/paymentApi";
+import AppText from "../../../Components/Common/AppText";
+import AppTextInput from "../../../Components/Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -88,7 +80,9 @@ const OTPScreen = ({ navigation, route }: Props) => {
         return;
       }
 
-      const transaction = await createTransfer(transferData);
+      // Wallet-funded transfers (voice / quick send) carry no Stripe intent, so the backend
+      // re-verifies the PIN itself before touching the balance.
+      const transaction = await createTransfer({ ...transferData, transactionPin: pin });
 
       // 3. Navigate to success screen with real transaction
       navigation.navigate("Transaction", { transaction });
@@ -103,17 +97,17 @@ const OTPScreen = ({ navigation, route }: Props) => {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={styles.container}>
         <View style={styles.topbar}>
-          <Text style={styles.topTitle}>Enter Transaction PIN</Text>
+          <AppText style={styles.topTitle}>Enter Transaction PIN</AppText>
         </View>
 
-        <Text style={styles.title}>Confirm Your Transfer</Text>
-        <Text style={styles.subtitle}>
+        <AppText style={styles.title}>Confirm Your Transfer</AppText>
+        <AppText style={styles.subtitle}>
           Enter your 4-digit transaction PIN to authorise this transfer.
-        </Text>
+        </AppText>
 
         <View style={styles.otpRow}>
           {otp.map((digit, index) => (
-            <TextInput
+            <AppTextInput
               key={index}
               ref={(ref) => { inputs.current[index] = ref; }}
               style={[styles.otpBox, activeIndex === index && styles.otpActive]}
@@ -129,9 +123,9 @@ const OTPScreen = ({ navigation, route }: Props) => {
           ))}
         </View>
 
-        <Text style={styles.timerText}>
+        <AppText style={styles.timerText}>
           {seconds > 0 ? `Session expires in ${seconds}s` : "Session expired"}
-        </Text>
+        </AppText>
 
         <View style={styles.bottom}>
           <TouchableOpacity
@@ -142,9 +136,9 @@ const OTPScreen = ({ navigation, route }: Props) => {
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={[styles.continueText, isFilled && styles.continueTextActive]}>
+              <AppText style={[styles.continueText, isFilled && styles.continueTextActive]}>
                 Confirm Transfer
-              </Text>
+              </AppText>
             )}
           </TouchableOpacity>
         </View>

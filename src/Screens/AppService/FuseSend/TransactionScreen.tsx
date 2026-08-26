@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-  Share,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ScrollView, Share } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -19,6 +10,7 @@ import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-ico
 import Fonts from "../../../constants/Fonts";
 import { Transaction } from "../../../services/paymentApi";
 import { CommonActions } from "@react-navigation/native";
+import AppText from "../../../Components/Common/AppText";
 
 interface Props {
   navigation: any;
@@ -65,7 +57,7 @@ const TransactionScreen = ({ navigation, route }: Props) => {
 
       <View style={styles.topBar}>
         <View style={{ width: moderateScale(22) }} />
-        <Text style={styles.topTitle}>Transfer Sent</Text>
+        <AppText style={styles.topTitle}>Transfer Sent</AppText>
         <View style={{ width: moderateScale(22) }} />
       </View>
 
@@ -75,10 +67,10 @@ const TransactionScreen = ({ navigation, route }: Props) => {
           <View style={styles.checkCircle}>
             <MaterialCommunityIcons name="check-bold" size={moderateScale(36)} color="#fff" />
           </View>
-          <Text style={styles.successTitle}>Transfer Initiated!</Text>
-          <Text style={styles.successSub}>
+          <AppText style={styles.successTitle}>Transfer Initiated!</AppText>
+          <AppText style={styles.successSub}>
             Your transfer is being processed. {tx?.recipientName ? `${tx.recipientName} will` : "The recipient will"} receive the funds shortly.
-          </Text>
+          </AppText>
         </View>
 
         {/* Details card */}
@@ -102,11 +94,11 @@ const TransactionScreen = ({ navigation, route }: Props) => {
       <View style={styles.footer}>
         <TouchableOpacity style={styles.shareButton} onPress={handleShareReceipt}>
           <FontAwesome5 name="share-alt" size={moderateScale(16)} color="#0B3963" style={{ marginRight: 8 }} />
-          <Text style={styles.shareButtonText}>Share Receipt</Text>
+          <AppText style={styles.shareButtonText}>Share Receipt</AppText>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
-          <Text style={styles.doneButtonText}>Done</Text>
+          <AppText style={styles.doneButtonText}>Done</AppText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -115,8 +107,8 @@ const TransactionScreen = ({ navigation, route }: Props) => {
 
 const renderRow = (label: string, value: string) => (
   <View style={styles.row} key={label}>
-    <Text style={styles.rowLabel}>{label}</Text>
-    <Text style={styles.rowValue}>{value}</Text>
+    <AppText style={styles.rowLabel}>{label}</AppText>
+    <AppText style={styles.rowValue}>{value}</AppText>
   </View>
 );
 

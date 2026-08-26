@@ -1,18 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  TextInput,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, Image, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -25,6 +12,8 @@ import { Feather } from "@expo/vector-icons";
 import { getAccessTokenAsync } from "../../services/session";
 import { updateSecurityQuestions } from "../../services/authApi";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
+import AppTextInput from "../Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -67,7 +56,7 @@ const SecurityQuestionScreen = ({ navigation }: Props) => {
           setShow(!show);
         }}
       >
-        <Text style={{ flex: 1 }}>{value || "Select Security Question"}</Text>
+        <AppText style={{ flex: 1 }}>{value || "Select Security Question"}</AppText>
         <Feather name="chevron-down" size={20} />
       </TouchableOpacity>
 
@@ -82,7 +71,7 @@ const SecurityQuestionScreen = ({ navigation }: Props) => {
                 setShow(false);
               }}
             >
-              <Text>{item}</Text>
+              <AppText>{item}</AppText>
             </TouchableOpacity>
           ))}
         </View>
@@ -95,9 +84,9 @@ const SecurityQuestionScreen = ({ navigation }: Props) => {
     setValue: (val: string) => void,
   ) => (
     <>
-      <Text style={styles.answerLabel}>Answer to the Question</Text>
+      <AppText style={styles.answerLabel}>Answer to the Question</AppText>
       <View style={styles.answerInputContainer}>
-        <TextInput
+        <AppTextInput
           value={value}
           onChangeText={setValue}
           placeholder="Provide an Answer"
@@ -167,17 +156,17 @@ const SecurityQuestionScreen = ({ navigation }: Props) => {
             />
           </View>
 
-          <Text style={styles.title}>SECURITY QUESTIONS</Text>
+          <AppText style={styles.title}>SECURITY QUESTIONS</AppText>
 
-          <Text style={styles.label}>Pick The First Security Question</Text>
+          <AppText style={styles.label}>Pick The First Security Question</AppText>
           {renderDropdown(q1, setQ1, show1, setShow1, 30)}
           {renderAnswerInput(a1, setA1)}
 
-          <Text style={styles.label}>Pick The Second Security Question</Text>
+          <AppText style={styles.label}>Pick The Second Security Question</AppText>
           {renderDropdown(q2, setQ2, show2, setShow2, 20)}
           {renderAnswerInput(a2, setA2)}
 
-          <Text style={styles.label}>Pick The Third Security Question</Text>
+          <AppText style={styles.label}>Pick The Third Security Question</AppText>
           {renderDropdown(q3, setQ3, show3, setShow3, 10)}
           {renderAnswerInput(a3, setA3)}
 
@@ -189,7 +178,7 @@ const SecurityQuestionScreen = ({ navigation }: Props) => {
             {isSubmitting ? (
               <ActivityIndicator color="#FFF" />
             ) : (
-              <Text style={styles.buttonText}>Save Changes</Text>
+              <AppText style={styles.buttonText}>Save Changes</AppText>
             )}
           </TouchableOpacity>
         </ScrollView>

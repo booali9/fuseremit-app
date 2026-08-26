@@ -1,13 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ActivityIndicator } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -21,6 +13,7 @@ import { getAccessTokenAsync } from "../../services/session";
 import { fetchCurrentUserStatus } from "../../services/userApi";
 import { getManualKycDraft } from "../../services/manualKycDraft";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 interface KycCompletionState {
   personalInfoDone: boolean;
@@ -107,7 +100,7 @@ const MainKYCScreen: React.FC = () => {
           <Feather name="chevron-left" size={moderateScale(22)} />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>KYC</Text>
+        <AppText style={styles.headerTitle}>KYC</AppText>
 
         <TouchableOpacity>
           <Ionicons
@@ -118,27 +111,27 @@ const MainKYCScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.description}>
+      <AppText style={styles.description}>
         To fully unlock the potential of FuseRemit, you'll need to complete
         identity verification by providing the following:
-      </Text>
+      </AppText>
 
       {isLoading ? (
         <View style={styles.loadingWrap}>
           <ActivityIndicator color="#0B3963" />
-          <Text style={styles.loadingText}>Refreshing KYC checklist...</Text>
+          <AppText style={styles.loadingText}>Refreshing KYC checklist...</AppText>
         </View>
       ) : null}
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
 
       <TouchableOpacity
         style={styles.card}
         onPress={() => navigation.navigate("PersonalInformation")}
       >
-        <Text style={styles.cardText}>
+        <AppText style={styles.cardText}>
           Some personal information: your name, date of birth etc.
-        </Text>
+        </AppText>
 
         <View style={styles.iconRow}>
           {completion.personalInfoDone ? (
@@ -161,9 +154,9 @@ const MainKYCScreen: React.FC = () => {
         style={styles.card}
         onPress={() => navigation.navigate("DocumentType")}
       >
-        <Text style={styles.cardText}>
+        <AppText style={styles.cardText}>
           A picture of your passport or ID card
-        </Text>
+        </AppText>
 
         {completion.documentDone ? (
           <Ionicons
@@ -184,7 +177,7 @@ const MainKYCScreen: React.FC = () => {
         style={styles.card}
         onPress={() => navigation.navigate("LivenessVerify")}
       >
-        <Text style={styles.cardText}>Liveness check</Text>
+        <AppText style={styles.cardText}>Liveness check</AppText>
 
         {completion.livenessDone ? (
           <Ionicons
@@ -204,7 +197,7 @@ const MainKYCScreen: React.FC = () => {
       <View style={{ flex: 1 }} />
 
       {!canVerify ? (
-        <Text style={styles.lockHint}>Complete all three KYC items to continue.</Text>
+        <AppText style={styles.lockHint}>Complete all three KYC items to continue.</AppText>
       ) : null}
 
       <TouchableOpacity
@@ -212,7 +205,7 @@ const MainKYCScreen: React.FC = () => {
         onPress={() => navigation.navigate("VerificationProgress")}
         disabled={!canVerify}
       >
-        <Text style={styles.verifyText}>Verify</Text>
+        <AppText style={styles.verifyText}>Verify</AppText>
       </TouchableOpacity>
     </SafeAreaView>
   );

@@ -1,15 +1,5 @@
 import React, { useCallback, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  SafeAreaView,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
+import { View, Pressable, TouchableOpacity, StyleSheet, Image, SafeAreaView, StatusBar, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -23,6 +13,7 @@ import TransactionPinSuccessModal from "../Onboarding/TransactionPinSuccessModal
 import { getAccessTokenAsync } from "../../services/session";
 import { createTransactionPin } from "../../services/userApi";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 interface Props {
   navigation: any;
@@ -130,7 +121,7 @@ const OnboardingTransactionPin = ({ navigation }: Props) => {
       style={({ pressed }) => [styles.key, pressed && styles.keyPressed]}
       onPressIn={() => handlePress(value)}
     >
-      <Text style={styles.keyText}>{value}</Text>
+      <AppText style={styles.keyText}>{value}</AppText>
     </Pressable>
   );
 
@@ -152,10 +143,10 @@ const OnboardingTransactionPin = ({ navigation }: Props) => {
       </View>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Create your Transaction PIN</Text>
-        <Text style={styles.subtitle}>
+        <AppText style={styles.title}>Create your Transaction PIN</AppText>
+        <AppText style={styles.subtitle}>
           Your PIN should not cotain any repeated or consecutive numbers
-        </Text>
+        </AppText>
       </View>
 
       <View style={styles.dotsContainer}>{[0, 1, 2, 3].map(renderDot)}</View>
@@ -164,7 +155,7 @@ const OnboardingTransactionPin = ({ navigation }: Props) => {
         {isSubmitting ? (
           <View style={styles.submittingState}>
             <ActivityIndicator color="#0B3963" />
-            <Text style={styles.submittingText}>Saving your transaction PIN...</Text>
+            <AppText style={styles.submittingText}>Saving your transaction PIN...</AppText>
           </View>
         ) : null}
 
@@ -213,14 +204,14 @@ const OnboardingTransactionPin = ({ navigation }: Props) => {
         </View>
       </View>
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
       {!errorMessage && helperMessage ? (
-        <Text style={styles.helperText}>{helperMessage}</Text>
+        <AppText style={styles.helperText}>{helperMessage}</AppText>
       ) : null}
 
       <View style={styles.footer}>
-        <Text style={styles.forgot}>Forgot your PIN?</Text>
-        <Text style={styles.logout}>Logout</Text>
+        <AppText style={styles.forgot}>Forgot your PIN?</AppText>
+        <AppText style={styles.logout}>Logout</AppText>
       </View>
 
       <TransactionPinSuccessModal

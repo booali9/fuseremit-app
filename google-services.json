@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "352968628082",
-    "project_id": "gen-lang-client-0302790962",
-    "storage_bucket": "gen-lang-client-0302790962.firebasestorage.app"
+    "project_number": "299392098326",
+    "project_id": "fuzeremit-e0fa0",
+    "storage_bucket": "fuzeremit-e0fa0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:352968628082:android:08055bc74d99cf09086feb",
+        "mobilesdk_app_id": "1:299392098326:android:3b41374185ed2198095537",
         "android_client_info": {
-          "package_name": "com.busines2202.fuseremitapp"
+          "package_name": "com.fuzeremit.com"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBZC3Mau1Rf_BYhgpcWW2xpo2CpBDzKz0M"
+          "current_key": "AIzaSyA6qir50u_Pvx8RhBdjG7fhOfh_FztQu4A"
         }
       ],
       "services": {

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { CountryPicker } from "react-native-country-codes-picker";
 import { countryCodes } from "react-native-country-codes-picker/constants/countryCodes";
 import * as Localization from "expo-localization";
 import * as Location from "expo-location";
 import { moderateScale } from "react-native-size-matters";
 import { responsiveFontSize } from "react-native-responsive-dimensions";
+import AppText from "./AppText";
+import AppTextInput from "./AppTextInput";
+import Colors from "../../constants/Colors";
 
 interface Props {
   value: string;
@@ -66,11 +69,11 @@ const PhoneNumberInput: React.FC<Props> = ({ value, onChangeValue, placeholder, 
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity style={styles.flagButton} onPress={() => setShowPicker(true)}>
-        <Text style={styles.flag}>{flag}</Text>
-        <Text style={styles.dialCode}>{dialCode}</Text>
+        <AppText style={styles.flag}>{flag}</AppText>
+        <AppText style={styles.dialCode}>{dialCode}</AppText>
       </TouchableOpacity>
 
-      <TextInput
+      <AppTextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholder || "Phone number"}
         keyboardType="phone-pad"
@@ -92,7 +95,13 @@ const PhoneNumberInput: React.FC<Props> = ({ value, onChangeValue, placeholder, 
           emit(item.dial_code, nationalNumber);
         }}
         onBackdropPress={() => setShowPicker(false)}
-        style={{ modal: styles.pickerModal, itemsList: styles.pickerList }}
+        style={{
+          modal: styles.pickerModal,
+          itemsList: styles.pickerList,
+          dialCode: styles.pickerText,
+          countryName: styles.pickerText,
+          textInput: styles.pickerText,
+        }}
       />
     </View>
   );
@@ -113,7 +122,7 @@ const styles = StyleSheet.create({
     marginRight: moderateScale(8),
     paddingRight: moderateScale(8),
     borderRightWidth: 1,
-    borderRightColor: "#ccc",
+    borderRightColor: Colors.border,
   },
   flag: {
     fontSize: responsiveFontSize(2),
@@ -122,15 +131,20 @@ const styles = StyleSheet.create({
   dialCode: {
     fontSize: responsiveFontSize(1.6),
     fontWeight: "500",
+    color: Colors.text,
   },
   input: {
     flex: 1,
     fontSize: responsiveFontSize(1.6),
+    color: Colors.text,
   },
   pickerModal: {
     maxHeight: "80%",
   },
   pickerList: {
     flexGrow: 0,
+  },
+  pickerText: {
+    color: Colors.text,
   },
 });

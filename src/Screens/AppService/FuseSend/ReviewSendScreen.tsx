@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { CardField, useConfirmPayment } from "@stripe/stripe-react-native";
 import type { Details } from "@stripe/stripe-react-native/lib/typescript/src/types/components/CardFieldInput";
 import {
@@ -23,18 +13,8 @@ import Fonts from "../../../constants/Fonts";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { createTransferPaymentIntent } from "../../../services/paymentApi";
-
-const DELIVERY_METHOD_LABELS: Record<string, string> = {
-  bank_transfer: "Bank Transfer",
-  cash_pickup: "Cash Pickup",
-  mobile_wallet: "Mobile Wallet",
-};
-
-const DELIVERY_SPEEDS: Record<string, string> = {
-  bank_transfer: "1–2 business days",
-  cash_pickup: "Within minutes",
-  mobile_wallet: "Within minutes",
-};
+import { deliveryOption } from "../../../constants/transfer";
+import AppText from "../../../Components/Common/AppText";
 
 const ReviewSendScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -43,19 +23,7 @@ const ReviewSendScreen: React.FC = () => {
   const [cardComplete, setCardComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const params = route.params ?? {
-    amount: 2000,
-    currency: "USD",
-    recipientName: "Abayomi",
-    recipientCountry: "Nigeria",
-    exchangeRate: 1450,
-    amountReceived: 2900000,
-    receivedCurrency: "NGN",
-    deliveryMethod: "bank_transfer",
-    fee: 2.99,
-    recipientBank: "GTB",
-    recipientAccount: "0405271456",
-  };
+  const params = route.params;
 
   const {
     amount,
@@ -126,27 +94,27 @@ const ReviewSendScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={moderateScale(22)} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Review Transfer</Text>
+        <AppText style={styles.headerTitle}>Review Transfer</AppText>
         <View style={{ width: moderateScale(22) }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: responsiveHeight(12) }}>
         {/* Amount card */}
         <View style={styles.amountCard}>
-          <Text style={styles.amountLabel}>You send</Text>
-          <Text style={styles.amountValue}>${Number(amount).toFixed(2)} {currency}</Text>
+          <AppText style={styles.amountLabel}>You send</AppText>
+          <AppText style={styles.amountValue}>${Number(amount).toFixed(2)} {currency}</AppText>
           <View style={styles.divider} />
-          <Text style={styles.receiveLabel}>Recipient receives</Text>
-          <Text style={styles.receiveValue}>{Number(amountReceived).toLocaleString()} {receivedCurrency}</Text>
+          <AppText style={styles.receiveLabel}>Recipient receives</AppText>
+          <AppText style={styles.receiveValue}>{Number(amountReceived).toLocaleString()} {receivedCurrency}</AppText>
           <View style={styles.rateRow}>
             <Feather name="trending-up" size={moderateScale(12)} color="#34A853" />
-            <Text style={styles.rateText}>1 {currency} = {Number(exchangeRate).toLocaleString()} {receivedCurrency}</Text>
+            <AppText style={styles.rateText}>1 {currency} = {Number(exchangeRate).toLocaleString()} {receivedCurrency}</AppText>
           </View>
         </View>
 
         {/* Recipient details */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Recipient Details</Text>
+          <AppText style={styles.cardTitle}>Recipient Details</AppText>
           {row("Name", recipientName)}
           {recipientBank ? row("Bank", recipientBank) : null}
           {recipientAccount ? row("Account", `****${String(recipientAccount).slice(-4)}`) : null}
@@ -155,20 +123,20 @@ const ReviewSendScreen: React.FC = () => {
 
         {/* Transfer details */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Transfer Details</Text>
-          {row("Delivery Method", DELIVERY_METHOD_LABELS[deliveryMethod] ?? deliveryMethod)}
-          {row("Speed", DELIVERY_SPEEDS[deliveryMethod] ?? "1–2 business days")}
+          <AppText style={styles.cardTitle}>Transfer Details</AppText>
+          {row("Delivery Method", deliveryOption(deliveryMethod).title)}
+          {row("Speed", deliveryOption(deliveryMethod).speed)}
           {row("Transfer Amount", `$${Number(amount).toFixed(2)}`)}
           {row("Fee", `$${Number(fee).toFixed(2)}`)}
           <View style={[styles.rowWrap, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total You Pay</Text>
-            <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
+            <AppText style={styles.totalLabel}>Total You Pay</AppText>
+            <AppText style={styles.totalValue}>${total.toFixed(2)}</AppText>
           </View>
         </View>
 
         {/* Card details */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Pay With Card</Text>
+          <AppText style={styles.cardTitle}>Pay With Card</AppText>
           <CardField
             postalCodeEnabled={false}
             placeholders={{ number: "4242 4242 4242 4242" }}
@@ -191,7 +159,7 @@ const ReviewSendScreen: React.FC = () => {
           ) : (
             <>
               <Image source={require("../../../../assets/robot.png")} style={styles.buttonRobot} />
-              <Text style={styles.confirmText}>Confirm and Send</Text>
+              <AppText style={styles.confirmText}>Confirm and Send</AppText>
             </>
           )}
         </TouchableOpacity>
@@ -202,8 +170,8 @@ const ReviewSendScreen: React.FC = () => {
 
 const row = (label: string, value: string) => (
   <View style={styles.rowWrap} key={label}>
-    <Text style={styles.rowLabel}>{label}</Text>
-    <Text style={styles.rowValue}>{value}</Text>
+    <AppText style={styles.rowLabel}>{label}</AppText>
+    <AppText style={styles.rowValue}>{value}</AppText>
   </View>
 );
 
