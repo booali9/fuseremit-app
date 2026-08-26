@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  SafeAreaView,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, StatusBar, SafeAreaView } from "react-native";
 
 import {
   responsiveHeight,
@@ -25,6 +14,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Fonts from "../../constants/Fonts";
 
 import { useLanguage } from "../../context/LanguageContext";
+import AppText from "../../Components/Common/AppText";
+import AppTextInput from "../../Components/Common/AppTextInput";
 
 const FuseSendScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -65,12 +56,12 @@ const FuseSendScreen = () => {
               <Feather name={isRTL ? "chevron-right" : "chevron-left"} size={moderateScale(20)} />
             </TouchableOpacity>
 
-            <Text style={styles.title}>{t("sendMoney.title")}</Text>
+            <AppText style={styles.title}>{t("sendMoney.title")}</AppText>
           </View>
           
-          <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <AppText style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
             {t("sendMoney.senderInfo")}
-          </Text>
+          </AppText>
 
           <Input
             label={t("sendMoney.fullName")}
@@ -88,9 +79,9 @@ const FuseSendScreen = () => {
             isRTL={isRTL}
           />
 
-          <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <AppText style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
             {t("sendMoney.recipientDetails")}
-          </Text>
+          </AppText>
 
           <Input
             label={t("sendMoney.fullName")}
@@ -109,17 +100,17 @@ const FuseSendScreen = () => {
           />
 
           <View style={{ zIndex: 10 }}>
-            <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+            <AppText style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
               {t("sendMoney.recipientCountry")}
-            </Text>
+            </AppText>
 
             <TouchableOpacity
               style={[styles.inputContainer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
               onPress={() => setShowDropdown(!showDropdown)}
             >
-              <Text style={{ flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
+              <AppText style={{ flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
                 {country || t("sendMoney.chooseCountry")}
-              </Text>
+              </AppText>
               <Feather name="chevron-down" size={20} />
             </TouchableOpacity>
 
@@ -134,7 +125,7 @@ const FuseSendScreen = () => {
                       setShowDropdown(false);
                     }}
                   >
-                    <Text style={{ textAlign: isRTL ? 'right' : 'left' }}>{item}</Text>
+                    <AppText style={{ textAlign: isRTL ? 'right' : 'left' }}>{item}</AppText>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -160,9 +151,16 @@ const FuseSendScreen = () => {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate("SendMoneySecond")}
+            onPress={() =>
+              navigation.navigate("FuseRemittance", {
+                recipientName,
+                recipientCountry: country,
+                recipientBank: bankName,
+                recipientAccount: accountNumber,
+              })
+            }
           >
-            <Text style={styles.buttonText}>{t("sendMoney.continue")}</Text>
+            <AppText style={styles.buttonText}>{t("sendMoney.continue")}</AppText>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -190,9 +188,9 @@ const Input = ({
   isRTL,
 }: InputProps) => (
   <>
-    <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{label}</Text>
+    <AppText style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>{label}</AppText>
     <View style={[styles.inputContainer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-      <TextInput
+      <AppTextInput
         style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
         placeholder={placeholder}
         placeholderTextColor="#777"

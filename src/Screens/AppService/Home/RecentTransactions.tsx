@@ -1,13 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -21,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Fonts from "../../../constants/Fonts";
 import { listTransactions, Transaction } from "../../../services/paymentApi";
+import AppText from "../../../Components/Common/AppText";
 
 const isSameDay = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() &&
@@ -97,17 +90,17 @@ const RecentTransactions: React.FC = () => {
 
   const renderGroup = (title: string, items: Transaction[]) => (
     <>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <AppText style={styles.sectionTitle}>{title}</AppText>
       <View style={styles.card}>
         {items.map((tx) => (
           <View key={tx._id} style={[styles.row, rowBackground(tx)]}>
             <View style={styles.leftRow}>
               {renderIcon(tx)}
-              <Text style={styles.name}>
+              <AppText style={styles.name}>
                 {tx.recipientName ?? (tx.type === "deposit" ? "Added funds" : "Transfer")}
-              </Text>
+              </AppText>
             </View>
-            <Text style={[styles.amount, amountStyle(tx)]}>{formatAmount(tx)}</Text>
+            <AppText style={[styles.amount, amountStyle(tx)]}>{formatAmount(tx)}</AppText>
           </View>
         ))}
       </View>
@@ -118,16 +111,16 @@ const RecentTransactions: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Recent Transactions</Text>
+          <AppText style={styles.headerTitle}>Recent Transactions</AppText>
           <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate("History")}>
-            <Text style={styles.viewAllText}>View All</Text>
+            <AppText style={styles.viewAllText}>View All</AppText>
           </TouchableOpacity>
         </View>
 
         {loading ? (
           <ActivityIndicator size="small" color="#0B3963" style={{ marginTop: responsiveHeight(2) }} />
         ) : transactions.length === 0 ? (
-          <Text style={styles.emptyText}>No transactions yet</Text>
+          <AppText style={styles.emptyText}>No transactions yet</AppText>
         ) : (
           <>
             {todayTxns.length > 0 && renderGroup("Today", todayTxns)}
@@ -164,17 +157,18 @@ const styles = StyleSheet.create({
   },
 
   viewAllBtn: {
+    backgroundColor: "#EEF2FB",
     borderWidth: 1,
-    borderColor: "#C7CBD6",
-    paddingHorizontal: responsiveWidth(3),
-    paddingVertical: responsiveHeight(0.5),
-    borderRadius: moderateScale(6),
-    fontFamily: Fonts.semiBold,
+    borderColor: "#E2E7F2",
+    paddingHorizontal: responsiveWidth(3.5),
+    paddingVertical: responsiveHeight(0.7),
+    borderRadius: moderateScale(20),
   },
 
   viewAllText: {
-    fontSize: responsiveFontSize(1.2),
+    fontSize: responsiveFontSize(1.3),
     color: "#1F2A50",
+    fontFamily: Fonts.semiBold,
   },
 
   sectionTitle: {

@@ -1,17 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  Image,
-  Switch,
-  Modal,
-  TextInput,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, Image, Switch, Modal } from "react-native";
 
 import {
   responsiveHeight,
@@ -27,6 +15,8 @@ import { setupBiometric, toggleTwoFactor } from "../../services/authApi";
 import { verifyTransactionPin } from "../../services/userApi";
 import { getAccessTokenAsync, setBiometricToken, hasBiometricEnabled } from "../../services/session";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
+import AppTextInput from "../Common/AppTextInput";
 
 const SecuritySettingScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -150,7 +140,7 @@ const SecuritySettingScreen: React.FC = () => {
           <View style={{ width: responsiveWidth(6) }} />
         </View>
 
-        <Text style={styles.title}>SECURITY SETTINGS</Text>
+        <AppText style={styles.title}>SECURITY SETTINGS</AppText>
 
         {menuRow(
           "Change Password",
@@ -198,9 +188,9 @@ const SecuritySettingScreen: React.FC = () => {
       <Modal visible={showPinModal} transparent animationType="fade" onRequestClose={() => setShowPinModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Enter Transaction PIN</Text>
-            <Text style={styles.modalSubtitle}>Confirm your 4-digit PIN to enable biometric login.</Text>
-            <TextInput
+            <AppText style={styles.modalTitle}>Enter Transaction PIN</AppText>
+            <AppText style={styles.modalSubtitle}>Confirm your 4-digit PIN to enable biometric login.</AppText>
+            <AppTextInput
               style={styles.pinInput}
               keyboardType="number-pad"
               maxLength={4}
@@ -217,14 +207,14 @@ const SecuritySettingScreen: React.FC = () => {
                   setPinInput("");
                 }}
               >
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <AppText style={styles.modalCancelText}>Cancel</AppText>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalConfirmBtn}
                 onPress={handlePinSubmit}
                 disabled={pinInput.length !== 4 || isLoading}
               >
-                <Text style={styles.modalConfirmText}>Confirm</Text>
+                <AppText style={styles.modalConfirmText}>Confirm</AppText>
               </TouchableOpacity>
             </View>
           </View>
@@ -254,8 +244,8 @@ const menuRow = (
         <Image source={icon} style={styles.menuIcon} />
 
         <View style={styles.textContainer}>
-          <Text style={styles.menuTitle}>{title}</Text>
-          <Text style={styles.menuSubtitle}>{subtitle}</Text>
+          <AppText style={styles.menuTitle}>{title}</AppText>
+          <AppText style={styles.menuSubtitle}>{subtitle}</AppText>
         </View>
       </View>
 

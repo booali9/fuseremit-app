@@ -1,16 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, StyleSheet, ImageBackground, Image, TouchableOpacity, StatusBar, ScrollView, ActivityIndicator } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   responsiveHeight,
@@ -32,9 +22,11 @@ import {
 import { syncFcmTokenWithBackend } from "../../services/notifications";
 import { fetchCurrentUserStatus } from "../../services/userApi";
 import { ApiError } from "../../services/api";
+import { mayaInsights } from "../../services/mayaApi";
 import { resetToLogin } from "../../navigation/navigationHelpers";
 import { useLanguage } from "../../context/LanguageContext";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 interface DashboardIdentityState {
   firstName: string;
@@ -45,10 +37,12 @@ interface DashboardIdentityState {
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const insets = useSafeAreaInsets();
   const { t, isRTL } = useLanguage();
   const [identity, setIdentity] = useState<DashboardIdentityState | null>(null);
   const [isLoadingIdentity, setIsLoadingIdentity] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [insightBullets, setInsightBullets] = useState<string[]>([]);
 
   const redirectToLogin = useCallback(() => {
     resetToLogin(navigation);
@@ -76,12 +70,22 @@ const HomeScreen: React.FC = () => {
 
         const me = await fetchCurrentUserStatus(accessToken);
 
-        setIdentity({
+        const nextIdentity = {
           firstName: me.firstName?.trim() || "there",
           accountTier: me.accountTier,
           kycStatus: me.kycStatus,
           balance: me.balance ?? 0,
-        });
+        };
+        setIdentity(nextIdentity);
+
+        // ponytail: fire-and-forget Maya insights; dashboard still works if Gemini fails
+        void mayaInsights()
+          .then((data) => {
+            if (Array.isArray(data.bullets) && data.bullets.length) {
+              setInsightBullets(data.bullets.slice(0, 2));
+            }
+          })
+          .catch(() => undefined);
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
           if (!isRetry) {
@@ -134,56 +138,73 @@ const HomeScreen: React.FC = () => {
   }, [identity]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" backgroundColor="#F4F5F7" />
+    <View style={styles.screen}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: responsiveHeight(3) }}
       >
-        <View style={{ height: responsiveHeight(45) }}>
-          <ImageBackground
-            source={require("../../../assets/mainbg.png")}
-            style={{ flex: 1 }}
-            resizeMode="cover"
+        <ImageBackground
+          source={require("../../../assets/mainbg.png")}
+          style={styles.hero}
+          resizeMode="cover"
+        >
+          <View
+            style={[
+              styles.contentWrapper,
+              { paddingTop: insets.top + responsiveHeight(2) },
+            ]}
           >
-            <View style={styles.contentWrapper}>
               <View style={styles.topSection}>
                 <View>
-                  <Text style={styles.balanceLabel}>Total Balance</Text>
-                  <Text style={styles.balanceAmount}>
+                  <AppText style={styles.balanceLabel}>Total Balance</AppText>
+                  <AppText style={styles.balanceAmount}>
                     $
                     {identity?.balance.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     }) ?? "0.00"}
-                  </Text>
+                  </AppText>
 
                   {isLoadingIdentity ? (
                     <View style={styles.identityLoadingRow}>
                       <ActivityIndicator size="small" color="#FFFFFF" />
-                      <Text style={styles.identityLoadingText}>
+                      <AppText style={styles.identityLoadingText}>
                         Syncing profile...
-                      </Text>
+                      </AppText>
                     </View>
                   ) : (
-                    <Text style={styles.identityText}>
+                    <AppText style={styles.identityText}>
                       {`Hi ${identity?.firstName ?? "there"} • ${identity?.accountTier ?? "Classic"} • KYC ${kycLabel}`}
-                    </Text>
+                    </AppText>
                   )}
 
                   {errorMessage ? (
-                    <Text style={styles.identityErrorText}>{errorMessage}</Text>
+                    <AppText style={styles.identityErrorText}>{errorMessage}</AppText>
                   ) : null}
                 </View>
 
-                <TouchableOpacity onPress={() => navigation.navigate("MayaAI")}>
-                  <Image
-                    source={require("../../../assets/maya.png")}
-                    style={styles.mayaIcon}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                <View style={styles.topActions}>
+                  {/* ponytail: $20 mirrors REFERRAL_DISCOUNT in the backend's
+                      referral.controller.ts — hardcoded to avoid an extra API
+                      call on Home just to render a static number. */}
+                  <TouchableOpacity
+                    style={styles.referralPill}
+                    onPress={() => navigation.navigate("Profile", { screen: "Referral" })}
+                  >
+                    <AppText style={styles.referralPillText}>$20</AppText>
+                    <FontAwesome5 name="gift" size={moderateScale(15)} color="#0B3963" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => navigation.navigate("MayaAI")}>
+                    <Image
+                      source={require("../../../assets/maya.png")}
+                      style={styles.mayaIcon}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
               <View
@@ -200,30 +221,12 @@ const HomeScreen: React.FC = () => {
                     })
                   }
                 >
-                  <View
-                    style={[
-                      styles.iconWrapper,
-                      { flexDirection: isRTL ? "row-reverse" : "row" },
-                    ]}
-                  >
+                  <View style={styles.iconWrapper}>
                     <Image
                       source={require("../../../assets/robot.png")}
-                      style={[
-                        styles.fuseIcon,
-                        {
-                          [isRTL ? "marginLeft" : "marginRight"]:
-                            responsiveWidth(2),
-                        },
-                      ]}
+                      style={styles.fuseIcon}
                     />
-                    <Text
-                      style={[
-                        styles.buttonText,
-                        { textAlign: isRTL ? "right" : "left" },
-                      ]}
-                    >
-                      {t("home.fuseSend")}
-                    </Text>
+                    <AppText style={styles.buttonText}>{t("home.fuseSend")}</AppText>
                   </View>
                 </TouchableOpacity>
 
@@ -235,29 +238,14 @@ const HomeScreen: React.FC = () => {
                     })
                   }
                 >
-                  <View
-                    style={[
-                      styles.iconWrapper,
-                      { flexDirection: isRTL ? "row-reverse" : "row" },
-                    ]}
-                  >
+                  <View style={styles.iconWrapper}>
                     <FontAwesome
                       name="send"
                       size={moderateScale(19)}
-                      style={{
-                        [isRTL ? "marginLeft" : "marginRight"]:
-                          responsiveWidth(3),
-                      }}
+                      style={{ marginBottom: responsiveHeight(0.8) }}
                       color="#fff"
                     />
-                    <Text
-                      style={[
-                        styles.buttonText,
-                        { textAlign: isRTL ? "right" : "left" },
-                      ]}
-                    >
-                      {t("common.send")}
-                    </Text>
+                    <AppText style={styles.buttonText}>{t("common.send")}</AppText>
                   </View>
                 </TouchableOpacity>
 
@@ -265,44 +253,29 @@ const HomeScreen: React.FC = () => {
                   style={styles.buttonBox}
                   onPress={() => navigation.navigate("AddMoney")}
                 >
-                  <View
-                    style={[
-                      styles.iconWrapper,
-                      { flexDirection: isRTL ? "row-reverse" : "row" },
-                    ]}
-                  >
+                  <View style={styles.iconWrapper}>
                     <FontAwesome5
                       name="plus"
                       size={moderateScale(19)}
-                      style={{
-                        [isRTL ? "marginLeft" : "marginRight"]:
-                          responsiveWidth(3),
-                      }}
+                      style={{ marginBottom: responsiveHeight(0.8) }}
                       color="#fff"
                     />
-                    <Text
-                      style={[
-                        styles.buttonText,
-                        { textAlign: isRTL ? "right" : "left" },
-                      ]}
-                    >
-                      {t("home.addMoney")}
-                    </Text>
+                    <AppText style={styles.buttonText}>{t("home.addMoney")}</AppText>
                   </View>
                 </TouchableOpacity>
               </View>
 
               <View style={styles.card}>
-                <Text
+                <AppText
                   style={[
                     styles.cardTitle,
                     { textAlign: isRTL ? "right" : "left" },
                   ]}
                 >
                   {t("home.aiInsights")}
-                </Text>
+                </AppText>
 
-                <Text
+                <AppText
                   style={[
                     styles.cardSub,
                     { textAlign: isRTL ? "right" : "left" },
@@ -311,90 +284,77 @@ const HomeScreen: React.FC = () => {
                   {identity
                     ? `${identity.firstName} ${t("home.insightsSub")}`
                     : t("home.insightsSub")}
-                </Text>
+                </AppText>
 
-                <View
-                  style={[
-                    styles.bulletRow,
-                    { flexDirection: isRTL ? "row-reverse" : "row" },
-                  ]}
-                >
-                  <Text
+                {(insightBullets.length
+                  ? insightBullets
+                  : [
+                      `Tier status: ${identity?.accountTier ?? "Classic"}. Keep transacting to unlock better transfer benefits.`,
+                      `KYC status: ${kycLabel}. Your dashboard is synced securely with your backend profile.`,
+                    ]
+                ).map((bullet) => (
+                  <View
+                    key={bullet}
                     style={[
-                      styles.bullet,
-                      {
-                        [isRTL ? "marginLeft" : "marginRight"]:
-                          moderateScale(6),
-                      },
+                      styles.bulletRow,
+                      { flexDirection: isRTL ? "row-reverse" : "row" },
                     ]}
                   >
-                    •
-                  </Text>
-                  <Text
-                    style={[
-                      styles.bulletText,
-                      { textAlign: isRTL ? "right" : "left" },
-                    ]}
-                  >
-                    Tier status: {identity?.accountTier ?? "Classic"}. Keep
-                    transacting to unlock better transfer benefits.
-                  </Text>
-                </View>
-
-                <View
-                  style={[
-                    styles.bulletRow,
-                    { flexDirection: isRTL ? "row-reverse" : "row" },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.bullet,
-                      {
-                        [isRTL ? "marginLeft" : "marginRight"]:
-                          moderateScale(6),
-                      },
-                    ]}
-                  >
-                    •
-                  </Text>
-                  <Text
-                    style={[
-                      styles.bulletText,
-                      { textAlign: isRTL ? "right" : "left" },
-                    ]}
-                  >
-                    KYC status: {kycLabel}. Your dashboard is synced securely
-                    with your backend profile.
-                  </Text>
-                </View>
+                    <AppText
+                      style={[
+                        styles.bullet,
+                        {
+                          [isRTL ? "marginLeft" : "marginRight"]:
+                            moderateScale(6),
+                        },
+                      ]}
+                    >
+                      •
+                    </AppText>
+                    <AppText
+                      style={[
+                        styles.bulletText,
+                        { textAlign: isRTL ? "right" : "left" },
+                      ]}
+                    >
+                      {bullet}
+                    </AppText>
+                  </View>
+                ))}
               </View>
             </View>
-          </ImageBackground>
-        </View>
-
+        </ImageBackground>
         <ButtonsScreen />
         <RecentTransactions />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  contentWrapper: {
+  screen: {
     flex: 1,
+    backgroundColor: "#F4F5F7",
+  },
+
+  hero: {
+    paddingBottom: responsiveHeight(3.5),
+    borderBottomLeftRadius: moderateScale(28),
+    borderBottomRightRadius: moderateScale(28),
+    overflow: "hidden",
+  },
+
+  contentWrapper: {
     paddingHorizontal: responsiveWidth(5),
-    paddingTop: responsiveHeight(1.5),
-    gap: responsiveHeight(2.5),
+    gap: responsiveHeight(2.8),
   },
 
   topSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: responsiveHeight(4),
   },
 
   balanceLabel: {
@@ -456,6 +416,28 @@ const styles = StyleSheet.create({
     height: responsiveWidth(12),
   },
 
+  topActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: responsiveWidth(2.5),
+  },
+
+  referralPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: responsiveWidth(1.5),
+    backgroundColor: "#FFFFFF",
+    borderRadius: moderateScale(20),
+    paddingHorizontal: responsiveWidth(3),
+    paddingVertical: responsiveHeight(0.8),
+  },
+
+  referralPillText: {
+    color: "#0B3963",
+    fontSize: responsiveFontSize(1.7),
+    fontFamily: Fonts.bold,
+  },
+
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -463,51 +445,56 @@ const styles = StyleSheet.create({
 
   buttonBox: {
     width: responsiveWidth(27),
-    borderWidth: responsiveWidth(0.3),
-    borderColor: "#FFFFFF",
-    borderRadius: moderateScale(12),
-    paddingVertical: responsiveWidth(3.2),
+    minHeight: responsiveHeight(8.5),
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.28)",
+    borderRadius: moderateScale(16),
+    paddingVertical: responsiveHeight(1.4),
+    paddingHorizontal: responsiveWidth(2),
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#ffffff49",
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
 
   iconWrapper: {
-    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
   },
 
   fuseIcon: {
-    width: responsiveWidth(8),
-    height: responsiveWidth(8),
+    width: responsiveWidth(7),
+    height: responsiveWidth(7),
     resizeMode: "contain",
-    marginRight: responsiveWidth(2),
+    marginBottom: responsiveHeight(0.8),
   },
 
   buttonText: {
     color: "#FFFFFF",
-    fontSize: responsiveFontSize(1.8),
+    fontSize: responsiveFontSize(1.65),
     fontFamily: Fonts.semiBold,
+    textAlign: "center",
+    lineHeight: responsiveFontSize(2.2),
   },
 
   card: {
-    backgroundColor: "#ffffff49",
-    borderRadius: moderateScale(12),
-    paddingVertical: responsiveWidth(2),
+    backgroundColor: "rgba(255,255,255,0.10)",
+    borderRadius: moderateScale(18),
+    paddingVertical: responsiveHeight(2),
     borderWidth: 1,
-    borderColor: "#FFFFFF",
+    borderColor: "rgba(255,255,255,0.20)",
     paddingHorizontal: responsiveWidth(5),
+    gap: responsiveHeight(0.6),
   },
 
   cardTitle: {
-    color: "#1F2A50",
-    fontSize: responsiveFontSize(1.6),
-    fontFamily: Fonts.semiBold,
-    marginBottom: responsiveHeight(1),
+    color: "#FFFFFF",
+    fontSize: responsiveFontSize(1.75),
+    fontFamily: Fonts.bold,
+    marginBottom: responsiveHeight(0.4),
   },
 
   cardSub: {
-    color: "#FFFFFF",
+    color: "rgba(255,255,255,0.72)",
     fontSize: responsiveFontSize(1.5),
     marginBottom: responsiveHeight(1),
     fontFamily: Fonts.semiBold,
@@ -515,17 +502,21 @@ const styles = StyleSheet.create({
 
   bulletRow: {
     flexDirection: "row",
+    marginTop: responsiveHeight(0.4),
   },
 
   bullet: {
-    color: "#FFFFFF",
+    color: "#7FA8FF",
     marginRight: moderateScale(6),
+    fontSize: responsiveFontSize(1.6),
+    lineHeight: responsiveFontSize(2.1),
   },
 
   bulletText: {
     flex: 1,
-    color: "#FFFFFF",
-    fontSize: responsiveFontSize(1.3),
-    fontFamily: Fonts.semiBold,
+    color: "rgba(255,255,255,0.88)",
+    fontSize: responsiveFontSize(1.4),
+    fontFamily: Fonts.medium,
+    lineHeight: responsiveFontSize(2.1),
   },
 });

@@ -1,15 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Image, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -26,11 +16,10 @@ import {
 } from "../../services/authApi";
 import { setSession } from "../../services/session";
 import { resetToDashboardOrKyc } from "../../navigation/navigationHelpers";
-<<<<<<< HEAD
 import { syncFcmTokenWithBackend } from "../../services/notifications";
-=======
->>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
+import AppTextInput from "../Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -252,14 +241,14 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
           <View style={{ width: moderateScale(26) }} />
         </View>
 
-        <Text style={styles.title}>Verify Your Account</Text>
-        <Text style={styles.subtitle}>
+        <AppText style={styles.title}>Verify Your Account</AppText>
+        <AppText style={styles.subtitle}>
           Please enter the 6-digit code we sent to {maskedIdentifier}.
-        </Text>
+        </AppText>
 
         <View style={styles.otpRow}>
           {otp.map((digit, index) => (
-            <TextInput
+            <AppTextInput
               key={index}
               ref={(ref) => {
                 inputs.current[index] = ref;
@@ -278,7 +267,7 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
         </View>
 
         {errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
+          <AppText style={styles.errorText}>{errorMessage}</AppText>
         ) : null}
 
         <View style={styles.bottom}>
@@ -293,35 +282,35 @@ const PhoneNumberVerify = ({ navigation, route }: Props) => {
             {isSubmitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text
+              <AppText
                 style={[
                   styles.verifyText,
                   isFilled && !isSubmitting && styles.verifyTextActive,
                 ]}
               >
                 Verify Code
-              </Text>
+              </AppText>
             )}
           </TouchableOpacity>
 
-          <Text style={styles.timer}>
+          <AppText style={styles.timer}>
             {seconds === 0
               ? "You can resend now"
               : `Resend code in ${formatTime()}`}
-          </Text>
+          </AppText>
 
           <TouchableOpacity
             onPress={resendCode}
             disabled={seconds !== 0 || isSubmitting || !challengeId}
           >
-            <Text
+            <AppText
               style={[
                 styles.resendLink,
                 seconds === 0 && !isSubmitting && styles.resendLinkActive,
               ]}
             >
               Resend Code
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
       </View>

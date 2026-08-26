@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  Image,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, Image } from "react-native";
 
 import {
   responsiveHeight,
@@ -14,6 +7,7 @@ import {
   responsiveFontSize,
 } from "react-native-responsive-dimensions";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 interface Props {
   navigation: any;
@@ -31,9 +25,9 @@ const Submission = ({ navigation }: Props) => {
           />
         </View>
 
-        <Text style={styles.title}>Submission registered!</Text>
+        <AppText style={styles.title}>Submission registered!</AppText>
 
-        <Text style={styles.description}>STEP 1/3 COMPLETED</Text>
+        <AppText style={styles.description}>STEP 1/3 COMPLETED</AppText>
       </View>
 
       <View style={styles.bottomSection}>
@@ -41,7 +35,7 @@ const Submission = ({ navigation }: Props) => {
           style={styles.button}
           onPress={() => navigation.navigate("MainKYC")}
         >
-          <Text style={styles.buttonText}>Next</Text>
+          <AppText style={styles.buttonText}>Next</AppText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -1,15 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, SafeAreaView, ImageBackground, Image, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -19,25 +9,72 @@ import {
 
 import { moderateScale } from "react-native-size-matters";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
+import AppTextInput from "../../../Components/Common/AppTextInput";
+import { mayaRatePrediction, MayaRatePrediction } from "../../../services/mayaApi";
+import { currencyForCountry, deliveryOption } from "../../../constants/transfer";
 
-// ponytail: no FX-rate/quote endpoint exists on the backend yet, so the rate stays a
-// local constant. Swap for a live quote once /payments/rates (or similar) ships.
-const USD_TO_NGN_RATE = 1450;
+const DEFAULT_DELIVERY_FEE = deliveryOption("bank_transfer").fee;
 
 const FuseRemittance: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const [amount, setAmount] = useState("2000");
-  const [recipientName, setRecipientName] = useState("");
-  const [recipientCountry, setRecipientCountry] = useState("Nigeria");
+  // Prefilled when the user arrives from the recipient-details form.
+  const prefill = (useRoute().params ?? {}) as {
+    recipientName?: string;
+    recipientCountry?: string;
+    recipientBank?: string;
+    recipientAccount?: string;
+  };
+
+  const [amount, setAmount] = useState("");
+  const [recipientName, setRecipientName] = useState(prefill.recipientName ?? "");
+  const [recipientCountry, setRecipientCountry] = useState(
+    prefill.recipientCountry || "Nigeria",
+  );
+  const [prediction, setPrediction] = useState<MayaRatePrediction | null>(null);
+  const [loadingPrediction, setLoadingPrediction] = useState(true);
+
+  const receivedCurrency = currencyForCountry(recipientCountry);
+
+  useEffect(() => {
+    if (!receivedCurrency) {
+      setPrediction(null);
+      setLoadingPrediction(false);
+      return;
+    }
+
+    let active = true;
+    setLoadingPrediction(true);
+
+    // The live rate is fetched server-side and handed to Maya, so the prediction is
+    // anchored to a real number instead of a guess.
+    void mayaRatePrediction("USD", receivedCurrency)
+      .then((data) => {
+        if (active) setPrediction(data);
+      })
+      .catch(() => {
+        if (active) setPrediction(null);
+      })
+      .finally(() => {
+        if (active) setLoadingPrediction(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [receivedCurrency]);
 
   const numericAmount = Number(amount) || 0;
+  const exchangeRate = prediction?.currentRate ?? 0;
+  const amountReceived = numericAmount * exchangeRate;
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={styles.headerTitle}>FUSE SMART REMITTANCE</Text>
+        <AppText style={styles.headerTitle}>FUSE SMART REMITTANCE</AppText>
 
         <ImageBackground
           source={require("../../../../assets/mainbg.png")}
@@ -49,22 +86,44 @@ const FuseRemittance: React.FC = () => {
               source={require("../../../../assets/robot.png")}
               style={styles.robot}
             />
-            <Text style={styles.predictionTitle}>
+            <AppText style={styles.predictionTitle}>
               Maya’s FUSE Rate Prediction
-            </Text>
+            </AppText>
           </View>
 
+          {loadingPrediction ? (
+            <ActivityIndicator color="#FFFFFF" style={{ marginVertical: 16 }} />
+          ) : !prediction ? (
+            <View style={styles.recommendCard}>
+              <AppText style={styles.recommendText}>
+                {receivedCurrency
+                  ? "Maya couldn’t reach the rate service. Pull back and try again in a moment."
+                  : `We don’t support payouts to “${recipientCountry || "that country"}” yet.`}
+              </AppText>
+            </View>
+          ) : (
+            <>
           <View style={styles.rateCard}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.smallLabel}>Current USD → Naira</Text>
-              <Text style={styles.rateText}>1,390.00</Text>
-              <Text style={styles.redText}>-2.3% from yesterday</Text>
+              <AppText style={styles.smallLabel}>Current USD → {receivedCurrency}</AppText>
+              <AppText style={styles.rateText}>
+                {prediction.currentRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </AppText>
+              <AppText style={prediction.currentChangePct < 0 ? styles.redText : styles.greenText}>
+                {prediction.currentChangePct > 0 ? "+" : ""}
+                {prediction.currentChangePct.toFixed(1)}% since last check
+              </AppText>
             </View>
 
             <View style={styles.rightRateBlock}>
-              <Text style={styles.smallLabel}>FUSE Predicted (3 days)</Text>
-              <Text style={styles.rateText}>1,410.00</Text>
-              <Text style={styles.greenText}>+1.8% improvement</Text>
+              <AppText style={styles.smallLabel}>FUSE Predicted (3 days)</AppText>
+              <AppText style={styles.rateText}>
+                {prediction.predictedRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </AppText>
+              <AppText style={prediction.predictedChangePct < 0 ? styles.redText : styles.greenText}>
+                {prediction.predictedChangePct > 0 ? "+" : ""}
+                {prediction.predictedChangePct.toFixed(1)}% change
+              </AppText>
             </View>
           </View>
 
@@ -73,11 +132,10 @@ const FuseRemittance: React.FC = () => {
               source={require("../../../../assets/robot.png")}
               style={styles.smallRobot}
             />
-            <Text style={styles.recommendText}>
-              Maya recommends: Wait 2-3 days for better rates, or send now with
-              our FUSE rate protection guarantee.
-            </Text>
+            <AppText style={styles.recommendText}>{prediction.advice}</AppText>
           </View>
+            </>
+          )}
         </ImageBackground>
 
         <View
@@ -93,12 +151,12 @@ const FuseRemittance: React.FC = () => {
             size={18}
             color="black"
           />
-          <Text style={[styles.sectionTitle, { marginLeft: 8 }]}>
+          <AppText style={[styles.sectionTitle, { marginLeft: 8 }]}>
             Smart International Transfer
-          </Text>
+          </AppText>
         </View>
 
-        <Text
+        <AppText
           style={[
             styles.youSend,
             {
@@ -108,11 +166,11 @@ const FuseRemittance: React.FC = () => {
           ]}
         >
           You Send
-        </Text>
+        </AppText>
 
         <View style={styles.sendBox}>
           <View style={styles.amountRow}>
-            <TextInput
+            <AppTextInput
               style={styles.amount}
               value={amount}
               onChangeText={(t) => setAmount(t.replace(/[^0-9.]/g, ""))}
@@ -125,7 +183,7 @@ const FuseRemittance: React.FC = () => {
                 source={require("../../../../assets/usa.png")}
                 style={styles.flag}
               />
-              <Text style={styles.currencyText}>USD</Text>
+              <AppText style={styles.currencyText}>USD</AppText>
 
               <Feather
                 name="chevron-down"
@@ -139,30 +197,38 @@ const FuseRemittance: React.FC = () => {
 
         <View style={styles.exchangeCard}>
           <View>
-            <Text style={styles.exchangeLabel}>Exchange Rate:</Text>
-            <Text style={styles.exchangeRate}>1 USD = {USD_TO_NGN_RATE.toLocaleString()}.00 Naira</Text>
-            <Text style={styles.optimizedFee}>FUSE Optimized Fee:</Text>
+            <AppText style={styles.exchangeLabel}>Exchange Rate:</AppText>
+            <AppText style={styles.exchangeRate}>
+              {exchangeRate
+                ? `1 USD = ${exchangeRate.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${receivedCurrency}`
+                : "Rate unavailable"}
+            </AppText>
+            <AppText style={styles.optimizedFee}>FUSE Optimized Fee:</AppText>
           </View>
 
           <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.savings}>+ $4.01</Text>
-            <Text style={styles.saveLabel}>vs standard rate</Text>
-            <Text style={styles.fee}>-$2.99</Text>
+            <AppText style={styles.savings}>
+              {amountReceived.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+            </AppText>
+            <AppText style={styles.saveLabel}>
+              {receivedCurrency ? `${receivedCurrency} they receive` : "—"}
+            </AppText>
+            <AppText style={styles.fee}>-${DEFAULT_DELIVERY_FEE.toFixed(2)}</AppText>
           </View>
         </View>
 
-        <Text style={styles.selectionTitle}>Recipient</Text>
+        <AppText style={styles.selectionTitle}>Recipient</AppText>
 
         <View style={styles.recipientCard}>
           <View style={{ flex: 1 }}>
-            <TextInput
+            <AppTextInput
               style={styles.recipientName}
               value={recipientName}
               onChangeText={setRecipientName}
               placeholder="Recipient full name"
               placeholderTextColor="#999"
             />
-            <TextInput
+            <AppTextInput
               style={styles.recipientSub}
               value={recipientCountry}
               onChangeText={setRecipientCountry}
@@ -173,31 +239,36 @@ const FuseRemittance: React.FC = () => {
         </View>
 
         <View style={styles.featureSection}>
-          <Text style={styles.featureTitle}>FUSE Enhanced Features</Text>
-          <Text style={styles.featureItem}>
+          <AppText style={styles.featureTitle}>FUSE Enhanced Features</AppText>
+          <AppText style={styles.featureItem}>
             • FUSE rate protection for 24 hours
-          </Text>
-          <Text style={styles.featureItem}>
+          </AppText>
+          <AppText style={styles.featureItem}>
             • Automatic retry if rate improves
-          </Text>
-          <Text style={styles.featureItem}>• Fraud detection & prevention</Text>
-          <Text style={styles.featureItem}>
+          </AppText>
+          <AppText style={styles.featureItem}>• Fraud detection & prevention</AppText>
+          <AppText style={styles.featureItem}>
             • Smart delivery time optimization
-          </Text>
+          </AppText>
         </View>
 
         <TouchableOpacity
-          style={styles.button}
-          disabled={numericAmount <= 0 || !recipientName.trim()}
+          style={[
+            styles.button,
+            (numericAmount <= 0 || !recipientName.trim() || !exchangeRate) && { opacity: 0.5 },
+          ]}
+          disabled={numericAmount <= 0 || !recipientName.trim() || !exchangeRate}
           onPress={() =>
           navigation.navigate("DeliveryOptions", {
             amount: numericAmount,
             currency: "USD",
             recipientName: recipientName.trim(),
             recipientCountry: recipientCountry.trim(),
-            exchangeRate: USD_TO_NGN_RATE,
-            amountReceived: numericAmount * USD_TO_NGN_RATE,
-            receivedCurrency: "NGN",
+            recipientBank: prefill.recipientBank,
+            recipientAccount: prefill.recipientAccount,
+            exchangeRate,
+            amountReceived,
+            receivedCurrency,
           })
         }
 >
@@ -205,7 +276,7 @@ const FuseRemittance: React.FC = () => {
             source={require("../../../../assets/robot.png")}
             style={styles.buttonRobot}
           />
-          <Text style={styles.buttonText}>Send with FUSE Optimization</Text>
+          <AppText style={styles.buttonText}>Send with FUSE Optimization</AppText>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

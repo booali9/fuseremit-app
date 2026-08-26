@@ -1,13 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ActivityIndicator } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -19,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as Location from "expo-location";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 import {
   ManualKycDocumentType,
   getManualKycDraft,
@@ -121,7 +114,7 @@ const DocumentTypeScreen: React.FC = () => {
           <Feather name="chevron-left" size={moderateScale(22)} />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Select Document Type</Text>
+        <AppText style={styles.headerTitle}>Select Document Type</AppText>
 
         <TouchableOpacity>
           <Ionicons
@@ -134,10 +127,10 @@ const DocumentTypeScreen: React.FC = () => {
 
       <View style={styles.countryRow}>
         {isLocating ? <ActivityIndicator size="small" color="#0B3963" /> : null}
-        <Text style={styles.description}>{country}</Text>
+        <AppText style={styles.description}>{country}</AppText>
       </View>
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
 
       {documentOptions.map((option) => {
         const isSelected = selectedType === option.value;
@@ -148,7 +141,7 @@ const DocumentTypeScreen: React.FC = () => {
             style={[styles.card, isSelected && styles.cardSelected]}
             onPress={() => setSelectedType(option.value)}
           >
-            <Text style={styles.cardText}>{option.label}</Text>
+            <AppText style={styles.cardText}>{option.label}</AppText>
 
             {isSelected ? (
               <Ionicons
@@ -168,7 +161,7 @@ const DocumentTypeScreen: React.FC = () => {
         onPress={handleVerify}
         disabled={!canContinue}
       >
-        <Text style={styles.verifyText}>Verify</Text>
+        <AppText style={styles.verifyText}>Verify</AppText>
       </TouchableOpacity>
     </SafeAreaView>
   );

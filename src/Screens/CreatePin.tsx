@@ -1,14 +1,5 @@
 import React, { useCallback, useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+import { View, Pressable, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Image } from "react-native";
 
 import {
   responsiveHeight,
@@ -22,6 +13,7 @@ import PinSuccessModal from "../Components/Login/PinSuccessModal";
 import { createPin, setupBiometric, verifyForgotPinOtp, requestForgotPinOtp } from "../services/authApi";
 import { getAccessTokenAsync, markPinCreated, setBiometricToken, clearSession, getSessionUser } from "../services/session";
 import Fonts from "../constants/Fonts";
+import AppText from "../Components/Common/AppText";
 
 interface Props {
   navigation: any;
@@ -198,7 +190,7 @@ const CreatePin = ({ navigation, route }: Props) => {
       style={({ pressed }) => [styles.key, pressed && styles.keyPressed]}
       onPressIn={() => handlePress(value)}
     >
-      <Text style={styles.keyText}>{value}</Text>
+      <AppText style={styles.keyText}>{value}</AppText>
     </Pressable>
   );
 
@@ -219,8 +211,8 @@ const CreatePin = ({ navigation, route }: Props) => {
       </View>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Create your Pin</Text>
-        <Text style={styles.subtitle}>Please confirm your PIN</Text>
+        <AppText style={styles.title}>Create your Pin</AppText>
+        <AppText style={styles.subtitle}>Please confirm your PIN</AppText>
       </View>
 
       <View style={styles.dotsContainer}>
@@ -231,7 +223,7 @@ const CreatePin = ({ navigation, route }: Props) => {
         {isSubmitting ? (
           <View style={styles.submittingState}>
             <ActivityIndicator color="#0B3963" />
-            <Text style={styles.submittingText}>Saving your PIN...</Text>
+            <AppText style={styles.submittingText}>Saving your PIN...</AppText>
           </View>
         ) : null}
 
@@ -280,18 +272,18 @@ const CreatePin = ({ navigation, route }: Props) => {
         </View>
       </View>
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
       {!errorMessage && helperMessage ? (
-        <Text style={styles.helperText}>{helperMessage}</Text>
+        <AppText style={styles.helperText}>{helperMessage}</AppText>
       ) : null}
 
       <View style={styles.footer}>
         <TouchableOpacity onPress={handleForgotPin}>
-          <Text style={styles.forgot}>Forgot your PIN?</Text>
+          <AppText style={styles.forgot}>Forgot your PIN?</AppText>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleLogout}>
-          <Text style={styles.logout}>Logout</Text>
+          <AppText style={styles.logout}>Logout</AppText>
         </TouchableOpacity>
       </View>
 

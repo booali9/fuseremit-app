@@ -1,17 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  TextInput,
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { CardField, useConfirmPayment } from "@stripe/stripe-react-native";
 import type { Details } from "@stripe/stripe-react-native/lib/typescript/src/types/components/CardFieldInput";
 import {
@@ -24,6 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { createPaymentIntent, confirmPaymentIntent } from "../../../services/paymentApi";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
+import AppTextInput from "../../../Components/Common/AppTextInput";
 
 const AddMoneyScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -92,7 +82,7 @@ const AddMoneyScreen: React.FC = () => {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#1E2A5A" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Add Money</Text>
+          <AppText style={styles.headerTitle}>Add Money</AppText>
           <View style={{ width: 24 }} />
         </View>
 
@@ -102,10 +92,10 @@ const AddMoneyScreen: React.FC = () => {
           keyboardShouldPersistTaps="handled"
         >
           {/* Amount Section */}
-          <Text style={styles.label}>Enter Amount (USD)</Text>
+          <AppText style={styles.label}>Enter Amount (USD)</AppText>
           <View style={styles.inputWrapper}>
-            <Text style={styles.currencySymbol}>$</Text>
-            <TextInput
+            <AppText style={styles.currencySymbol}>$</AppText>
+            <AppTextInput
               style={styles.input}
               placeholder="0.00"
               placeholderTextColor="#C0C5D0"
@@ -115,12 +105,12 @@ const AddMoneyScreen: React.FC = () => {
               autoFocus
             />
           </View>
-          <Text style={styles.subtext}>Minimum amount: $5.00</Text>
+          <AppText style={styles.subtext}>Minimum amount: $5.00</AppText>
 
           {/* Card Section */}
-          <Text style={[styles.label, { marginTop: responsiveHeight(4) }]}>
+          <AppText style={[styles.label, { marginTop: responsiveHeight(4) }]}>
             Card Details
-          </Text>
+          </AppText>
           <View style={styles.cardContainer}>
             <CardField
               postalCodeEnabled={false}
@@ -139,33 +129,33 @@ const AddMoneyScreen: React.FC = () => {
           </View>
           <View style={styles.secureRow}>
             <Ionicons name="lock-closed" size={14} color="#9CA3AF" />
-            <Text style={styles.secureText}>
+            <AppText style={styles.secureText}>
               Your payment info is encrypted and secure
-            </Text>
+            </AppText>
           </View>
 
           {/* Summary */}
           {isValidAmount && (
             <View style={styles.summaryCard}>
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Amount</Text>
-                <Text style={styles.summaryValue}>{formattedAmount}</Text>
+                <AppText style={styles.summaryLabel}>Amount</AppText>
+                <AppText style={styles.summaryValue}>{formattedAmount}</AppText>
               </View>
               <View style={styles.divider} />
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Fee</Text>
-                <Text style={[styles.summaryValue, { color: "#22C55E" }]}>
+                <AppText style={styles.summaryLabel}>Fee</AppText>
+                <AppText style={[styles.summaryValue, { color: "#22C55E" }]}>
                   Free
-                </Text>
+                </AppText>
               </View>
               <View style={styles.divider} />
               <View style={styles.summaryRow}>
-                <Text style={[styles.summaryLabel, { fontFamily: Fonts.bold }]}>
+                <AppText style={[styles.summaryLabel, { fontFamily: Fonts.bold }]}>
                   Total
-                </Text>
-                <Text style={[styles.summaryValue, { fontFamily: Fonts.bold }]}>
+                </AppText>
+                <AppText style={[styles.summaryValue, { fontFamily: Fonts.bold }]}>
                   {formattedAmount}
-                </Text>
+                </AppText>
               </View>
             </View>
           )}
@@ -181,9 +171,9 @@ const AddMoneyScreen: React.FC = () => {
             {isProcessing ? (
               <ActivityIndicator color="#FFF" />
             ) : (
-              <Text style={styles.payButtonText}>
+              <AppText style={styles.payButtonText}>
                 Add {isValidAmount ? formattedAmount : "Money"}
-              </Text>
+              </AppText>
             )}
           </TouchableOpacity>
         </View>

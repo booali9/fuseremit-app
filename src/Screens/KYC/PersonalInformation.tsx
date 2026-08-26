@@ -1,15 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -24,6 +14,8 @@ import { fetchCurrentUserStatus, updateCurrentUserProfile } from "../../services
 import { getAccessTokenAsync, getSessionUser } from "../../services/session";
 import { getManualKycDraft, updateManualKycDraft } from "../../services/manualKycDraft";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
+import AppTextInput from "../../Components/Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -208,14 +200,14 @@ const PersonalInformation = ({ navigation }: Props) => {
             <Feather name="chevron-left" size={moderateScale(22)} />
           </TouchableOpacity>
 
-          <Text
+          <AppText
             style={{
               fontSize: responsiveFontSize(2.4),
               fontFamily: Fonts.semiBold,
             }}
           >
             Personal Information
-          </Text>
+          </AppText>
 
           <TouchableOpacity style={{ position: "absolute", right: 0 }}>
             <Ionicons name="notifications" size={moderateScale(22)} />
@@ -225,7 +217,7 @@ const PersonalInformation = ({ navigation }: Props) => {
         {isLoading ? (
           <View style={styles.loadingWrap}>
             <ActivityIndicator color="#0B3963" />
-            <Text style={styles.loadingText}>Loading your signup details...</Text>
+            <AppText style={styles.loadingText}>Loading your signup details...</AppText>
           </View>
         ) : null}
 
@@ -249,12 +241,12 @@ const PersonalInformation = ({ navigation }: Props) => {
         />
 
         {/* DOB */}
-        <Text style={styles.label}>DOB</Text>
+        <AppText style={styles.label}>DOB</AppText>
         <TouchableOpacity
           style={styles.inputContainer}
           onPress={() => setShowPicker(true)}
         >
-          <Text style={{ flex: 1 }}>{formattedDate}</Text>
+          <AppText style={{ flex: 1 }}>{formattedDate}</AppText>
           <Ionicons name="calendar-clear" size={20} color="black" />
         </TouchableOpacity>
 
@@ -269,13 +261,13 @@ const PersonalInformation = ({ navigation }: Props) => {
 
         {/* Gender */}
         <View style={{ zIndex: 10 }}>
-          <Text style={styles.label}>Gender</Text>
+          <AppText style={styles.label}>Gender</AppText>
 
           <TouchableOpacity
             style={styles.inputContainer}
             onPress={() => setShowDropdown(!showDropdown)}
           >
-            <Text style={{ flex: 1 }}>{gender || "e.g. Male"}</Text>
+            <AppText style={{ flex: 1 }}>{gender || "e.g. Male"}</AppText>
             <Feather name="chevron-down" size={20} />
           </TouchableOpacity>
 
@@ -290,7 +282,7 @@ const PersonalInformation = ({ navigation }: Props) => {
                     setShowDropdown(false);
                   }}
                 >
-                  <Text>{g}</Text>
+                  <AppText>{g}</AppText>
                 </TouchableOpacity>
               ))}
             </View>
@@ -302,12 +294,12 @@ const PersonalInformation = ({ navigation }: Props) => {
           onPress={handleNext}
           disabled={isSaving}
         >
-          <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
+          <AppText style={[styles.buttonText, { color: "#FFFFFF" }]}>
             {isSaving ? "Saving..." : "Next"}
-          </Text>
+          </AppText>
         </TouchableOpacity>
 
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+        {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -318,9 +310,9 @@ export default PersonalInformation;
 /* INPUT */
 const Input = ({ label, placeholder, value, setValue }: any) => (
   <>
-    <Text style={styles.label}>{label}</Text>
+    <AppText style={styles.label}>{label}</AppText>
     <View style={styles.inputContainer}>
-      <TextInput
+      <AppTextInput
         style={styles.input}
         placeholder={placeholder}
         value={value}

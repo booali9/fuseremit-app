@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  StyleSheet,
-  StatusBar,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+import { View, TouchableOpacity, SafeAreaView, StyleSheet, StatusBar, ActivityIndicator, Image } from "react-native";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -27,6 +18,7 @@ import {
   updateManualKycDraft,
 } from "../../services/manualKycDraft";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 const SelectDocumentScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -98,7 +90,7 @@ const SelectDocumentScreen: React.FC = () => {
   if (!permission?.granted) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: "#000" }}>Camera permission is required.</Text>
+        <AppText style={{ color: "#000" }}>Camera permission is required.</AppText>
       </View>
     );
   }
@@ -112,7 +104,7 @@ const SelectDocumentScreen: React.FC = () => {
           <Ionicons name="chevron-back" size={moderateScale(18)} color="#000" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>{`Take a picture of your ${documentLabel}`}</Text>
+        <AppText style={styles.headerTitle}>{`Take a picture of your ${documentLabel}`}</AppText>
 
         <View style={{ width: moderateScale(24) }} />
       </View>
@@ -120,7 +112,7 @@ const SelectDocumentScreen: React.FC = () => {
       <View style={styles.cameraWrapper}>
         {cameraError ? (
           <View style={styles.center}>
-            <Text style={{ color: "#f00" }}>{cameraError}</Text>
+            <AppText style={{ color: "#f00" }}>{cameraError}</AppText>
           </View>
         ) : capturedPhoto ? (
           <Image source={{ uri: capturedPhoto }} style={styles.camera} />
@@ -150,24 +142,24 @@ const SelectDocumentScreen: React.FC = () => {
             }}
           >
             <ActivityIndicator size="large" color="#0FA958" />
-            <Text style={{ color: "#0FA958", marginTop: 10 }}>
+            <AppText style={{ color: "#0FA958", marginTop: 10 }}>
               Loading Camera...
-            </Text>
+            </AppText>
           </View>
         )}
       </View>
 
       <View style={styles.infoSection}>
         {capturedPhoto ? (
-          <Text style={styles.capturedText}>
+          <AppText style={styles.capturedText}>
             Picture saved. Continue to liveness verification.
-          </Text>
+          </AppText>
         ) : (
           <>
-            <Text style={styles.title}>{`Front of ${documentLabel}`}</Text>
-            <Text style={styles.subtitle}>
+            <AppText style={styles.title}>{`Front of ${documentLabel}`}</AppText>
+            <AppText style={styles.subtitle}>
               Ensure all 4 sides are visible and text is clear
-            </Text>
+            </AppText>
           </>
         )}
       </View>
@@ -176,7 +168,7 @@ const SelectDocumentScreen: React.FC = () => {
         {capturedPhoto ? (
           <View style={styles.savedActionsWrap}>
             <TouchableOpacity style={styles.retakeButton} onPress={handleRetake}>
-              <Text style={styles.retakeButtonText}>Retake</Text>
+              <AppText style={styles.retakeButtonText}>Retake</AppText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -184,7 +176,7 @@ const SelectDocumentScreen: React.FC = () => {
               onPress={handleContinue}
               disabled={isSaving}
             >
-              <Text style={styles.nextButtonText}>Next</Text>
+              <AppText style={styles.nextButtonText}>Next</AppText>
             </TouchableOpacity>
           </View>
         ) : (
@@ -198,7 +190,7 @@ const SelectDocumentScreen: React.FC = () => {
                 size={moderateScale(24)}
                 color="#000"
               />
-              <Text style={styles.iconText}>Flash</Text>
+              <AppText style={styles.iconText}>Flash</AppText>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -218,7 +210,7 @@ const SelectDocumentScreen: React.FC = () => {
                 size={moderateScale(24)}
                 color="#000"
               />
-              <Text style={styles.iconText}>Help</Text>
+              <AppText style={styles.iconText}>Help</AppText>
             </TouchableOpacity>
           </>
         )}

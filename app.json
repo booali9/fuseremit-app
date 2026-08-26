@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/logo.jpg.jpeg",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#ffffff",
     "newArchEnabled": false,
     "splash": {
       "image": "./assets/with purple Sprinkles.png",
@@ -13,9 +14,11 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "userInterfaceStyle": "light"
     },
     "android": {
+      "userInterfaceStyle": "light",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.jpg.jpeg",
@@ -32,14 +35,24 @@
         "android.permission.USE_FINGERPRINT",
         "android.permission.POST_NOTIFICATIONS"
       ],
-      "package": "com.busines2202.fuseremitapp"
+      "package": "com.fuzeremit.com"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font",
+      "expo-system-ui",
+      "./plugins/withDisableForcedDarkModeAndroid.js",
       "@react-native-community/datetimepicker",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/logo.jpg.jpeg",
+          "color": "#203A73",
+          "defaultChannel": "fuseremit-notifications"
+        }
+      ],
       [
         "expo-local-authentication",
         {

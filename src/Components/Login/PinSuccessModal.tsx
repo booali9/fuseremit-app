@@ -1,15 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  Animated,
-  Easing,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, Modal, TouchableOpacity, Animated, Easing, Image, ActivityIndicator } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -18,6 +8,7 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
 
 interface Props {
   visible: boolean;
@@ -78,11 +69,11 @@ const PinSuccessModal: React.FC<Props> = ({ visible, onClose, navigation, onEnab
             />
           </View>
 
-          <Text style={styles.title}>Congratulations!</Text>
+          <AppText style={styles.title}>Congratulations!</AppText>
 
-          <Text style={styles.subtitle}>
+          <AppText style={styles.subtitle}>
             You’ve created your account successfully
-          </Text>
+          </AppText>
 
           {onEnableBiometric && (
             <TouchableOpacity
@@ -100,9 +91,9 @@ const PinSuccessModal: React.FC<Props> = ({ visible, onClose, navigation, onEnab
                     color="#0B3963"
                     style={{ marginRight: 8 }}
                   />
-                  <Text style={[styles.buttonText, styles.biometricButtonText]}>
+                  <AppText style={[styles.buttonText, styles.biometricButtonText]}>
                     Enable Biometric Login
-                  </Text>
+                  </AppText>
                 </>
               )}
             </TouchableOpacity>
@@ -112,7 +103,7 @@ const PinSuccessModal: React.FC<Props> = ({ visible, onClose, navigation, onEnab
             style={styles.button}
             onPress={() => navigation.navigate("MainOnboarding")}
           >
-            <Text style={styles.buttonText}>Continue</Text>
+            <AppText style={styles.buttonText}>Continue</AppText>
           </TouchableOpacity>
         </Animated.View>
       </View>
