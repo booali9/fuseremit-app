@@ -1,13 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ScrollView } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -16,47 +8,8 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Fonts from "../../../constants/Fonts";
-
-type DeliveryMethod = "bank_transfer" | "cash_pickup" | "mobile_wallet";
-
-interface DeliveryOption {
-  key: DeliveryMethod;
-  icon: string;
-  title: string;
-  subtitle: string;
-  speed: string;
-  fee: number;
-  countries?: string[];
-}
-
-const DELIVERY_OPTIONS: DeliveryOption[] = [
-  {
-    key: "bank_transfer",
-    icon: "bank-outline",
-    title: "Bank Transfer",
-    subtitle: "Sent directly to recipient's bank account",
-    speed: "1–2 business days",
-    fee: 2.99,
-  },
-  {
-    key: "cash_pickup",
-    icon: "cash-multiple",
-    title: "Cash Pickup",
-    subtitle: "Recipient picks up cash at a local agent",
-    speed: "Within minutes",
-    fee: 4.99,
-    countries: ["Nigeria", "Ghana", "Kenya", "India", "Philippines"],
-  },
-  {
-    key: "mobile_wallet",
-    icon: "cellphone-nfc",
-    title: "Mobile Wallet",
-    subtitle: "Sent to recipient's mobile money account",
-    speed: "Within minutes",
-    fee: 1.99,
-    countries: ["Kenya (M-Pesa)", "Ghana (MTN)", "Tanzania (Airtel)", "Uganda (MTN)"],
-  },
-];
+import AppText from "../../../Components/Common/AppText";
+import { DELIVERY_OPTIONS, DeliveryMethod } from "../../../constants/transfer";
 
 interface Props {
   navigation: any;
@@ -66,6 +19,8 @@ interface Props {
       currency: string;
       recipientName: string;
       recipientCountry: string;
+      recipientBank?: string;
+      recipientAccount?: string;
       exchangeRate: number;
       amountReceived: number;
       receivedCurrency: string;
@@ -74,15 +29,7 @@ interface Props {
 }
 
 const DeliveryOptionsScreen: React.FC<Props> = ({ navigation, route }) => {
-  const params = route?.params ?? {
-    amount: 500,
-    currency: "USD",
-    recipientName: "Recipient",
-    recipientCountry: "Nigeria",
-    exchangeRate: 1450,
-    amountReceived: 725000,
-    receivedCurrency: "NGN",
-  };
+  const params = route.params;
 
   const [selected, setSelected] = useState<DeliveryMethod>("bank_transfer");
 
@@ -104,7 +51,7 @@ const DeliveryOptionsScreen: React.FC<Props> = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={moderateScale(22)} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Delivery Method</Text>
+        <AppText style={styles.topTitle}>Delivery Method</AppText>
         <View style={{ width: moderateScale(22) }} />
       </View>
 
@@ -112,19 +59,19 @@ const DeliveryOptionsScreen: React.FC<Props> = ({ navigation, route }) => {
         {/* Summary */}
         <View style={styles.summaryCard}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Sending</Text>
-            <Text style={styles.summaryValue}>${params.amount.toFixed(2)} {params.currency}</Text>
+            <AppText style={styles.summaryLabel}>Sending</AppText>
+            <AppText style={styles.summaryValue}>${params.amount.toFixed(2)} {params.currency}</AppText>
           </View>
           <View style={styles.divider} />
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Recipient receives</Text>
-            <Text style={[styles.summaryValue, { color: "#34A853" }]}>
+            <AppText style={styles.summaryLabel}>Recipient receives</AppText>
+            <AppText style={[styles.summaryValue, { color: "#34A853" }]}>
               {params.amountReceived.toLocaleString()} {params.receivedCurrency}
-            </Text>
+            </AppText>
           </View>
         </View>
 
-        <Text style={styles.sectionLabel}>Choose how to deliver</Text>
+        <AppText style={styles.sectionLabel}>Choose how to deliver</AppText>
 
         {DELIVERY_OPTIONS.map((option) => {
           const isSelected = selected === option.key;
@@ -145,16 +92,16 @@ const DeliveryOptionsScreen: React.FC<Props> = ({ navigation, route }) => {
 
               <View style={styles.optionContent}>
                 <View style={styles.optionHeader}>
-                  <Text style={[styles.optionTitle, isSelected && styles.optionTitleActive]}>{option.title}</Text>
-                  <Text style={[styles.optionFee, isSelected && styles.optionFeeActive]}>+${option.fee.toFixed(2)}</Text>
+                  <AppText style={[styles.optionTitle, isSelected && styles.optionTitleActive]}>{option.title}</AppText>
+                  <AppText style={[styles.optionFee, isSelected && styles.optionFeeActive]}>+${option.fee.toFixed(2)}</AppText>
                 </View>
-                <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+                <AppText style={styles.optionSubtitle}>{option.subtitle}</AppText>
                 <View style={styles.speedRow}>
                   <Feather name="clock" size={moderateScale(12)} color={isSelected ? "#1568B8" : "#888"} />
-                  <Text style={[styles.speedText, isSelected && styles.speedTextActive]}>{option.speed}</Text>
+                  <AppText style={[styles.speedText, isSelected && styles.speedTextActive]}>{option.speed}</AppText>
                 </View>
                 {option.countries ? (
-                  <Text style={styles.countriesText}>Available in: {option.countries.join(", ")}</Text>
+                  <AppText style={styles.countriesText}>Available in: {option.countries.join(", ")}</AppText>
                 ) : null}
               </View>
 
@@ -168,21 +115,21 @@ const DeliveryOptionsScreen: React.FC<Props> = ({ navigation, route }) => {
         {/* Fee summary */}
         <View style={styles.feeSummaryCard}>
           <View style={styles.feeRow}>
-            <Text style={styles.feeLabel}>Transfer amount</Text>
-            <Text style={styles.feeValue}>${params.amount.toFixed(2)}</Text>
+            <AppText style={styles.feeLabel}>Transfer amount</AppText>
+            <AppText style={styles.feeValue}>${params.amount.toFixed(2)}</AppText>
           </View>
           <View style={styles.feeRow}>
-            <Text style={styles.feeLabel}>Delivery fee ({selectedOption.title})</Text>
-            <Text style={styles.feeValue}>+${selectedOption.fee.toFixed(2)}</Text>
+            <AppText style={styles.feeLabel}>Delivery fee ({selectedOption.title})</AppText>
+            <AppText style={styles.feeValue}>+${selectedOption.fee.toFixed(2)}</AppText>
           </View>
           <View style={[styles.feeRow, styles.feeTotalRow]}>
-            <Text style={styles.feeTotalLabel}>Total you pay</Text>
-            <Text style={styles.feeTotalValue}>${(params.amount + selectedOption.fee).toFixed(2)}</Text>
+            <AppText style={styles.feeTotalLabel}>Total you pay</AppText>
+            <AppText style={styles.feeTotalValue}>${(params.amount + selectedOption.fee).toFixed(2)}</AppText>
           </View>
         </View>
 
         <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <AppText style={styles.continueButtonText}>Continue</AppText>
           <Feather name="arrow-right" size={moderateScale(18)} color="#fff" />
         </TouchableOpacity>
       </ScrollView>

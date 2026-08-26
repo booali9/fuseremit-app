@@ -1,14 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-  Animated,
-  StatusBar
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, Image, Animated, StatusBar } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -22,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { getAccessTokenAsync } from "../../services/session";
 import { updateKycStatus } from "../../services/userApi";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -144,7 +136,7 @@ const OnboardingClassicScreen: React.FC = () => {
           <Feather name="chevron-left" size={moderateScale(22)} />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Get Started</Text>
+        <AppText style={styles.headerTitle}>Get Started</AppText>
 
         <TouchableOpacity>
           <Ionicons name="notifications" size={24} color="black" />
@@ -152,16 +144,16 @@ const OnboardingClassicScreen: React.FC = () => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.subTitle}>
+        <AppText style={styles.subTitle}>
           Complete the steps below to upgrade your account to FuseRemit Classic.
-        </Text>
+        </AppText>
 
         <View style={styles.stepRow}>
           <Feather name="check" size={moderateScale(18)} color="#000000" />
-          <Text style={styles.stepText}>Upload Means of Identification</Text>
+          <AppText style={styles.stepText}>Upload Means of Identification</AppText>
         </View>
 
-        <Text style={styles.uploadLabel}>Upload Means Of Identification</Text>
+        <AppText style={styles.uploadLabel}>Upload Means Of Identification</AppText>
 
         {!fileType && (
           <TouchableOpacity
@@ -183,13 +175,13 @@ const OnboardingClassicScreen: React.FC = () => {
             </View>
 
             <View>
-              <Text style={styles.uploadText}>
+              <AppText style={styles.uploadText}>
                 Drop your files here or{" "}
-                <Text style={styles.uploadLink}>Click To Upload</Text>
-              </Text>
-              <Text style={styles.formatText}>
+                <AppText style={styles.uploadLink}>Click To Upload</AppText>
+              </AppText>
+              <AppText style={styles.formatText}>
                 PNG, JPG, JPEG, SVG, GIF or PDF
-              </Text>
+              </AppText>
             </View>
           </TouchableOpacity>
         )}
@@ -235,8 +227,8 @@ const OnboardingClassicScreen: React.FC = () => {
               )}
 
               <View style={{ flex: 1 }}>
-                <Text style={styles.fileName}>{fileName}</Text>
-                <Text style={styles.progressText}>{progress}% uploaded</Text>
+                <AppText style={styles.fileName}>{fileName}</AppText>
+                <AppText style={styles.progressText}>{progress}% uploaded</AppText>
               </View>
 
               {isUploading && (
@@ -280,7 +272,7 @@ const OnboardingClassicScreen: React.FC = () => {
           </View>
         )}
 
-        {syncError ? <Text style={styles.syncErrorText}>{syncError}</Text> : null}
+        {syncError ? <AppText style={styles.syncErrorText}>{syncError}</AppText> : null}
       </View>
     </SafeAreaView>
   );

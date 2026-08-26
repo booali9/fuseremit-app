@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  StatusBar
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -16,6 +9,7 @@ import { moderateScale } from "react-native-size-matters";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 const OnboardingPremiumScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -29,7 +23,7 @@ const OnboardingPremiumScreen: React.FC = () => {
           <Feather name="chevron-left" size={moderateScale(22)} />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Get Started</Text>
+        <AppText style={styles.headerTitle}>Get Started</AppText>
 
         <TouchableOpacity>
           <Ionicons name="notifications" size={24} color="black" />
@@ -38,13 +32,13 @@ const OnboardingPremiumScreen: React.FC = () => {
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={styles.subTitle}>
+        <AppText style={styles.subTitle}>
           Complete the steps below to upgrade your account to FuseRemit Premium.
-        </Text>
+        </AppText>
 
         <View style={styles.stepRow}>
           <Feather name="check" size={moderateScale(18)} color="#27AE60" />
-          <Text style={styles.stepText}>Upload Utility Bill</Text>
+          <AppText style={styles.stepText}>Upload Utility Bill</AppText>
         </View>
       </View>
 
@@ -54,7 +48,7 @@ const OnboardingPremiumScreen: React.FC = () => {
           style={styles.customButton}
           onPress={() => navigation.navigate("MainKYC")}
         >
-          <Text style={styles.buttonText}>Start KYC</Text>
+          <AppText style={styles.buttonText}>Start KYC</AppText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

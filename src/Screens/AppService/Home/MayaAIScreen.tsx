@@ -1,20 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
-  TouchableWithoutFeedback,
-} from "react-native";
+import React, { useRef, useState } from "react";
+import { View, StyleSheet, ImageBackground, Image, TouchableOpacity, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -26,10 +11,45 @@ import { moderateScale } from "react-native-size-matters";
 import { Ionicons, FontAwesome, Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
+import AppTextInput from "../../../Components/Common/AppTextInput";
+import { mayaChat, MayaChatMessage } from "../../../services/mayaApi";
+
+const PROMPTS = [
+  { title: "FUSE Rates", text: "What are the most competitive USD to NGN exchange rates right now?" },
+  { title: "Save Money", text: "How can I save on remittance fees based on typical FuseRemit transfers?" },
+  { title: "Instant Transfer Status", text: "Where is my money? How do I check an active transfer?" },
+];
 
 const MayaAIScreen: React.FC = () => {
   const [message, setMessage] = useState("");
+  const [history, setHistory] = useState<MayaChatMessage[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const navigation = useNavigation();
+  const scrollRef = useRef<ScrollView>(null);
+
+  const send = async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || busy) return;
+
+    setError("");
+    setMessage("");
+    setBusy(true);
+    const nextHistory = [...history, { role: "user" as const, text: trimmed }];
+    setHistory(nextHistory);
+
+    try {
+      const reply = await mayaChat(trimmed, history);
+      setHistory([...nextHistory, { role: "model", text: reply }]);
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Maya is unavailable right now.");
+      setHistory(history);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F2F2F7" }}>
@@ -38,6 +58,7 @@ const MayaAIScreen: React.FC = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{ flex: 1 }}>
           <ScrollView
+            ref={scrollRef}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingBottom: responsiveHeight(15),
@@ -65,40 +86,47 @@ const MayaAIScreen: React.FC = () => {
                     />
                   </View>
 
-                  <Text style={styles.askText}>Ask Maya</Text>
+                  <AppText style={styles.askText}>Ask Maya</AppText>
 
-                  <Text style={styles.description}>
+                  <AppText style={styles.description}>
                     Hello, I am MAYA AI, a highly advanced Assistant to help
                     with your everyday needs..
-                  </Text>
+                  </AppText>
                 </View>
               </ImageBackground>
             </View>
 
             <View style={styles.cardContainer}>
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>FUSE Rates</Text>
-                <Text style={styles.cardSub}>
-                  I'll find the most competitive exchange rates for your
-                  corridor right now.
-                </Text>
-              </View>
+              {PROMPTS.map((p) => (
+                <TouchableOpacity
+                  key={p.title}
+                  style={styles.card}
+                  onPress={() => void send(p.text)}
+                  disabled={busy}
+                >
+                  <AppText style={styles.cardTitle}>{p.title}</AppText>
+                  <AppText style={styles.cardSub}>{p.text}</AppText>
+                </TouchableOpacity>
+              ))}
 
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>Save Money</Text>
-                <Text style={styles.cardSub}>
-                  Let me analyze your transfer history to find ways you can save
-                  on transaction fees.
-                </Text>
-              </View>
+              {history.map((m, i) => (
+                <View
+                  key={`${m.role}-${i}`}
+                  style={[styles.bubble, m.role === "user" ? styles.userBubble : styles.modelBubble]}
+                >
+                  <AppText
+                    style={[
+                      styles.bubbleText,
+                      m.role === "user" && { color: "#FFFFFF" },
+                    ]}
+                  >
+                    {m.text}
+                  </AppText>
+                </View>
+              ))}
 
-              <View style={styles.card}>
-                <Text style={styles.cardTitle}>Instant Transfer Status</Text>
-                <Text style={styles.cardSub}>
-                  Ask me 'Where is my money?' for a real-time update on your
-                  active transactions.
-                </Text>
-              </View>
+              {busy ? <ActivityIndicator color="#203A73" style={{ marginTop: 8 }} /> : null}
+              {error ? <AppText style={styles.errorText}>{error}</AppText> : null}
             </View>
           </ScrollView>
 
@@ -112,15 +140,21 @@ const MayaAIScreen: React.FC = () => {
                 </TouchableOpacity>
 
                 <View style={styles.inputContainer}>
-                  <TextInput
+                  <AppTextInput
                     placeholder="Type your message..."
                     placeholderTextColor="#7A7A7A"
                     value={message}
                     onChangeText={setMessage}
                     style={styles.input}
+                    editable={!busy}
+                    onSubmitEditing={() => void send(message)}
                   />
 
-                  <TouchableOpacity style={styles.sendButton}>
+                  <TouchableOpacity
+                    style={styles.sendButton}
+                    onPress={() => void send(message)}
+                    disabled={busy}
+                  >
                     <FontAwesome name="send" size={14} color="white" />
                   </TouchableOpacity>
                 </View>
@@ -204,6 +238,38 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1.6),
     fontFamily: Fonts.semiBold,
     color: "#000000",
+  },
+
+  bubble: {
+    borderRadius: moderateScale(14),
+    paddingVertical: responsiveHeight(1.5),
+    paddingHorizontal: responsiveWidth(4),
+  },
+
+  userBubble: {
+    alignSelf: "flex-end",
+    backgroundColor: "#203A73",
+    maxWidth: "85%",
+  },
+
+  modelBubble: {
+    alignSelf: "flex-start",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#1F2A50",
+    maxWidth: "90%",
+  },
+
+  bubbleText: {
+    fontSize: responsiveFontSize(1.7),
+    fontFamily: Fonts.semiBold,
+    color: "#000",
+  },
+
+  errorText: {
+    color: "#B00020",
+    fontFamily: Fonts.semiBold,
+    fontSize: responsiveFontSize(1.5),
   },
 
   inputWrapper: {

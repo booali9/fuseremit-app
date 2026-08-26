@@ -1,15 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, ImageBackground, Image, TouchableOpacity, StatusBar, ScrollView, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
@@ -36,6 +26,7 @@ import { ApiError } from "../../services/api";
 import { useLanguage } from "../../context/LanguageContext";
 import Fonts from "../../constants/Fonts";
 import * as ImagePicker from "expo-image-picker";
+import AppText from "../../Components/Common/AppText";
 
 interface ProfileIdentity {
   firstName: string;
@@ -197,7 +188,7 @@ const ProfileScreen: React.FC = () => {
             resizeMode="cover"
           >
             <View style={styles.headerContent}>
-              <Text style={styles.headerTitle}>{t("profile.title")}</Text>
+              <AppText style={styles.headerTitle}>{t("profile.title")}</AppText>
 
               <TouchableOpacity 
                 style={styles.profileImageContainer} 
@@ -224,17 +215,17 @@ const ProfileScreen: React.FC = () => {
               {isLoadingIdentity ? (
                 <View style={styles.loadingWrap}>
                   <ActivityIndicator color="#fff" />
-                  <Text style={styles.loadingText}>Syncing profile...</Text>
+                  <AppText style={styles.loadingText}>Syncing profile...</AppText>
                 </View>
               ) : (
                 <>
-                  <Text style={styles.name}>{fullName}</Text>
-                  <Text style={styles.email}>{identity.email}</Text>
+                  <AppText style={styles.name}>{fullName}</AppText>
+                  <AppText style={styles.email}>{identity.email}</AppText>
                 </>
               )}
 
               {errorMessage ? (
-                <Text style={styles.errorText}>{errorMessage}</Text>
+                <AppText style={styles.errorText}>{errorMessage}</AppText>
               ) : null}
             </View>
           </ImageBackground>
@@ -242,10 +233,10 @@ const ProfileScreen: React.FC = () => {
 
         <View style={styles.inviteCard}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.inviteTitle}>{t("common.inviteFriends")}</Text>
-            <Text style={styles.inviteSub}>
+            <AppText style={styles.inviteTitle}>{t("common.inviteFriends")}</AppText>
+            <AppText style={styles.inviteSub}>
               {t("common.inviteSub")}
-            </Text>
+            </AppText>
           </View>
 
           <Image
@@ -292,9 +283,9 @@ const ProfileScreen: React.FC = () => {
             onPress={handleLogout}
             disabled={isLoggingOut}
           >
-            <Text style={styles.logoutText}>
+            <AppText style={styles.logoutText}>
               {isLoggingOut ? "Logging out..." : t("common.logout")}
-            </Text>
+            </AppText>
 
             <Image
               source={require("../../../assets/logout.png")}
@@ -317,7 +308,7 @@ const menuItem = (title: string, icon: any, onPress: () => void) => {
           <Image source={icon} style={styles.menuIcon} />
         </View>
 
-        <Text style={styles.menuText}>{title}</Text>
+        <AppText style={styles.menuText}>{title}</AppText>
       </View>
 
       <Feather name="chevron-right" size={moderateScale(18)} color="#000000" />

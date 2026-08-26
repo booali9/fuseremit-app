@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ScrollView } from "react-native";
 
 import {
   responsiveHeight,
@@ -20,6 +12,7 @@ import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
 
 const SendMoneyDetailScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -34,8 +27,8 @@ const SendMoneyDetailScreen = () => {
     bold?: boolean;
   }) => (
     <View style={styles.row}>
-      <Text style={styles.leftText}>{label}</Text>
-      <Text style={styles.rightText}>{value}</Text>
+      <AppText style={styles.leftText}>{label}</AppText>
+      <AppText style={styles.rightText}>{value}</AppText>
     </View>
   );
 
@@ -52,7 +45,7 @@ const SendMoneyDetailScreen = () => {
           <Feather name="chevron-left" size={moderateScale(20)} />
         </TouchableOpacity>
 
-        <Text style={styles.title}>SEND MONEY</Text>
+        <AppText style={styles.title}>SEND MONEY</AppText>
       </View>
 
       <ScrollView
@@ -78,7 +71,7 @@ const SendMoneyDetailScreen = () => {
           style={styles.button}
           onPress={() => navigation.navigate("OTP")}
         >
-          <Text style={styles.buttonText}>Send Now</Text>
+          <AppText style={styles.buttonText}>Send Now</AppText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -7,7 +7,11 @@ import StripeWrapper from "./src/Components/Common/StripeWrapper";
 import { LanguageProvider } from "./src/context/LanguageContext";
 import { registerForPushNotificationsAsync } from "./src/services/notifications";
 import Fonts from "./src/constants/Fonts";
+import Colors from "./src/constants/Colors";
+import { applyLightUi } from "./src/theme/applyLightUi";
 import AnimatedSplash from "./src/Screens/AnimatedSplash";
+
+applyLightUi();
 
 const fontConfig = {
   displayLarge: { fontFamily: Fonts.extraBold },
@@ -30,6 +34,16 @@ const fontConfig = {
 const theme = {
   ...MD3LightTheme,
   fonts: configureFonts({ config: fontConfig }),
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: Colors.brand,
+    onPrimary: Colors.onDark,
+    background: Colors.surface,
+    surface: Colors.surface,
+    onSurface: Colors.text,
+    onBackground: Colors.text,
+    outline: Colors.border,
+  },
 };
 
 export default function App() {
@@ -45,6 +59,7 @@ export default function App() {
   });
 
   useEffect(() => {
+    applyLightUi();
     // Ask for notification permission right after the splash screen, before login.
     void registerForPushNotificationsAsync();
   }, []);

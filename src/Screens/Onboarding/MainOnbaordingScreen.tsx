@@ -1,14 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  Animated,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, Animated, ActivityIndicator } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -22,6 +13,7 @@ import { RootStackParamList } from "../../types/navigation";
 import { getAccessTokenAsync } from "../../services/session";
 import { fetchCurrentUserStatus } from "../../services/userApi";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -181,7 +173,7 @@ const MainOnbaordingScreen = () => {
           <Feather name="chevron-left" size={moderateScale(22)} />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Get Started</Text>
+        <AppText style={styles.headerTitle}>Get Started</AppText>
 
         <TouchableOpacity>
           <Ionicons name="notifications" size={24} color="black" />
@@ -189,19 +181,19 @@ const MainOnbaordingScreen = () => {
       </View>
 
       <View style={styles.descriptionContainer}>
-        <Text style={styles.descriptionText}>
+        <AppText style={styles.descriptionText}>
           Complete these tasks to fully utilize your FuseRemit account.
-        </Text>
+        </AppText>
       </View>
 
       {loading ? (
         <View style={styles.loadingWrap}>
           <ActivityIndicator color="#0B3963" />
-          <Text style={styles.loadingText}>Syncing your progress...</Text>
+          <AppText style={styles.loadingText}>Syncing your progress...</AppText>
         </View>
       ) : null}
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
 
       <View style={styles.taskContainer}>
         {tasks.map((task) => {
@@ -216,16 +208,16 @@ const MainOnbaordingScreen = () => {
               style={styles.taskItem}
             >
               <AnimatedTaskTick completed={task.completed} />
-              <Text style={[styles.taskText, !isClickable && !task.completed && styles.taskTextDisabled]}>
+              <AppText style={[styles.taskText, !isClickable && !task.completed && styles.taskTextDisabled]}>
                 {task.title}
-              </Text>
+              </AppText>
             </TouchableOpacity>
           );
         })}
       </View>
 
       {!canGoHome ? (
-        <Text style={styles.lockedHint}>Complete all KYC steps to unlock Home.</Text>
+        <AppText style={styles.lockedHint}>Complete all KYC steps to unlock Home.</AppText>
       ) : null}
 
       <View style={styles.bottomContainer}>
@@ -234,7 +226,7 @@ const MainOnbaordingScreen = () => {
           onPress={() => navigation.navigate("AppServiceBottomNavigation")}
           disabled={!canGoHome}
         >
-          <Text style={styles.homeButtonText}>Go To Home</Text>
+          <AppText style={styles.homeButtonText}>Go To Home</AppText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

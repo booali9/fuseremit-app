@@ -1,16 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  Share,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Share, Alert, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   responsiveHeight,
@@ -21,6 +10,8 @@ import { moderateScale } from "react-native-size-matters";
 import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
 import { getMyReferral, applyReferralCode, ReferralInfo } from "../../services/referralApi";
+import AppText from "../../Components/Common/AppText";
+import AppTextInput from "../../Components/Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -50,7 +41,7 @@ const ReferralScreen: React.FC<Props> = ({ navigation }) => {
     if (!info) return;
     try {
       await Share.share({
-        message: `Join FuseRemit — the smartest way to send money internationally! Use my referral code ${info.referralCode} and we both get $2 off our next transfer.\n\n${info.referralLink}`,
+        message: `Join FuseRemit — the smartest way to send money internationally! Use my referral code ${info.referralCode} and we both get $${info.discountPerReferral ?? 20} off our next transfer.\n\n${info.referralLink}`,
         title: "FuseRemit Referral",
       });
     } catch {
@@ -89,7 +80,7 @@ const ReferralScreen: React.FC<Props> = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={moderateScale(22)} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Refer & Earn</Text>
+        <AppText style={styles.topTitle}>Refer & Earn</AppText>
         <View style={{ width: moderateScale(22) }} />
       </View>
 
@@ -97,30 +88,30 @@ const ReferralScreen: React.FC<Props> = ({ navigation }) => {
         {/* Hero */}
         <View style={styles.heroCard}>
           <MaterialCommunityIcons name="gift-outline" size={moderateScale(48)} color="#fff" />
-          <Text style={styles.heroTitle}>Invite Friends, Save Together</Text>
-          <Text style={styles.heroSub}>
+          <AppText style={styles.heroTitle}>Invite Friends, Save Together</AppText>
+          <AppText style={styles.heroSub}>
             Share your code and both you and your friend get{" "}
-            <Text style={styles.heroHighlight}>${info?.discountPerReferral ?? 2} off</Text> your next transfer.
-          </Text>
+            <AppText style={styles.heroHighlight}>${info?.discountPerReferral ?? 20} off</AppText> your next transfer.
+          </AppText>
         </View>
 
         {/* Stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statValue}>{info?.referralCount ?? 0}</Text>
-            <Text style={styles.statLabel}>Friends Referred</Text>
+            <AppText style={styles.statValue}>{info?.referralCount ?? 0}</AppText>
+            <AppText style={styles.statLabel}>Friends Referred</AppText>
           </View>
           <View style={styles.statCard}>
-            <Text style={[styles.statValue, { color: "#34A853" }]}>${info?.currentDiscount ?? 0}</Text>
-            <Text style={styles.statLabel}>Discount Available</Text>
+            <AppText style={[styles.statValue, { color: "#34A853" }]}>${info?.currentDiscount ?? 0}</AppText>
+            <AppText style={styles.statLabel}>Discount Available</AppText>
           </View>
         </View>
 
         {/* Your referral code */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Your Referral Code</Text>
+          <AppText style={styles.cardTitle}>Your Referral Code</AppText>
           <View style={styles.codeRow}>
-            <Text style={styles.codeText}>{info?.referralCode ?? "—"}</Text>
+            <AppText style={styles.codeText}>{info?.referralCode ?? "—"}</AppText>
             <TouchableOpacity
               style={styles.copyButton}
               onPress={async () => {
@@ -130,22 +121,22 @@ const ReferralScreen: React.FC<Props> = ({ navigation }) => {
               }}
             >
               <Feather name={copied ? "check" : "copy"} size={moderateScale(16)} color="#0B3963" />
-              <Text style={styles.copyText}>{copied ? "Copied!" : "Copy"}</Text>
+              <AppText style={styles.copyText}>{copied ? "Copied!" : "Copy"}</AppText>
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
             <Feather name="share-2" size={moderateScale(18)} color="#fff" style={{ marginRight: 8 }} />
-            <Text style={styles.shareButtonText}>Share Referral Link</Text>
+            <AppText style={styles.shareButtonText}>Share Referral Link</AppText>
           </TouchableOpacity>
         </View>
 
         {/* Apply a friend's code */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Have a Referral Code?</Text>
-          <Text style={styles.cardSub}>Enter a friend's code to get your discount</Text>
+          <AppText style={styles.cardTitle}>Have a Referral Code?</AppText>
+          <AppText style={styles.cardSub}>Enter a friend's code to get your discount</AppText>
           <View style={styles.inputRow}>
-            <TextInput
+            <AppTextInput
               style={styles.codeInput}
               placeholder="Enter code (e.g. JOHN1A2B3C)"
               placeholderTextColor="#AAAAAA"
@@ -159,24 +150,24 @@ const ReferralScreen: React.FC<Props> = ({ navigation }) => {
               onPress={handleApply}
               disabled={applying}
             >
-              {applying ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.applyButtonText}>Apply</Text>}
+              {applying ? <ActivityIndicator color="#fff" size="small" /> : <AppText style={styles.applyButtonText}>Apply</AppText>}
             </TouchableOpacity>
           </View>
         </View>
 
         {/* How it works */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>How it Works</Text>
+          <AppText style={styles.cardTitle}>How it Works</AppText>
           {[
             { icon: "share-2", text: "Share your unique code with a friend" },
             { icon: "user-plus", text: "Friend signs up and makes their first transfer" },
-            { icon: "dollar-sign", text: "Both of you get $2 off your next transfer" },
+            { icon: "dollar-sign", text: `Both of you get $${info?.discountPerReferral ?? 20} off your next transfer` },
           ].map((item, i) => (
             <View key={i} style={styles.howRow}>
               <View style={styles.howIcon}>
                 <Feather name={item.icon as any} size={moderateScale(16)} color="#0B3963" />
               </View>
-              <Text style={styles.howText}>{item.text}</Text>
+              <AppText style={styles.howText}>{item.text}</AppText>
             </View>
           ))}
         </View>

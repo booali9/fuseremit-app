@@ -7,7 +7,9 @@ import ChangePassword from "./ChangePassword";
 import SecurityQuestionScreen from "./SecurityQuestionScreen";
 import GeneralSettingScreen from "./GeneralSettingScreen";
 import PrivacyPolicyScreen from "./PrivacyPolicyScreen";
-import MayAIScreen from "./MayaAIScreen";
+// Same live Gemini chat the Home screen opens — Profile's "Ask MAYA" used to open a
+// settings page whose two rows did nothing.
+import MayaAIScreen from "../../Screens/AppService/Home/MayaAIScreen";
 import ReferralScreen from "../../Screens/AppService/ReferralScreen";
 import ReportingScreen from "../../Screens/AppService/ReportingScreen";
 import AdvancedKYCScreen from "../../Screens/KYC/AdvancedKYCScreen";
@@ -24,7 +26,7 @@ const ProfileStack = () => {
       <Stack.Screen name="SecurityQuestion" component={SecurityQuestionScreen} />
       <Stack.Screen name="GeneralSettings" component={GeneralSettingScreen} />
       <Stack.Screen name="PrivaryPolicy" component={PrivacyPolicyScreen} />
-      <Stack.Screen name="MayaAI" component={MayAIScreen} />
+      <Stack.Screen name="MayaAI" component={MayaAIScreen} />
       <Stack.Screen name="Referral" component={ReferralScreen} />
       <Stack.Screen name="Reporting" component={ReportingScreen} />
       <Stack.Screen name="AdvancedKYC" component={AdvancedKYCScreen} />

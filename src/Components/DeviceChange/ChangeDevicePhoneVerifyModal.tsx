@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  Animated,
-  Easing,
-  Image,
-} from "react-native";
+import { View, StyleSheet, Modal, TouchableOpacity, Animated, Easing, Image } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -17,6 +8,7 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
 
 interface Props {
   visible: boolean;
@@ -76,17 +68,17 @@ const ChangeDevicePhoneVerifyModal: React.FC<Props> = ({
             />
           </View>
 
-          <Text style={styles.title}>Device Changed</Text>
+          <AppText style={styles.title}>Device Changed</AppText>
 
-          <Text style={styles.subtitle}>
+          <AppText style={styles.subtitle}>
             Your device change request has been successfully approved.
-          </Text>
+          </AppText>
 
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate("Login")}
           >
-            <Text style={styles.buttonText}>Login</Text>
+            <AppText style={styles.buttonText}>Login</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>

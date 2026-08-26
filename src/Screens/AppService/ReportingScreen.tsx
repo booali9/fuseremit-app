@@ -1,15 +1,5 @@
 import React, { useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-  Platform,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, StatusBar, ScrollView, Alert, ActivityIndicator, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   responsiveHeight,
@@ -23,6 +13,7 @@ import { getAccessTokenAsync } from "../../services/session";
 import { API_BASE_URL } from "../../services/api";
 import { Paths, File } from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import AppText from "../../Components/Common/AppText";
 
 interface Props {
   navigation: any;
@@ -103,7 +94,7 @@ const ReportingScreen: React.FC<Props> = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={moderateScale(22)} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Reporting</Text>
+        <AppText style={styles.topTitle}>Reporting</AppText>
         <View style={{ width: moderateScale(22) }} />
       </View>
 
@@ -111,13 +102,13 @@ const ReportingScreen: React.FC<Props> = ({ navigation }) => {
         {/* Header */}
         <View style={styles.heroCard}>
           <MaterialCommunityIcons name="file-chart-outline" size={moderateScale(48)} color="#fff" />
-          <Text style={styles.heroTitle}>Download Your Statement</Text>
-          <Text style={styles.heroSub}>Export your transaction history as a CSV file for your records or accounting.</Text>
+          <AppText style={styles.heroTitle}>Download Your Statement</AppText>
+          <AppText style={styles.heroSub}>Export your transaction history as a CSV file for your records or accounting.</AppText>
         </View>
 
         {/* Date range selector */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Select Date Range</Text>
+          <AppText style={styles.cardTitle}>Select Date Range</AppText>
           <View style={styles.presetsGrid}>
             {PRESETS.map((preset) => (
               <TouchableOpacity
@@ -125,29 +116,29 @@ const ReportingScreen: React.FC<Props> = ({ navigation }) => {
                 style={[styles.presetChip, selectedPreset === preset.days && styles.presetChipActive]}
                 onPress={() => setSelectedPreset(preset.days)}
               >
-                <Text style={[styles.presetText, selectedPreset === preset.days && styles.presetTextActive]}>
+                <AppText style={[styles.presetText, selectedPreset === preset.days && styles.presetTextActive]}>
                   {preset.label}
-                </Text>
+                </AppText>
               </TouchableOpacity>
             ))}
           </View>
 
           <View style={styles.dateRangeRow}>
             <View style={styles.dateBox}>
-              <Text style={styles.dateLabel}>From</Text>
-              <Text style={styles.dateValue}>{from}</Text>
+              <AppText style={styles.dateLabel}>From</AppText>
+              <AppText style={styles.dateValue}>{from}</AppText>
             </View>
             <Feather name="arrow-right" size={moderateScale(16)} color="#AAAAAA" />
             <View style={styles.dateBox}>
-              <Text style={styles.dateLabel}>To</Text>
-              <Text style={styles.dateValue}>{to}</Text>
+              <AppText style={styles.dateLabel}>To</AppText>
+              <AppText style={styles.dateValue}>{to}</AppText>
             </View>
           </View>
         </View>
 
         {/* What's included */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>What's Included</Text>
+          <AppText style={styles.cardTitle}>What's Included</AppText>
           {[
             "Date and time of each transaction",
             "Transfer amounts and currencies",
@@ -158,7 +149,7 @@ const ReportingScreen: React.FC<Props> = ({ navigation }) => {
           ].map((item, i) => (
             <View key={i} style={styles.includeRow}>
               <Feather name="check" size={moderateScale(14)} color="#34A853" />
-              <Text style={styles.includeText}>{item}</Text>
+              <AppText style={styles.includeText}>{item}</AppText>
             </View>
           ))}
         </View>
@@ -174,14 +165,14 @@ const ReportingScreen: React.FC<Props> = ({ navigation }) => {
           ) : (
             <>
               <Feather name="download" size={moderateScale(18)} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={styles.downloadButtonText}>Download CSV Statement</Text>
+              <AppText style={styles.downloadButtonText}>Download CSV Statement</AppText>
             </>
           )}
         </TouchableOpacity>
 
-        <Text style={styles.footerNote}>
+        <AppText style={styles.footerNote}>
           Your statement is generated securely and contains only your own transaction data.
-        </Text>
+        </AppText>
       </ScrollView>
     </SafeAreaView>
   );

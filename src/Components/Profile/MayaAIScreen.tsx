@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  Image,
-  Switch,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, Image, Switch } from "react-native";
 
 import {
   responsiveHeight,
@@ -21,7 +11,11 @@ import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
 
+// ponytail: unreachable — Profile's "Ask MAYA" now opens the real chat screen. Both rows here
+// were dead ("AI Voice Response" has no voice feature; chat history isn't persisted, so there
+// is nothing to clear). Safe to delete once your local changes are committed.
 const MayAIScreen: React.FC = () => {
   const navigation = useNavigation();
 
@@ -51,7 +45,7 @@ const MayAIScreen: React.FC = () => {
           <View style={{ width: responsiveWidth(6) }} />
         </View>
 
-        <Text style={styles.title}>ASK MAYA</Text>
+        <AppText style={styles.title}>ASK MAYA</AppText>
 
         {menuRow(
           "AI Voice Response",
@@ -100,11 +94,11 @@ const menuRow = (
             !hasSubtitle && { justifyContent: "center" },
           ]}
         >
-          <Text style={[styles.menuTitle, isDanger && { color: "#E53935" }]}>
+          <AppText style={[styles.menuTitle, isDanger && { color: "#E53935" }]}>
             {title}
-          </Text>
+          </AppText>
 
-          {hasSubtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+          {hasSubtitle && <AppText style={styles.menuSubtitle}>{subtitle}</AppText>}
         </View>
       </View>
 

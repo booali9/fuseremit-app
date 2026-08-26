@@ -1,19 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  Image,
-  Switch,
-  Alert,
-  ActivityIndicator,
-  Modal,
-  Pressable,
-} from "react-native";
+import { View, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView, Image, Switch, Alert, ActivityIndicator, Modal, Pressable } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -27,6 +13,7 @@ import { getAccessTokenAsync } from "../../services/session";
 import { fetchUserSettings, updateUserSettings } from "../../services/userApi";
 import { registerForPushNotificationsAsync } from "../../services/notifications";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
 
 const GeneralSettingScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -165,7 +152,7 @@ const GeneralSettingScreen: React.FC = () => {
           <View style={{ width: responsiveWidth(6) }} />
         </View>
 
-        <Text style={[styles.title, { textAlign: isRTL ? 'right' : 'left' }]}>{t("generalSettings.title")}</Text>
+        <AppText style={[styles.title, { textAlign: isRTL ? 'right' : 'left' }]}>{t("generalSettings.title")}</AppText>
 
         {menuRow(
           t("generalSettings.language"),
@@ -216,9 +203,9 @@ const GeneralSettingScreen: React.FC = () => {
         )}
         
         {isUpdating && (
-          <Text style={{ textAlign: 'center', color: '#666', fontSize: 12, marginTop: 10 }}>
+          <AppText style={{ textAlign: 'center', color: '#666', fontSize: 12, marginTop: 10 }}>
             Syncing settings...
-          </Text>
+          </AppText>
         )}
       </ScrollView>
 
@@ -235,7 +222,7 @@ const GeneralSettingScreen: React.FC = () => {
         
         <View style={styles.modalContent}>
           <View style={[styles.modalHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-             <Text style={styles.modalTitle}>{t("generalSettings.selectLanguage")}</Text>
+             <AppText style={styles.modalTitle}>{t("generalSettings.selectLanguage")}</AppText>
              <TouchableOpacity onPress={() => setIsLanguageModalVisible(false)}>
                 <Feather name="x" size={24} color="#000" />
              </TouchableOpacity>
@@ -252,9 +239,9 @@ const GeneralSettingScreen: React.FC = () => {
                   setIsLanguageModalVisible(false);
                 }}
               >
-                <Text style={[styles.languageLabel, isSelected && styles.selectedLabel]}>
+                <AppText style={[styles.languageLabel, isSelected && styles.selectedLabel]}>
                   {item.label}
-                </Text>
+                </AppText>
                 {isSelected && (
                   <View style={styles.selectedDot} />
                 )}
@@ -299,12 +286,12 @@ const menuRow = (
             { alignItems: isRTL ? 'flex-end' : 'flex-start' }
           ]}
         >
-          <Text style={[styles.menuTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{title}</Text>
+          <AppText style={[styles.menuTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{title}</AppText>
 
           {hasSubtitle && (
-            <Text style={[styles.menuSubtitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+            <AppText style={[styles.menuSubtitle, { textAlign: isRTL ? 'right' : 'left' }]}>
               {subtitle}
-            </Text>
+            </AppText>
           )}
         </View>
       </View>

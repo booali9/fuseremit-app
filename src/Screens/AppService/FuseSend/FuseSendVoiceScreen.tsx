@@ -1,18 +1,5 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, SafeAreaView, ImageBackground, Image, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, StatusBar, ActivityIndicator, Alert } from "react-native";
 
 import {
   responsiveHeight,
@@ -25,43 +12,186 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Audio } from "expo-av";
+import { File } from "expo-file-system";
 import Fonts from "../../../constants/Fonts";
+import AppText from "../../../Components/Common/AppText";
+import AppTextInput from "../../../Components/Common/AppTextInput";
+import { currencyForCountry, deliveryOption } from "../../../constants/transfer";
+import { getExchangeRate } from "../../../services/paymentApi";
+import {
+  mayaRecipientSuggestions,
+  mayaVoiceCommand,
+  MayaRecipientSuggestion,
+  MayaVoiceCommand,
+} from "../../../services/mayaApi";
+
+const mimeTypeForUri = (uri: string) => {
+  const ext = uri.split(".").pop()?.toLowerCase();
+  if (ext === "wav") return "audio/wav";
+  if (ext === "3gp" || ext === "3gpp") return "audio/3gpp";
+  return "audio/m4a";
+};
 
 const FuseSendVoiceScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
+  const [country, setCountry] = useState("");
   const [bankName, setBankName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
 
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [voice, setVoice] = useState<MayaVoiceCommand | null>(null);
+  const [voiceError, setVoiceError] = useState("");
 
-  const handleVoicePress = async () => {
-    if (!isRecording) {
-      try {
-        await Audio.requestPermissionsAsync();
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
+  const [suggestions, setSuggestions] = useState<MayaRecipientSuggestion[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(true);
+  const [continuing, setContinuing] = useState(false);
 
-        const { recording } = await Audio.Recording.createAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY,
-        );
+  useEffect(() => {
+    void mayaRecipientSuggestions()
+      .then(setSuggestions)
+      .catch(() => setSuggestions([]))
+      .finally(() => setLoadingSuggestions(false));
+  }, []);
 
-        setRecording(recording);
-        setIsRecording(true);
-      } catch (err) {
-        console.log("Recording error:", err);
-      }
-    } else {
-      await recording?.stopAndUnloadAsync();
-      setRecording(null);
-      setIsRecording(false);
+  const applyVoiceResult = (result: MayaVoiceCommand) => {
+    setVoice(result);
+    if (result.recipientName) setRecipient(result.recipientName);
+    if (result.amount > 0) setAmount(String(result.amount));
+    if (result.recipient) {
+      setCountry(result.recipient.country);
+      setBankName(result.recipient.bank);
+      setAccountNumber(result.recipient.account);
     }
   };
+
+  const startRecording = async () => {
+    const { granted } = await Audio.requestPermissionsAsync();
+    if (!granted) {
+      setVoiceError("Microphone permission is needed for voice commands.");
+      return;
+    }
+
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
+
+    const { recording: started } = await Audio.Recording.createAsync(
+      Audio.RecordingOptionsPresets.HIGH_QUALITY,
+    );
+    setRecording(started);
+    setIsRecording(true);
+  };
+
+  const stopAndSend = async () => {
+    if (!recording) return;
+
+    setIsRecording(false);
+    setProcessing(true);
+
+    try {
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecording(null);
+      if (!uri) throw new Error("Recording was not saved.");
+
+      const audioBase64 = await new File(uri).base64();
+      const result = await mayaVoiceCommand({
+        audioBase64,
+        mimeType: mimeTypeForUri(uri),
+      });
+      applyVoiceResult(result);
+    } catch (e) {
+      setVoiceError(
+        e instanceof Error ? e.message : "Maya could not understand that. Try again.",
+      );
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleVoicePress = async () => {
+    if (processing) return;
+    setVoiceError("");
+
+    try {
+      if (isRecording) {
+        await stopAndSend();
+      } else {
+        setVoice(null);
+        await startRecording();
+      }
+    } catch (e) {
+      setIsRecording(false);
+      setProcessing(false);
+      setVoiceError(e instanceof Error ? e.message : "Recording failed.");
+    }
+  };
+
+  /** Voice matched a known recipient — everything is known, so go straight to the PIN. */
+  const confirmVoiceTransfer = () => {
+    if (!voice?.recipient || !voice.exchange) return;
+
+    const option = deliveryOption(voice.recipient.deliveryMethod);
+    navigation.navigate("OTP", {
+      transferData: {
+        amount: voice.amount,
+        currency: voice.currency,
+        deliveryMethod: option.key,
+        recipientName: voice.recipient.name,
+        recipientBank: voice.recipient.bank,
+        recipientAccount: voice.recipient.account,
+        recipientCountry: voice.recipient.country,
+        exchangeRate: voice.exchange.rate,
+        fee: option.fee,
+        amountReceived: voice.amount * voice.exchange.rate,
+        receivedCurrency: voice.exchange.receivedCurrency,
+      },
+    });
+  };
+
+  const continueManually = async () => {
+    const numericAmount = Number(amount) || 0;
+    const receivedCurrency = currencyForCountry(country);
+
+    if (!recipient.trim() || numericAmount <= 0) {
+      setVoiceError("Enter a recipient and an amount to continue.");
+      return;
+    }
+    if (!receivedCurrency) {
+      setVoiceError(`We don't support payouts to "${country || "that country"}" yet.`);
+      return;
+    }
+
+    try {
+      setContinuing(true);
+      setVoiceError("");
+      const rate = await getExchangeRate("USD", receivedCurrency);
+
+      navigation.navigate("DeliveryOptions", {
+        amount: numericAmount,
+        currency: "USD",
+        recipientName: recipient.trim(),
+        recipientCountry: country.trim(),
+        recipientBank: bankName.trim(),
+        recipientAccount: accountNumber.trim(),
+        exchangeRate: rate,
+        amountReceived: numericAmount * rate,
+        receivedCurrency,
+      });
+    } catch (e) {
+      Alert.alert("Error", e instanceof Error ? e.message : "Could not fetch the rate.");
+    } finally {
+      setContinuing(false);
+    }
+  };
+
+  const readyToSend = Boolean(voice?.ready);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -76,7 +206,7 @@ const FuseSendVoiceScreen: React.FC = () => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Feather name="chevron-left" size={22} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>FUSE SEND</Text>
+            <AppText style={styles.headerTitle}>FUSE SEND</AppText>
             <View style={{ width: 22 }} />
           </View>
 
@@ -90,46 +220,49 @@ const FuseSendVoiceScreen: React.FC = () => {
                 source={require("../../../../assets/robot.png")}
                 style={styles.robot}
               />
-              <Text style={styles.bgTitle}>Maya’s FUSE Suggestions</Text>
+              <AppText style={styles.bgTitle}>Maya’s FUSE Suggestions</AppText>
             </View>
 
-            <View style={styles.suggestionCard}>
-              <View style={styles.userRow}>
-                <View style={styles.avatarCircle}>
-                  <Feather
-                    name="refresh-cw"
-                    size={responsiveFontSize(1.2)}
-                    color="#1F2A56"
-                  />
-                </View>
+            {loadingSuggestions ? (
+              <ActivityIndicator color="#FFFFFF" style={{ marginVertical: 12 }} />
+            ) : suggestions.length === 0 ? (
+              <AppText style={styles.emptySuggestions}>
+                No past recipients yet — speak or type the details below and Maya will
+                remember them for next time.
+              </AppText>
+            ) : (
+              suggestions.map((s) => (
+                <TouchableOpacity
+                  key={`${s.name}-${s.country}`}
+                  style={styles.suggestionCard}
+                  onPress={() => {
+                    setRecipient(s.name);
+                    setAmount(String(s.amount));
+                    setCountry(s.country);
+                  }}
+                >
+                  <View style={styles.userRow}>
+                    <View style={styles.avatarCircle}>
+                      <Feather
+                        name="refresh-cw"
+                        size={responsiveFontSize(1.2)}
+                        color="#1F2A56"
+                      />
+                    </View>
 
-                <View>
-                  <Text style={styles.userName}>Arlene McCoy (Canada)</Text>
-                  <Text style={styles.subText}>Monthly active detected</Text>
-                </View>
-              </View>
+                    <View>
+                      <AppText style={styles.userName}>
+                        {s.name}
+                        {s.country ? ` (${s.country})` : ""}
+                      </AppText>
+                      <AppText style={styles.subText}>{s.reason}</AppText>
+                    </View>
+                  </View>
 
-              <Text style={styles.price}>$500</Text>
-            </View>
-
-            <View style={styles.suggestionCard}>
-              <View style={styles.userRow}>
-                <View style={styles.avatarCircle}>
-                  <Feather
-                    name="refresh-cw"
-                    size={responsiveFontSize(1.2)}
-                    color="#1F2A56"
-                  />
-                </View>
-
-                <View>
-                  <Text style={styles.userName}>Elle Doure (France)</Text>
-                  <Text style={styles.subText}>Recent interaction</Text>
-                </View>
-              </View>
-
-              <Text style={styles.price}>$250</Text>
-            </View>
+                  <AppText style={styles.price}>${s.amount}</AppText>
+                </TouchableOpacity>
+              ))
+            )}
           </ImageBackground>
 
           <View style={styles.voiceSection}>
@@ -139,7 +272,7 @@ const FuseSendVoiceScreen: React.FC = () => {
                 size={22}
                 color="black"
               />
-              <Text style={styles.voiceHeaderText}>FUSE Voice Command</Text>
+              <AppText style={styles.voiceHeaderText}>FUSE Voice Command</AppText>
             </View>
 
             <TouchableOpacity
@@ -149,20 +282,75 @@ const FuseSendVoiceScreen: React.FC = () => {
               ]}
               activeOpacity={0.8}
               onPress={handleVoicePress}
+              disabled={processing}
             >
               <View style={styles.voiceCircle}>
-                <Feather
-                  name="mic"
-                  size={responsiveFontSize(3)}
-                  color="#1F2A56"
-                />
+                {processing ? (
+                  <ActivityIndicator color="#1F2A56" />
+                ) : (
+                  <Feather
+                    name="mic"
+                    size={responsiveFontSize(3)}
+                    color={isRecording ? "#B00020" : "#1F2A56"}
+                  />
+                )}
               </View>
 
-              <Text style={styles.voiceText}>
-                {isRecording ? "Recording..." : "Tap to Speak"}
-              </Text>
+              <AppText style={styles.voiceText}>
+                {processing
+                  ? "Maya is listening…"
+                  : isRecording
+                    ? "Tap to stop"
+                    : "Tap to Speak"}
+              </AppText>
+              <AppText style={styles.voiceHint}>
+                Try: “Minhal ko 500 dollar bhej do”
+              </AppText>
             </TouchableOpacity>
+
+            {voice?.transcript ? (
+              <View style={styles.transcriptCard}>
+                <AppText style={styles.transcriptLabel}>You said</AppText>
+                <AppText style={styles.transcriptText}>“{voice.transcript}”</AppText>
+                {voice.reply ? (
+                  <AppText style={styles.mayaReply}>{voice.reply}</AppText>
+                ) : null}
+              </View>
+            ) : null}
+
+            {voiceError ? (
+              <AppText style={styles.errorText}>{voiceError}</AppText>
+            ) : null}
           </View>
+
+          {readyToSend && voice?.recipient && voice.exchange ? (
+            <View style={styles.confirmCard}>
+              <AppText style={styles.confirmTitle}>Ready to send</AppText>
+              <AppText style={styles.confirmAmount}>
+                ${voice.amount.toFixed(2)} {voice.currency} → {voice.recipient.name}
+              </AppText>
+              <AppText style={styles.confirmSub}>
+                {voice.recipient.bank ? `${voice.recipient.bank} ` : ""}
+                {voice.recipient.account
+                  ? `••••${voice.recipient.account.slice(-4)} `
+                  : ""}
+                {voice.recipient.country}
+              </AppText>
+              <AppText style={styles.confirmSub}>
+                They receive{" "}
+                {(voice.amount * voice.exchange.rate).toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                })}{" "}
+                {voice.exchange.receivedCurrency} · fee $
+                {deliveryOption(voice.recipient.deliveryMethod).fee.toFixed(2)}
+              </AppText>
+
+              <TouchableOpacity style={styles.confirmButton} onPress={confirmVoiceTransfer}>
+                <Feather name="lock" size={16} color="#fff" />
+                <AppText style={styles.confirmButtonText}>Confirm with PIN</AppText>
+              </TouchableOpacity>
+            </View>
+          ) : null}
 
           <View style={styles.manualSection}>
             <View style={styles.manualHeader}>
@@ -171,22 +359,29 @@ const FuseSendVoiceScreen: React.FC = () => {
                 size={18}
                 color="#000"
               />
-              <Text style={styles.manualTitle}>Manual Entry</Text>
+              <AppText style={styles.manualTitle}>Manual Entry</AppText>
             </View>
 
             <Input
               label="Recipient"
-              placeholder="Enter Email or Phone Number"
+              placeholder="Recipient full name"
               value={recipient}
               setValue={setRecipient}
             />
 
             <Input
-              label="Amount"
+              label="Amount (USD)"
               placeholder="Enter Amount"
               value={amount}
-              setValue={setAmount}
+              setValue={(t) => setAmount(t.replace(/[^0-9.]/g, ""))}
               keyboardType="numeric"
+            />
+
+            <Input
+              label="Recipient Country"
+              placeholder="e.g. Nigeria"
+              value={country}
+              setValue={setCountry}
             />
 
             <Input
@@ -206,10 +401,15 @@ const FuseSendVoiceScreen: React.FC = () => {
           </View>
 
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("SendMoneySecond")}
+            style={[styles.button, continuing && { opacity: 0.6 }]}
+            onPress={() => void continueManually()}
+            disabled={continuing}
           >
-            <Text style={styles.buttonText}>Continue with FUSE Analysis</Text>
+            {continuing ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <AppText style={styles.buttonText}>Continue with FUSE Analysis</AppText>
+            )}
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -235,9 +435,9 @@ const Input = ({
   keyboardType,
 }: InputProps) => (
   <>
-    <Text style={styles.label}>{label}</Text>
+    <AppText style={styles.label}>{label}</AppText>
     <View style={styles.inputBox}>
-      <TextInput
+      <AppTextInput
         style={styles.input}
         placeholder={placeholder}
         placeholderTextColor="#777"
@@ -285,6 +485,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: responsiveFontSize(1.8),
     fontFamily: Fonts.semiBold,
+  },
+
+  emptySuggestions: {
+    color: "#D7DEEF",
+    fontSize: responsiveFontSize(1.3),
+    fontFamily: Fonts.medium,
+    marginTop: responsiveHeight(1.5),
   },
 
   suggestionCard: {
@@ -359,6 +566,91 @@ const styles = StyleSheet.create({
   voiceText: {
     fontSize: responsiveFontSize(1.4),
     fontFamily: Fonts.semiBold,
+  },
+
+  voiceHint: {
+    fontSize: responsiveFontSize(1.2),
+    color: "#6B7280",
+    marginTop: 4,
+  },
+
+  transcriptCard: {
+    marginTop: responsiveHeight(1.5),
+    backgroundColor: "#F3F6FF",
+    borderRadius: moderateScale(10),
+    padding: moderateScale(12),
+  },
+
+  transcriptLabel: {
+    fontSize: responsiveFontSize(1.2),
+    color: "#6B7280",
+    fontFamily: Fonts.semiBold,
+  },
+
+  transcriptText: {
+    fontSize: responsiveFontSize(1.5),
+    fontFamily: Fonts.semiBold,
+    color: "#111",
+    marginTop: 2,
+  },
+
+  mayaReply: {
+    fontSize: responsiveFontSize(1.3),
+    color: "#1F2A56",
+    marginTop: 6,
+  },
+
+  errorText: {
+    marginTop: responsiveHeight(1),
+    color: "#B00020",
+    fontSize: responsiveFontSize(1.3),
+    fontFamily: Fonts.semiBold,
+  },
+
+  confirmCard: {
+    marginHorizontal: responsiveWidth(5),
+    marginTop: responsiveHeight(2.5),
+    padding: moderateScale(15),
+    borderRadius: moderateScale(12),
+    borderWidth: 1.5,
+    borderColor: "#1F2A56",
+    backgroundColor: "#F7F9FF",
+  },
+
+  confirmTitle: {
+    fontSize: responsiveFontSize(1.3),
+    color: "#6B7280",
+    fontFamily: Fonts.semiBold,
+  },
+
+  confirmAmount: {
+    fontSize: responsiveFontSize(2),
+    fontFamily: Fonts.bold,
+    color: "#1F2A56",
+    marginTop: 2,
+  },
+
+  confirmSub: {
+    fontSize: responsiveFontSize(1.3),
+    color: "#444",
+    marginTop: 4,
+  },
+
+  confirmButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: responsiveHeight(2),
+    height: responsiveHeight(6),
+    borderRadius: moderateScale(10),
+    backgroundColor: "#1F2A50",
+  },
+
+  confirmButtonText: {
+    color: "#fff",
+    fontSize: responsiveFontSize(1.7),
+    fontFamily: Fonts.bold,
   },
 
   manualSection: {

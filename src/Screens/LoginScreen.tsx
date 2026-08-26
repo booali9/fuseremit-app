@@ -1,44 +1,31 @@
 import { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
   responsiveFontSize,
 } from "react-native-responsive-dimensions";
 import { moderateScale, scale } from "react-native-size-matters";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { biometricLogin, requestEmailLoginOtp } from "../services/authApi";
 import { getBiometricToken, hasBiometricEnabled, setSession } from "../services/session";
 import { resetToDashboardOrKyc } from "../navigation/navigationHelpers";
-<<<<<<< HEAD
 import { syncFcmTokenWithBackend } from "../services/notifications";
-=======
->>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
 import * as LocalAuthentication from "expo-local-authentication";
 import React, { useEffect } from "react";
 import Fonts from "../constants/Fonts";
 import PhoneNumberInput from "../Components/Common/PhoneNumberInput";
+import AppText from "../Components/Common/AppText";
+import AppTextInput from "../Components/Common/AppTextInput";
 
 interface Props {
   navigation: any;
 }
 
-type LoginMode = "phone" | "email";
-
 const LoginScreen = ({ navigation }: Props) => {
-  const [mode, setMode] = useState<LoginMode>("phone");
+  const insets = useSafeAreaInsets();
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [secureEntry, setSecureEntry] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,10 +40,9 @@ const LoginScreen = ({ navigation }: Props) => {
     checkBiometric();
   }, []);
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const isValidPhone = /^\+?\d{10,20}$/.test(phoneNumber.trim());
   const isValidPassword = password.length >= 8;
-  const isFormValid = mode === "phone" ? isValidPhone : isValidEmail && isValidPassword;
+  const isFormValid = isValidPhone && isValidPassword;
 
   const handleContinue = async () => {
     if (!isFormValid || isSubmitting) return;
@@ -65,12 +51,8 @@ const LoginScreen = ({ navigation }: Props) => {
       setErrorMessage("");
       setIsSubmitting(true);
 
-      const identifier = mode === "phone" ? phoneNumber.trim() : email.trim().toLowerCase();
-      const payload = mode === "phone"
-        ? { phoneNumber: identifier }
-        : { email: identifier, password };
-
-      const data = await requestEmailLoginOtp(payload);
+      const identifier = phoneNumber.trim();
+      const data = await requestEmailLoginOtp({ phoneNumber: identifier, password });
 
       if (data.accessToken && data.user) {
         // Direct login if 2FA is disabled
@@ -84,10 +66,7 @@ const LoginScreen = ({ navigation }: Props) => {
             // mapping other fields if necessary
           } as any,
         });
-<<<<<<< HEAD
         void syncFcmTokenWithBackend();
-=======
->>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
         await resetToDashboardOrKyc(navigation);
       } else {
         // 2FA flow
@@ -127,10 +106,7 @@ const LoginScreen = ({ navigation }: Props) => {
           user: data.user,
         });
 
-<<<<<<< HEAD
         void syncFcmTokenWithBackend();
-=======
->>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
         await resetToDashboardOrKyc(navigation);
       } catch (error) {
         setErrorMessage(error instanceof Error ? error.message : "Biometric login failed");
@@ -152,125 +128,67 @@ const LoginScreen = ({ navigation }: Props) => {
           resizeMode="contain"
         />
 
-        <Text style={styles.title}>Log In</Text>
+        <AppText style={styles.title}>Log In</AppText>
 
         <View style={styles.subtitleRow}>
-          <Text style={styles.subtitle}>Don’t have an account?</Text>
+          <AppText style={styles.subtitle}>Don’t have an account?</AppText>
 
           <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-            <Text style={styles.link}> Sign Up</Text>
+            <AppText style={styles.link}> Sign Up</AppText>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.tabRow}>
-          <TouchableOpacity
-            style={[styles.tab, mode === "phone" && styles.tabActive]}
-            onPress={() => {
-              setMode("phone");
-              setPassword("");
-              setErrorMessage("");
-            }}
-          >
-            <Text style={[styles.tabText, mode === "phone" && styles.tabTextActive]}>
-              Login with Phone
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, mode === "email" && styles.tabActive]}
-            onPress={() => {
-              setMode("email");
-              setErrorMessage("");
-            }}
-          >
-            <Text style={[styles.tabText, mode === "email" && styles.tabTextActive]}>
-              Login with Email
-            </Text>
-          </TouchableOpacity>
+        <AppText style={styles.label}>Phone Number</AppText>
+        <View
+          style={[
+            styles.inputContainer,
+            !isValidPhone && phoneNumber.length > 0 && styles.inputError,
+            isValidPhone && styles.inputSuccess,
+          ]}
+        >
+          <PhoneNumberInput
+            value={phoneNumber}
+            onChangeValue={setPhoneNumber}
+            placeholder="e.g. 1234567890"
+          />
+          {isValidPhone && (
+            <Feather name="check" size={20} color="#1DB954" style={styles.validationIcon} />
+          )}
         </View>
 
-        {mode === "phone" ? (
-          <>
-            <Text style={styles.label}>Phone Number</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                !isValidPhone && phoneNumber.length > 0 && styles.inputError,
-                isValidPhone && styles.inputSuccess,
-              ]}
-            >
-              <PhoneNumberInput
-                value={phoneNumber}
-                onChangeValue={setPhoneNumber}
-                placeholder="e.g. 1234567890"
-              />
-              {isValidPhone && (
-                <Feather name="check" size={20} color="#1DB954" style={styles.validationIcon} />
-              )}
-            </View>
-          </>
-        ) : (
-          <>
-            <Text style={styles.label}>Email Address</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                !isValidEmail && email.length > 0 && styles.inputError,
-                isValidEmail && styles.inputSuccess,
-              ]}
-            >
-              <Feather name="mail" size={20} color="#777" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-              />
-              {isValidEmail && (
-                <Feather name="check" size={20} color="#1DB954" style={styles.validationIcon} />
-              )}
-<<<<<<< HEAD
-            </View>
-
-            <Text style={styles.label}>Password</Text>
-            <View
-              style={[
-                styles.inputContainer,
-                !isValidPassword && password.length > 0 && styles.inputError,
-                isValidPassword && styles.inputSuccess,
-              ]}
-            >
-              <Feather name="lock" size={20} color="#777" style={styles.inputIcon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your password"
-                secureTextEntry={secureEntry}
-                value={password}
-                onChangeText={setPassword}
-              />
-              <TouchableOpacity onPress={() => setSecureEntry(!secureEntry)}>
-                <Feather
-                  name={secureEntry ? "eye-off" : "eye"}
-                  size={20}
-                  color="#777"
-                  style={styles.eyeIcon}
-                />
-              </TouchableOpacity>
-=======
->>>>>>> 8d27b005bbc7c8d62431a6804951e27f473c5990
-            </View>
-          </>
-        )}
+        <AppText style={styles.label}>Password</AppText>
+        <View
+          style={[
+            styles.inputContainer,
+            !isValidPassword && password.length > 0 && styles.inputError,
+            isValidPassword && styles.inputSuccess,
+          ]}
+        >
+          <AppTextInput
+            style={styles.input}
+            placeholder="Enter your password"
+            secureTextEntry={secureEntry}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity onPress={() => setSecureEntry(!secureEntry)}>
+            <Feather
+              name={secureEntry ? "eye-off" : "eye"}
+              size={20}
+              color="#777"
+              style={styles.eyeIcon}
+            />
+          </TouchableOpacity>
+        </View>
 
         {errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
+          <AppText style={styles.errorText}>{errorMessage}</AppText>
         ) : null}
 
         <TouchableOpacity
           style={[
             styles.button,
+            { bottom: insets.bottom + responsiveHeight(2) },
             isFormValid && !isSubmitting && styles.buttonActive,
           ]}
           disabled={!isFormValid || isSubmitting}
@@ -279,14 +197,14 @@ const LoginScreen = ({ navigation }: Props) => {
           {isSubmitting ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text
+            <AppText
               style={[
                 styles.buttonText,
                 isFormValid && !isSubmitting && styles.buttonTextActive,
               ]}
             >
               Continue
-            </Text>
+            </AppText>
           )}
         </TouchableOpacity>
 
@@ -297,7 +215,7 @@ const LoginScreen = ({ navigation }: Props) => {
             disabled={isSubmitting}
           >
             <Ionicons name="finger-print" size={moderateScale(32)} color="#0B3963" />
-            <Text style={styles.biometricText}>Login with Biometrics</Text>
+            <AppText style={styles.biometricText}>Login with Biometrics</AppText>
           </TouchableOpacity>
         )}
       </View>
@@ -353,40 +271,11 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.semiBold,
   },
 
-  tabRow: {
-    flexDirection: "row",
-    marginTop: responsiveHeight(3),
-    backgroundColor: "#1e1e1e0c",
-    borderRadius: moderateScale(10),
-    padding: moderateScale(4),
-  },
-
-  tab: {
-    flex: 1,
-    paddingVertical: responsiveHeight(1.2),
-    borderRadius: moderateScale(8),
-    alignItems: "center",
-  },
-
-  tabActive: {
-    backgroundColor: "#0B3963",
-  },
-
-  tabText: {
-    fontSize: responsiveFontSize(1.4),
-    fontFamily: Fonts.semiBold,
-    color: "#777",
-  },
-
-  tabTextActive: {
-    color: "#fff",
-  },
-
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1.2,
-    borderColor: "#ccc",
+    borderWidth: 1.4,
+    borderColor: "#E5476E",
     borderRadius: moderateScale(8),
     paddingHorizontal: moderateScale(12),
     height: responsiveHeight(6.2),
@@ -411,10 +300,6 @@ const styles = StyleSheet.create({
     color: "#000",
   },
 
-  inputIcon: {
-    marginRight: moderateScale(10),
-  },
-
   validationIcon: {
     marginLeft: moderateScale(8),
   },
@@ -432,7 +317,6 @@ const styles = StyleSheet.create({
 
   button: {
     position: "absolute",
-    bottom: responsiveHeight(5),
     alignSelf: "center",
     width: responsiveWidth(88),
     height: responsiveHeight(6.5),

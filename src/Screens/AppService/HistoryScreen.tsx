@@ -1,15 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  ActivityIndicator,
-  RefreshControl,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, ActivityIndicator, RefreshControl } from "react-native";
 
 import {
   responsiveHeight,
@@ -20,10 +10,12 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { FontAwesome5, Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
+import Colors from "../../constants/Colors";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useLanguage } from "../../context/LanguageContext";
 import { listTransactions, Transaction } from "../../services/paymentApi";
+import AppText from "../../Components/Common/AppText";
 
 const groupByDate = (txns: Transaction[]): Record<string, Transaction[]> => {
   return txns.reduce<Record<string, Transaction[]>>((acc, tx) => {
@@ -126,22 +118,22 @@ const HistoryScreen: React.FC = () => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void fetchTransactions(); }} />}
       >
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t("history.title")}</Text>
+          <AppText style={styles.headerTitle}>{t("history.title")}</AppText>
         </View>
 
         {error ? (
-          <Text style={styles.errorText}>{error}</Text>
+          <AppText style={styles.errorText}>{error}</AppText>
         ) : transactions.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Feather name="inbox" size={moderateScale(40)} color="#DADADA" />
-            <Text style={styles.emptyText}>No transactions yet</Text>
+            <AppText style={styles.emptyText}>No transactions yet</AppText>
           </View>
         ) : (
           dateKeys.map((dateKey) => (
             <View key={dateKey}>
-              <Text style={[styles.sectionTitle, { textAlign: isRTL ? "right" : "left" }]}>
+              <AppText style={[styles.sectionTitle, { textAlign: isRTL ? "right" : "left" }]}>
                 {displayDate(dateKey)}
-              </Text>
+              </AppText>
               {grouped[dateKey].map((tx) => (
                 <TouchableOpacity
                   key={tx._id}
@@ -152,11 +144,11 @@ const HistoryScreen: React.FC = () => {
                   <View style={[styles.leftRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
                     {renderIcon(tx)}
                     <View>
-                      <Text style={styles.name}>{tx.recipientName ?? (tx.type === "deposit" ? "Added funds" : "Transfer")}</Text>
-                      <Text style={styles.subText}>{tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</Text>
+                      <AppText style={styles.name}>{tx.recipientName ?? (tx.type === "deposit" ? "Added funds" : "Transfer")}</AppText>
+                      <AppText style={styles.subText}>{tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}</AppText>
                     </View>
                   </View>
-                  <Text style={[styles.amount, amountColor(tx)]}>{formatAmount(tx)}</Text>
+                  <AppText style={[styles.amount, amountColor(tx)]}>{formatAmount(tx)}</AppText>
                 </TouchableOpacity>
               ))}
             </View>
@@ -227,6 +219,7 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: responsiveFontSize(2),
     fontFamily: Fonts.semiBold,
+    color: Colors.text,
   },
   errorText: {
     textAlign: "center",

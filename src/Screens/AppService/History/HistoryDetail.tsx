@@ -1,16 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  StatusBar,
-  ScrollView,
-  Alert,
-  ActivityIndicator,
-  Modal,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, StatusBar, ScrollView, Alert, ActivityIndicator, Modal } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -20,6 +9,7 @@ import { moderateScale } from "react-native-size-matters";
 import { Ionicons, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Fonts from "../../../constants/Fonts";
 import { Transaction, repeatTransfer, getTransactionById } from "../../../services/paymentApi";
+import AppText from "../../../Components/Common/AppText";
 
 const STATUS_STEPS = [
   { key: "initiated", label: "Transfer Initiated" },
@@ -111,7 +101,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={moderateScale(22)} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Transfer Details</Text>
+        <AppText style={styles.topTitle}>Transfer Details</AppText>
         <View style={{ width: moderateScale(22) }} />
       </View>
 
@@ -119,22 +109,22 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
         {/* Amount card */}
         <View style={styles.amountCard}>
           <View style={[styles.statusBadge, isFailed ? styles.failedBadge : styles.activeBadge]}>
-            <Text style={styles.statusBadgeText}>
+            <AppText style={styles.statusBadgeText}>
               {isFailed ? "Failed" : tx.status === "delivered" ? "Delivered" : "In Progress"}
-            </Text>
+            </AppText>
           </View>
-          <Text style={styles.amountLabel}>You sent</Text>
-          <Text style={styles.amountValue}>${tx.amount.toFixed(2)} {tx.currency}</Text>
+          <AppText style={styles.amountLabel}>You sent</AppText>
+          <AppText style={styles.amountValue}>${tx.amount.toFixed(2)} {tx.currency}</AppText>
           {tx.amountReceived ? (
-            <Text style={styles.receivedLabel}>
+            <AppText style={styles.receivedLabel}>
               Recipient gets {tx.amountReceived.toFixed(2)} {tx.receivedCurrency}
-            </Text>
+            </AppText>
           ) : null}
         </View>
 
         {/* Progress tracker */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Transfer Progress</Text>
+          <AppText style={styles.cardTitle}>Transfer Progress</AppText>
 
           {isFailed ? (
             <View style={styles.stepRow}>
@@ -142,8 +132,8 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                 <Ionicons name="close" size={moderateScale(12)} color="#fff" />
               </View>
               <View style={styles.stepInfo}>
-                <Text style={[styles.stepLabel, { color: "#FB002E" }]}>Transfer Failed</Text>
-                <Text style={styles.stepTime}>{new Date(tx.updatedAt).toLocaleString()}</Text>
+                <AppText style={[styles.stepLabel, { color: "#FB002E" }]}>Transfer Failed</AppText>
+                <AppText style={styles.stepTime}>{new Date(tx.updatedAt).toLocaleString()}</AppText>
               </View>
             </View>
           ) : (
@@ -166,9 +156,9 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                     ) : null}
                   </View>
                   <View style={styles.stepInfo}>
-                    <Text style={[styles.stepLabel, done ? styles.stepLabelDone : styles.stepLabelPending]}>{step.label}</Text>
+                    <AppText style={[styles.stepLabel, done ? styles.stepLabelDone : styles.stepLabelPending]}>{step.label}</AppText>
                     {event?.timestamp ? (
-                      <Text style={styles.stepTime}>{new Date(event.timestamp).toLocaleString()}</Text>
+                      <AppText style={styles.stepTime}>{new Date(event.timestamp).toLocaleString()}</AppText>
                     ) : null}
                   </View>
                 </View>
@@ -179,7 +169,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
 
         {/* Transfer details */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Transfer Details</Text>
+          <AppText style={styles.cardTitle}>Transfer Details</AppText>
           {tx.recipientName ? renderRow("Recipient", tx.recipientName) : null}
           {tx.recipientBank ? renderRow("Bank", tx.recipientBank) : null}
           {tx.recipientAccount ? renderRow("Account", `****${tx.recipientAccount.slice(-4)}`) : null}
@@ -205,7 +195,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
             ) : (
               <>
                 <MaterialCommunityIcons name="repeat" size={moderateScale(18)} color="#fff" style={{ marginRight: 8 }} />
-                <Text style={styles.repeatButtonText}>Repeat Transfer</Text>
+                <AppText style={styles.repeatButtonText}>Repeat Transfer</AppText>
               </>
             )}
           </TouchableOpacity>
@@ -218,17 +208,17 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
             <View style={styles.modalCheckCircle}>
               <Ionicons name="checkmark" size={moderateScale(28)} color="#fff" />
             </View>
-            <Text style={styles.modalTitle}>Transfer Repeated</Text>
-            <Text style={styles.modalMessage}>
+            <AppText style={styles.modalTitle}>Transfer Repeated</AppText>
+            <AppText style={styles.modalMessage}>
               ${repeatedTx?.amount.toFixed(2)} sent to {repeatedTx?.recipientName ?? "recipient"} again.
-            </Text>
+            </AppText>
 
             <View style={styles.modalButtonRow}>
               <TouchableOpacity
                 style={styles.modalSecondaryButton}
                 onPress={() => setRepeatedTx(null)}
               >
-                <Text style={styles.modalSecondaryButtonText}>OK</Text>
+                <AppText style={styles.modalSecondaryButtonText}>OK</AppText>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalPrimaryButton}
@@ -237,7 +227,7 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
                   setRepeatedTx(null);
                 }}
               >
-                <Text style={styles.modalPrimaryButtonText}>View</Text>
+                <AppText style={styles.modalPrimaryButtonText}>View</AppText>
               </TouchableOpacity>
             </View>
           </View>
@@ -249,8 +239,8 @@ const HistoryDetail: React.FC<Props> = ({ navigation, route }) => {
 
 const renderRow = (label: string, value: string) => (
   <View style={styles.row} key={label}>
-    <Text style={styles.rowLabel}>{label}</Text>
-    <Text style={styles.rowValue}>{value}</Text>
+    <AppText style={styles.rowLabel}>{label}</AppText>
+    <AppText style={styles.rowValue}>{value}</AppText>
   </View>
 );
 

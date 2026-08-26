@@ -1,12 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -18,6 +11,8 @@ import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import Fonts from "../../../constants/Fonts";
 import { listTransactions } from "../../../services/paymentApi";
+import { mayaScore } from "../../../services/mayaApi";
+import AppText from "../../../Components/Common/AppText";
 
 const TABS = ["1D", "1W", "1M", "3M", "6M", "1Y", "ALL"];
 
@@ -25,16 +20,24 @@ const AnalyticsScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState("1W");
   const [totalSpend, setTotalSpend] = useState(0);
   const [loadingSpend, setLoadingSpend] = useState(true);
+  const [smartScore, setSmartScore] = useState<number | null>(null);
 
   const fetchSpend = useCallback(async () => {
     try {
       const data = await listTransactions({ limit: 500, type: "transfer" });
-      const total = data.transactions.reduce((sum, tx) => sum + tx.amount, 0);
-      setTotalSpend(total);
+      setTotalSpend(data.transactions.reduce((sum, tx) => sum + tx.amount, 0));
     } catch {
       setTotalSpend(0);
     } finally {
       setLoadingSpend(false);
+    }
+
+    // Scored server-side from the same transfer history — no placeholder if Gemini is down.
+    try {
+      const scored = await mayaScore();
+      setSmartScore(scored.score);
+    } catch {
+      setSmartScore(null);
     }
   }, []);
 
@@ -48,17 +51,17 @@ const AnalyticsScreen: React.FC = () => {
         <TouchableOpacity>
           <Feather name="chevron-left" size={22} />
         </TouchableOpacity>
-        <Text style={styles.title}>ANALYTICS</Text>
+        <AppText style={styles.title}>ANALYTICS</AppText>
         <View style={{ width: 20 }} />
       </View>
 
-      <Text style={styles.subTitle}>Total Spend</Text>
+      <AppText style={styles.subTitle}>Total Spend</AppText>
 
       <View style={styles.amountRow}>
         {loadingSpend ? (
           <ActivityIndicator size="small" color="#1F2A50" />
         ) : (
-          <Text style={styles.amount}>${totalSpend.toFixed(2)}</Text>
+          <AppText style={styles.amount}>${totalSpend.toFixed(2)}</AppText>
         )}
       </View>
 
@@ -69,28 +72,35 @@ const AnalyticsScreen: React.FC = () => {
             style={[styles.tab, activeTab === tab && styles.activeTab]}
             onPress={() => setActiveTab(tab)}
           >
-            <Text
+            <AppText
               style={[
                 styles.tabText,
                 activeTab === tab && styles.activeTabText,
               ]}
             >
               {tab}
-            </Text>
+            </AppText>
           </TouchableOpacity>
         ))}
       </View>
 
       <View style={styles.scoreHeader}>
-        <Text style={styles.scoreTitle}>FUSE SMART SCORE</Text>
-        <Text style={styles.scoreValue}>75/100</Text>
+        <AppText style={styles.scoreTitle}>FUSE SMART SCORE</AppText>
+        <AppText style={styles.scoreValue}>
+          {smartScore === null ? "—" : `${smartScore}/100`}
+        </AppText>
       </View>
 
       <View style={styles.progressContainer}>
         {[1, 2, 3, 4, 5, 6, 7].map((item, index) => (
           <View
             key={index}
-            style={[styles.progressItem, index < 4 && styles.progressActive]}
+            style={[
+              styles.progressItem,
+              smartScore !== null &&
+                index < Math.round(smartScore / (100 / 7)) &&
+                styles.progressActive,
+            ]}
           />
         ))}
       </View>

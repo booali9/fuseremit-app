@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  StyleSheet,
-  StatusBar,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { View, TouchableOpacity, SafeAreaView, StyleSheet, StatusBar, Image, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -22,6 +13,7 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
 import { updateManualKycDraft } from "../../services/manualKycDraft";
 import Fonts from "../../constants/Fonts";
+import AppText from "../../Components/Common/AppText";
 
 const PREVIEW_WIDTH = responsiveWidth(60);
 const PREVIEW_HEIGHT = responsiveHeight(45);
@@ -86,7 +78,7 @@ const VerifyItsYouScreen = () => {
   if (!permission?.granted) {
     return (
       <View style={styles.center}>
-        <Text>Camera permission required</Text>
+        <AppText>Camera permission required</AppText>
       </View>
     );
   }
@@ -100,7 +92,7 @@ const VerifyItsYouScreen = () => {
           <Ionicons name="chevron-back" size={moderateScale(20)} color="#000" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Verify it’s you</Text>
+        <AppText style={styles.headerTitle}>Verify it’s you</AppText>
         <View style={{ width: moderateScale(20) }} />
       </View>
 
@@ -118,13 +110,13 @@ const VerifyItsYouScreen = () => {
         </View>
       </View>
 
-      <Text style={styles.instruction}>
+      <AppText style={styles.instruction}>
         {capturedUri
           ? "Liveness photo captured. Continue to verification."
           : "Please align your face within the frame"}
-      </Text>
+      </AppText>
 
-      {cameraError ? <Text style={styles.errorText}>{cameraError}</Text> : null}
+      {cameraError ? <AppText style={styles.errorText}>{cameraError}</AppText> : null}
 
       {!capturedUri ? (
         <TouchableOpacity
@@ -141,11 +133,11 @@ const VerifyItsYouScreen = () => {
       ) : (
         <View style={styles.bottomActions}>
           <TouchableOpacity style={styles.retakeButton} onPress={handleRetake}>
-            <Text style={styles.retakeButtonText}>Retake</Text>
+            <AppText style={styles.retakeButtonText}>Retake</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.nextButton} onPress={handleContinue}>
-            <Text style={styles.nextButtonText}>Next</Text>
+            <AppText style={styles.nextButtonText}>Next</AppText>
           </TouchableOpacity>
         </View>
       )}

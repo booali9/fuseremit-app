@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from "react-native";
 
 import {
   responsiveHeight,
@@ -26,6 +15,8 @@ import { setSession } from "../services/session";
 import { Calendar } from "react-native-calendars";
 import Fonts from "../constants/Fonts";
 import PhoneNumberInput from "../Components/Common/PhoneNumberInput";
+import AppText from "../Components/Common/AppText";
+import AppTextInput from "../Components/Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -262,10 +253,10 @@ const SignUpScreen = ({ navigation }: Props) => {
           />
         </View>
 
-        <Text style={styles.title}>Create Your Account</Text>
-        <Text style={styles.subtitle}>
+        <AppText style={styles.title}>Create Your Account</AppText>
+        <AppText style={styles.subtitle}>
           Please enter your personal details below
-        </Text>
+        </AppText>
 
         <Input
           label="First Name"
@@ -291,12 +282,12 @@ const SignUpScreen = ({ navigation }: Props) => {
           borderColor={borderColor(email)}
           icon="mail"
         />
-        <Text style={styles.label}>Phone Number</Text>
+        <AppText style={styles.label}>Phone Number</AppText>
         <View style={[styles.inputContainer, { borderColor: borderColor(phoneNumber) }]}>
           <PhoneNumberInput value={phoneNumber} onChangeValue={setPhoneNumber} placeholder="e.g. 1234567890" />
         </View>
 
-        <Text style={styles.label}>Password</Text>
+        <AppText style={styles.label}>Password</AppText>
         <View
           style={[
             styles.inputContainer,
@@ -304,7 +295,7 @@ const SignUpScreen = ({ navigation }: Props) => {
           ]}
         >
           <Feather name="lock" size={20} color="#777" style={styles.inputIcon} />
-          <TextInput
+          <AppTextInput
             style={styles.input}
             placeholder="*********"
             secureTextEntry={secureEntry}
@@ -324,14 +315,14 @@ const SignUpScreen = ({ navigation }: Props) => {
           )}
         </View>
 
-        <Text style={styles.label}>Date Of Birth</Text>
+        <AppText style={styles.label}>Date Of Birth</AppText>
 
         <View style={{ position: "relative" }}>
           <TouchableOpacity
             style={[styles.inputContainer, { borderColor: borderColor(date) }]}
             onPress={() => setShowCalendar(true)}
           >
-            <Text style={styles.dateValue}>{formatDate(date)}</Text>
+            <AppText style={styles.dateValue}>{formatDate(date)}</AppText>
 
             <TouchableOpacity onPress={() => setShowCalendar(true)}>
               <Ionicons name="calendar-clear" size={20} color="black" />
@@ -339,7 +330,7 @@ const SignUpScreen = ({ navigation }: Props) => {
           </TouchableOpacity>
         </View>
         {date && !isAdult(date) && (
-          <Text style={styles.errorText}>You must be 18 years or older to sign up.</Text>
+          <AppText style={styles.errorText}>You must be 18 years or older to sign up.</AppText>
         )}
 
         <DatePickerModal
@@ -354,7 +345,7 @@ const SignUpScreen = ({ navigation }: Props) => {
           saveLabel="Select"
         />
 
-        <Text style={styles.label}>Gender</Text>
+        <AppText style={styles.label}>Gender</AppText>
         <View style={{ position: "relative" }}>
           <TouchableOpacity
             style={[
@@ -363,7 +354,7 @@ const SignUpScreen = ({ navigation }: Props) => {
             ]}
             onPress={() => setShowDropdown(!showDropdown)}
           >
-            <Text style={{ flex: 1 }}>{gender || "e.g. Male"}</Text>
+            <AppText style={{ flex: 1 }}>{gender || "e.g. Male"}</AppText>
             <Feather name="chevron-down" size={20} />
           </TouchableOpacity>
 
@@ -378,18 +369,18 @@ const SignUpScreen = ({ navigation }: Props) => {
                     setShowDropdown(false);
                   }}
                 >
-                  <Text>{g}</Text>
+                  <AppText>{g}</AppText>
                 </TouchableOpacity>
               ))}
             </View>
           )}
         </View>
 
-        <Text style={styles.terms}>
+        <AppText style={styles.terms}>
           By continuing, you agree to our{" "}
-          <Text style={styles.link}>Terms of Service</Text> and acknowledge our{" "}
-          <Text style={styles.link}>Privacy Policy</Text>.
-        </Text>
+          <AppText style={styles.link}>Terms of Service</AppText> and acknowledge our{" "}
+          <AppText style={styles.link}>Privacy Policy</AppText>.
+        </AppText>
 
         <TouchableOpacity
           style={styles.checkboxRow}
@@ -399,13 +390,13 @@ const SignUpScreen = ({ navigation }: Props) => {
             {checked && <Feather name="check" size={14} color="#fff" />}
           </View>
 
-          <Text style={styles.checkboxText}>
+          <AppText style={styles.checkboxText}>
             Please send me updates, newsletters, special offers, and other
             information via email.
-          </Text>
+          </AppText>
         </TouchableOpacity>
 
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+        {errorMessage ? <AppText style={styles.errorText}>{errorMessage}</AppText> : null}
 
         <TouchableOpacity
           style={[
@@ -420,14 +411,14 @@ const SignUpScreen = ({ navigation }: Props) => {
           {isSubmitting ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text
+            <AppText
               style={[
                 styles.buttonText,
                 { color: isValid ? "#FFFFFF" : "#1e1e1e8c" },
               ]}
             >
               Continue
-            </Text>
+            </AppText>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -439,7 +430,7 @@ export default SignUpScreen;
 
 const Input = ({ label, placeholder, value, setValue, borderColor, icon, keyboardType }: any) => (
   <>
-    <Text style={styles.label}>{label}</Text>
+    <AppText style={styles.label}>{label}</AppText>
     <View style={[styles.inputContainer, { borderColor }]}>
       {icon && (
         <Feather
@@ -449,7 +440,7 @@ const Input = ({ label, placeholder, value, setValue, borderColor, icon, keyboar
           style={styles.inputIcon}
         />
       )}
-      <TextInput
+      <AppTextInput
         style={styles.input}
         placeholder={placeholder}
         value={value}

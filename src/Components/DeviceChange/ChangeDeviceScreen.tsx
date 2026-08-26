@@ -1,14 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -17,6 +8,9 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
+import Colors from "../../constants/Colors";
+import AppText from "../Common/AppText";
+import AppTextInput from "../Common/AppTextInput";
 
 interface Props {
   navigation: any;
@@ -42,12 +36,12 @@ const ChangeDeviceScreen = ({ navigation }: Props) => {
         />
 
         {/* Title */}
-        <Text style={styles.title}>Change Device</Text>
-        <Text style={styles.subtitle}>
+        <AppText style={styles.title}>Change Device</AppText>
+        <AppText style={styles.subtitle}>
           Provide the required information below to change your device.
-        </Text>
+        </AppText>
 
-        <Text style={styles.label}>Account Number</Text>
+        <AppText style={styles.label}>Account Number</AppText>
 
         {/* Phone */}
         <View
@@ -58,7 +52,7 @@ const ChangeDeviceScreen = ({ navigation }: Props) => {
           ]}
         >
 
-          <TextInput
+          <AppTextInput
             style={styles.input}
             placeholder="e.g. 1234567890"
             keyboardType="phone-pad"
@@ -70,7 +64,7 @@ const ChangeDeviceScreen = ({ navigation }: Props) => {
           {isValidNumber && <Feather name="check" size={20} color="#1DB954" />}
         </View>
 
-        <Text style={styles.label}>Transaction PIN</Text>
+        <AppText style={styles.label}>Transaction PIN</AppText>
 
         {/* Password */}
         <View
@@ -79,7 +73,7 @@ const ChangeDeviceScreen = ({ navigation }: Props) => {
             isPasswordFilled && styles.inputSuccess,
           ]}
         >
-          <TextInput
+          <AppTextInput
             style={styles.input}
             placeholder="••••"
             secureTextEntry
@@ -97,14 +91,14 @@ const ChangeDeviceScreen = ({ navigation }: Props) => {
           disabled={!(isValidNumber && isPasswordFilled)}
           onPress={() => navigation.navigate("ChangeDevicePhoneVerify")}
         >
-          <Text
+          <AppText
             style={[
               styles.buttonText,
               isValidNumber && isPasswordFilled && styles.buttonTextActive,
             ]}
           >
             Continue
-          </Text>
+          </AppText>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -178,12 +172,14 @@ const styles = StyleSheet.create({
   countryCode: {
     marginRight: moderateScale(2),
     fontWeight: "500",
+    color: Colors.text,
   },
 
   input: {
     flex: 1,
     fontSize: responsiveFontSize(1.6),
     fontFamily: Fonts.regular,
+    color: Colors.text,
   },
 
   button: {

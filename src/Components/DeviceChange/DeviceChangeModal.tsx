@@ -1,14 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  Animated,
-  Easing,
-  Image,
-} from "react-native";
+import { View, StyleSheet, Modal, TouchableOpacity, Animated, Easing, Image } from "react-native";
 import {
   responsiveHeight,
   responsiveWidth,
@@ -17,6 +8,7 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import Fonts from "../../constants/Fonts";
+import AppText from "../Common/AppText";
 
 interface Props {
   visible: boolean;
@@ -67,18 +59,18 @@ const DeviceChangeModal: React.FC<Props> = ({
             />
           </View>
 
-          <Text style={styles.title}>Device Change</Text>
+          <AppText style={styles.title}>Device Change</AppText>
 
-          <Text style={styles.subtitle}>
+          <AppText style={styles.subtitle}>
             It appears you’re logging in on a new device. Tap Continue to
             receive your 4-digit authentication code.
-          </Text>
+          </AppText>
 
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate("ChangeDeviceMain")}
           >
-            <Text style={styles.buttonText}>Continue</Text>
+            <AppText style={styles.buttonText}>Continue</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
